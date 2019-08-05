@@ -10,6 +10,54 @@ import os
 import logging
 import copy
 
+TEMPLATE_INIT_ORIG_HANDLE = """static __attribute__((constructor)) void init_orig_handle() {{
+    char *original_library_path = getenv("{env_variable}");
+
+    if(original_library_path == NULL) {{
+        fprintf(stderr, "ERROR: Environment variable '{env_variable}' must contain path to original library\\n");
+        exit(1);
+    }}
+
+    orig_handle = dlopen(original_library_path, RTLD_NOW);
+
+    if(!orig_handle) {{
+        fprintf(stderr, "ERROR: Could not load original library (%s)\\n", dlerror());
+        exit(1);
+    }}
+}}
+
+static __attribute__((destructor)) void deinit_orig_handle() {{
+  if(orig_handle) {{
+    dlclose(orig_handle);
+  }}
+}}
+"""
+
+TEMPLATE_INIT_TRACE_HANDLE = """static __attribute__((constructor)) void init_trace_output() {{
+    char *trace_output_path = getenv("{env_variable}");
+
+    if(trace_output_path == NULL) {{
+        fprintf(stderr, "ERROR: Environment variable '{env_variable}' must contain output filename for trace\\n");
+        exit(1);
+    }}
+
+    trace_handle = fopen(trace_output_path, "w");
+
+    if(!trace_handle) {{
+        int sverr = errno;
+        fprintf(stderr, "ERROR: Could not open trace output '%s' (%d: %s)\\n", trace_output_path, sverr, strerror(sverr));
+        exit(1);
+    }}
+}}
+
+static __attribute__((destructor)) void deinit_trace_handle() {{
+  if(trace_handle) {{
+    fclose(trace_handle);
+  }}
+}}
+"""
+
+
 class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
     def __init__(self, *args, **kwargs):
         super(FuncDeclVisitor, self).__init__(*args, **kwargs)
@@ -119,42 +167,48 @@ class InterposerGenerator(object):
 
     def generate_passthru(self, outputfile):
         with open(outputfile, "w") as f:
-            f.write("#define _GNU_SOURCE\n")
+            f.write("/* automatically generated */\n")
+
+            if not self.dlopen:
+                f.write("#define _GNU_SOURCE\n") # for RTLD_NEXT
+
             f.write("#include <dlfcn.h>\n")
             f.write(f"#include <{self.hinclude}>\n")
             f.write("#include <stdio.h>\n")
             f.write("#include <stdlib.h>\n")
+            if self.trace:
+                f.write("#include <errno.h>")
 
             f.write("\n")
 
             if self.dlopen:
                 f.write("static void * orig_handle;")
 
+            if self.trace:
+                f.write("static FILE * trace_handle;")
+
+
             generator = c_generator.CGenerator()
 
             for n in self.fdv.func_decl_nodes:
                 passthru = copy.deepcopy(n['shell'])
+                if self.trace:
+                    passthru.body.block_items.append(c_ast.FuncCall(
+                        c_ast.ID("fprintf"),
+                        c_ast.ExprList([c_ast.ID("trace_handle"), 
+                                        c_ast.Constant("string", '"%s\\n"' % (n['origname'],))]
+                                   )))
+
                 passthru.body.block_items.append(c_ast.Return(n['fncall']))
 
                 f.write(generator.visit(passthru) + "\n")
 
             if self.dlopen:
-                f.write("""
-static __attribute__((constructor)) void init_orig_handle() {{
-    char *original_library_path = getenv("{env_variable}");
+                f.write(TEMPLATE_INIT_ORIG_HANDLE.format(env_variable = 'DLOPEN_LIBRARY'))
 
-    if(original_library_path == NULL) {{
-        fprintf(stderr, "ERROR: Environment variable '{env_variable}' must contain path to original library\\n");
-        exit(1);
-    }}
+            if self.trace:
+                f.write(TEMPLATE_INIT_TRACE_HANDLE.format(env_variable = 'TRACE_OUTPUT'))
 
-    orig_handle = dlopen(original_library_path, RTLD_NOW);
-
-    if(!orig_handle) {{
-        fprintf(stderr, "ERROR: Could not load original library (%s)\\n", dlerror());
-        exit(1);
-    }}
-}}""".format(env_variable = 'DLOPEN_LIBRARY'))
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
     h, fn = tempfile.mkstemp(suffix = ".h")
@@ -193,6 +247,9 @@ if __name__ == "__main__":
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true",
                    help="Original library is dlopen-ed")
+    p.add_argument("--trace", action="store_true",
+                   help="Generate tracer")
+
     p.add_argument("-o", dest="output", help="Output file")
 
     args = p.parse_args()
@@ -202,6 +259,8 @@ if __name__ == "__main__":
     ig = InterposerGenerator(args.hfile, ast)
 
     ig.dlopen = args.dlopen
+    ig.trace = args.trace
+
     ig.generate_shells()
 
     if not args.output:
