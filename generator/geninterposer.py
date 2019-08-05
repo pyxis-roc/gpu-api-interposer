@@ -86,16 +86,22 @@ class InterposerGenerator(object):
 
         self.fdv = FuncDeclVisitor()
         self.fdv.visit(self.ast)
+        self.dlopen = False
 
     def generate_shells(self):
         def next_func_code(node_data):
             # PtrDecl -> FuncDecl -> actual type -> declname
             varname = c_ast.ID(node_data['fnptr'].type.type.type.declname)
 
+            if args.dlopen:
+                handle = c_ast.ID("orig_handle")
+            else:
+                handle = c_ast.ID("RTLD_NEXT")
+
             a = c_ast.Assignment("=", varname, 
                              c_ast.FuncCall(c_ast.ID("dlsym"), 
                                             c_ast.ExprList([
-                                                c_ast.ID("RTLD_NEXT"),
+                                                handle,
                                                 c_ast.Constant("string", 
                                                                '"' +f"{node_data['origname']}" + '"')]))
                          )
@@ -116,7 +122,13 @@ class InterposerGenerator(object):
             f.write("#define _GNU_SOURCE\n")
             f.write("#include <dlfcn.h>\n")
             f.write(f"#include <{self.hinclude}>\n")
+            f.write("#include <stdio.h>\n")
+            f.write("#include <stdlib.h>\n")
+
             f.write("\n")
+
+            if self.dlopen:
+                f.write("static void * orig_handle;")
 
             generator = c_generator.CGenerator()
 
@@ -126,6 +138,23 @@ class InterposerGenerator(object):
 
                 f.write(generator.visit(passthru) + "\n")
 
+            if self.dlopen:
+                f.write("""
+static __attribute__((constructor)) void init_orig_handle() {{
+    char *original_library_path = getenv("{env_variable}");
+
+    if(original_library_path == NULL) {{
+        fprintf(stderr, "ERROR: Environment variable '{env_variable}' must contain path to original library\\n");
+        exit(1);
+    }}
+
+    orig_handle = dlopen(original_library_path, RTLD_NOW);
+
+    if(!orig_handle) {{
+        fprintf(stderr, "ERROR: Could not load original library (%s)\\n", dlerror());
+        exit(1);
+    }}
+}}""".format(env_variable = 'DLOPEN_LIBRARY'))
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
     h, fn = tempfile.mkstemp(suffix = ".h")
@@ -162,6 +191,8 @@ if __name__ == "__main__":
     p.add_argument("hfile", help="Include file")
     p.add_argument("--fake-c-headers", help="Path to pycparser's fake C headers")
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
+    p.add_argument("--dlopen", action="store_true",
+                   help="Original library is dlopen-ed")
     p.add_argument("-o", dest="output", help="Output file")
 
     args = p.parse_args()
@@ -169,6 +200,8 @@ if __name__ == "__main__":
     preprocessed = preprocess(args.hfile, args.cppargsfile, args.fake_c_headers)
     ast = get_ast(preprocessed)
     ig = InterposerGenerator(args.hfile, ast)
+
+    ig.dlopen = args.dlopen
     ig.generate_shells()
 
     if not args.output:
