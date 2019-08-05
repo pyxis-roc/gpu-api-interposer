@@ -52,9 +52,11 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         print(func_decl_node.args)
 
         # warning: func_decl_nodes do not need to have names!
-        args = [x.name for x in func_decl_node.args]
+        # typename indicates void
+        # TODO: varargs?
+        args = [x.name for x in func_decl_node.args if not (type(x) is c_ast.Typename)]
 
-        assert all(args), args
+        #assert all(args), args
 
         return c_ast.FuncCall(fn, c_ast.ExprList([c_ast.ID(a) for a in args]))
 
@@ -92,22 +94,22 @@ class InterposerGenerator(object):
             return [node_data['fnptr'],
                     c_ast.If(c_ast.UnaryOp('!', varname), 
                              c_ast.Compound([a]),
-                             None),
-                    c_ast.Return(node_data['fncall'])]
-
-        self.func_defn_nodes = []
+                             None),]
 
         for nn in self.fdv.func_decl_nodes:
             n = nn['decl']
+            nn['shell'] = pycparser.c_ast.FuncDef(n, None, 
+                                                  c_ast.Compound(next_func_code(nn))
+                                              )
 
-            out = pycparser.c_ast.FuncDef(n, None, 
-                                          c_ast.Compound(next_func_code(nn))
-                                          )
-            self.func_defn_nodes.append(out)
-
+    def generate_passthru(self):
         generator = c_generator.CGenerator()
-        for n in self.func_defn_nodes:
-            print(generator.visit(n))
+
+        for n in self.fdv.func_decl_nodes:
+            passthru = copy.deepcopy(n['shell'])
+            passthru.body.block_items.append(c_ast.Return(n['fncall']))
+
+            print(generator.visit(passthru))
 
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
@@ -152,3 +154,4 @@ if __name__ == "__main__":
     ast = get_ast(preprocessed)
     ig = InterposerGenerator(args.hfile, ast)
     ig.generate_shells()
+    ig.generate_passthru()
