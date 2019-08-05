@@ -3,15 +3,57 @@
 import sys
 import argparse
 import pycparser
+from pycparser import c_ast, c_generator
 import subprocess
 import tempfile
 import os
 import logging
+import copy
+
+def erase_name(decl):
+    ty = type(decl)
+
+    if ty is c_ast.TypeDecl:
+        return ty(None, decl.quals, erase_name(decl.type))
+    elif ty is c_ast.PtrDecl:
+        # not sure why typename is required ...
+        return c_ast.Typename(None, [], ty(decl.quals, erase_name(decl.type)))
+    elif ty is c_ast.IdentifierType:
+        return ty(decl.names)
+    else:
+        assert False, ty
+    
+
+def decl_to_fnptr(func_decl_node):
+    # strip names from paramlist
+    params = []
+    for a in func_decl_node.args:
+        params.append(erase_name(a.type))
+    
+    new_type = copy.deepcopy(func_decl_node.type)
+    new_type.declname = new_type.declname + "_orig"
+
+    new_decl = c_ast.FuncDecl(c_ast.ParamList(params), new_type)
+
+    new_fnptr = c_ast.PtrDecl([], new_decl)
+    d = c_ast.Decl(new_type.declname, [], ['static'], [], new_fnptr, c_ast.ID("NULL"), None)
+
+    return d
+
 
 class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
+    def __init__(self, *args, **kwargs):
+        super(FuncDeclVisitor, self).__init__(*args, **kwargs)
+
+        self.func_decl_nodes = []
+
     def visit_FuncDecl(self, node):
         print(f'{node.type.declname} at {node.coord}')
-    
+
+        out = {}
+        out['decl'] = node
+        out['fnptr'] = decl_to_fnptr(node)
+        self.func_decl_nodes.append(out)
 
 class InterposerGenerator(object):
     def __init__(self, hfile, ast):
@@ -20,6 +62,40 @@ class InterposerGenerator(object):
 
         self.fdv = FuncDeclVisitor()
         self.fdv.visit(self.ast)
+
+    def generate_shells(self):
+        def next_func_code(node_data):
+            origname = node_data['decl'].type.declname
+
+            # PtrDecl -> FuncDecl -> actual type -> declname
+            varname = c_ast.ID(node_data['fnptr'].type.type.type.declname)
+
+            a = c_ast.Assignment("=", varname, 
+                             c_ast.FuncCall(c_ast.ID("dlsym"), 
+                                            c_ast.ExprList([
+                                                c_ast.ID("RTLD_NEXT"),
+                                                c_ast.Constant("string", f'"{origname}"')]))
+                         )
+
+            return [node_data['fnptr'],
+                    c_ast.If(c_ast.UnaryOp('!', varname), 
+                             c_ast.Compound([a]),
+                             None)]
+
+        self.func_defn_nodes = []
+
+        for nn in self.fdv.func_decl_nodes:
+            n = nn['decl']
+
+            out = pycparser.c_ast.FuncDef(n, None, 
+                                          c_ast.Compound(next_func_code(nn))
+                                          )
+            self.func_defn_nodes.append(out)
+
+        generator = c_generator.CGenerator()
+        for n in self.func_defn_nodes:
+            print(generator.visit(n))
+
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
     h, fn = tempfile.mkstemp(suffix = ".h")
@@ -62,4 +138,4 @@ if __name__ == "__main__":
     preprocessed = preprocess(args.hfile, args.cppargsfile, args.fake_c_headers)
     ast = get_ast(preprocessed)
     ig = InterposerGenerator(args.hfile, ast)
-    
+    ig.generate_shells()
