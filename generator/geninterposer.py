@@ -16,14 +16,17 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
 
         self.func_decl_nodes = []
 
-    def erase_name(self, decl):
+    def erase_name(self, decl, level = 0):
         ty = type(decl)
 
         if ty is c_ast.TypeDecl:
-            return ty(None, decl.quals, self.erase_name(decl.type))
+            return ty(None, decl.quals, self.erase_name(decl.type, level + 1))
         elif ty is c_ast.PtrDecl:
-            # not sure why typename is required ...
-            return c_ast.Typename(None, [], ty(decl.quals, self.erase_name(decl.type)))
+            en = ty(decl.quals, self.erase_name(decl.type, level + 1))
+            if level == 0:
+                return c_ast.Typename(None, [], en)
+            else:
+                return en
         elif ty is c_ast.IdentifierType:
             return ty(decl.names)
         else:
@@ -34,7 +37,8 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         # strip names from paramlist
         params = []
         for a in func_decl_node.args:
-            params.append(self.erase_name(a.type))
+            ent = self.erase_name(a.type)
+            params.append(ent)
 
         new_type = copy.deepcopy(func_decl_node.type)
         new_type.declname = new_type.declname + "_orig"
@@ -49,7 +53,7 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
     def decl_to_fncall(self, func_decl_node):
         fn = c_ast.ID(func_decl_node.type.declname + "_orig")
 
-        print(func_decl_node.args)
+        #print(func_decl_node.args)
 
         # warning: func_decl_nodes do not need to have names!
         # typename indicates void
@@ -70,9 +74,14 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         out['fncall'] = self.decl_to_fncall(node)
         self.func_decl_nodes.append(out)
 
+    def visit_Typedef(self, node):
+        #print(node)
+        return
+
 class InterposerGenerator(object):
     def __init__(self, hfile, ast):
         self.hfile = hfile
+        self.hinclude = os.path.basename(hfile)
         self.ast = ast
 
         self.fdv = FuncDeclVisitor()
@@ -102,14 +111,20 @@ class InterposerGenerator(object):
                                                   c_ast.Compound(next_func_code(nn))
                                               )
 
-    def generate_passthru(self):
-        generator = c_generator.CGenerator()
+    def generate_passthru(self, outputfile):
+        with open(outputfile, "w") as f:
+            f.write("#define _GNU_SOURCE\n")
+            f.write("#include <dlfcn.h>\n")
+            f.write(f"#include <{self.hinclude}>\n")
+            f.write("\n")
 
-        for n in self.fdv.func_decl_nodes:
-            passthru = copy.deepcopy(n['shell'])
-            passthru.body.block_items.append(c_ast.Return(n['fncall']))
+            generator = c_generator.CGenerator()
 
-            print(generator.visit(passthru))
+            for n in self.fdv.func_decl_nodes:
+                passthru = copy.deepcopy(n['shell'])
+                passthru.body.block_items.append(c_ast.Return(n['fncall']))
+
+                f.write(generator.visit(passthru) + "\n")
 
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
@@ -147,6 +162,7 @@ if __name__ == "__main__":
     p.add_argument("hfile", help="Include file")
     p.add_argument("--fake-c-headers", help="Path to pycparser's fake C headers")
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
+    p.add_argument("-o", dest="output", help="Output file")
 
     args = p.parse_args()
 
@@ -154,4 +170,8 @@ if __name__ == "__main__":
     ast = get_ast(preprocessed)
     ig = InterposerGenerator(args.hfile, ast)
     ig.generate_shells()
-    ig.generate_passthru()
+
+    if not args.output:
+        args.output = "/dev/stdout"
+
+    ig.generate_passthru(args.output)
