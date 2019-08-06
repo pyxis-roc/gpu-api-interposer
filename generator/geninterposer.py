@@ -126,6 +126,49 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         #print(node)
         return
 
+class InterposerPlugin(object):
+    def __init__(self, generator):
+        self.generator = generator
+
+    def generate_includes(self):
+        """Generate code to be placed at top of generated file, must be list of strings"""
+        return []
+
+    def generate_pre_code(self):
+        """Generate code before all API functions generated, must be list of strings"""
+        return []
+
+    def generate_post_code(self):
+        """Generate code after all API functions generated, must be list of strings"""
+        return []
+        
+    def generate(self, decl_node, context):
+        raise NotImplementedError
+
+class ReturnPlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+        return [c_ast.Return(decl_node['fncall'])]
+
+class TracePlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+        return [c_ast.FuncCall(c_ast.ID("fprintf"),
+                               c_ast.ExprList([c_ast.ID("trace_handle"), 
+                                               c_ast.Constant("string",
+                                                              '"%s\\n"' % (decl_node['origname'],))]
+                               ))]
+
+    def generate_includes(self):
+        return ["#include <errno.h>"]
+
+    def generate_pre_code(self):
+        """Generate code before all API functions generated, must be list of strings"""
+        return ["static FILE * trace_handle;\n"]
+
+    def generate_post_code(self):
+        """Generate code before all API functions generated, must be list of strings"""
+        return [TEMPLATE_INIT_TRACE_HANDLE.format(env_variable = 'TRACE_OUTPUT')]
+
+    
 class InterposerGenerator(object):
     def __init__(self, hfile, ast):
         self.hfile = hfile
@@ -135,7 +178,12 @@ class InterposerGenerator(object):
         self.fdv = FuncDeclVisitor()
         self.fdv.visit(self.ast)
         self.dlopen = False
+        self.plugins = []
 
+    def add_plugin(self, plugin):
+        # TODO: automate ordering later...
+        self.plugins.append(plugin(self))
+        
     def generate_shells(self):
         def next_func_code(node_data):
             # PtrDecl -> FuncDecl -> actual type -> declname
@@ -165,6 +213,38 @@ class InterposerGenerator(object):
                                                   c_ast.Compound(next_func_code(nn))
                                               )
 
+    def generate_plugins(self, decl_node):
+        context = {}
+
+        for p in self.plugins:
+            l = p.generate(decl_node, context)
+            assert isinstance(l, list) # should be iterable, actually...
+
+            for ll in l:
+                yield ll
+
+    def generate_plugin_includes(self):
+        already_generated = set()
+        
+        for p in self.plugins:
+            l = p.generate_includes()
+            for ll in l:
+                if ll not in already_generated:
+                    already_generated.add(ll)
+                    yield ll + '\n'
+                
+    def generate_plugin_pre_code(self):
+        for p in self.plugins:
+            l = p.generate_pre_code()
+            for ll in l:
+                yield ll
+                
+    def generate_plugin_post_code(self):
+        for p in self.plugins:
+            l = p.generate_post_code()
+            for ll in l:
+                yield ll
+                
     def generate_passthru(self, outputfile):
         with open(outputfile, "w") as f:
             f.write("/* automatically generated */\n")
@@ -176,38 +256,36 @@ class InterposerGenerator(object):
             f.write(f"#include <{self.hinclude}>\n")
             f.write("#include <stdio.h>\n")
             f.write("#include <stdlib.h>\n")
-            if self.trace:
-                f.write("#include <errno.h>")
 
+            for l in self.generate_plugin_includes():
+                f.write(l)
+            
             f.write("\n")
 
             if self.dlopen:
-                f.write("static void * orig_handle;")
+                f.write("static void * orig_handle;\n")
+            
+            for l in self.generate_plugin_pre_code():
+                f.write(l)
 
-            if self.trace:
-                f.write("static FILE * trace_handle;")
-
-
+            f.write("\n")
+            
             generator = c_generator.CGenerator()
 
             for n in self.fdv.func_decl_nodes:
                 passthru = copy.deepcopy(n['shell'])
-                if self.trace:
-                    passthru.body.block_items.append(c_ast.FuncCall(
-                        c_ast.ID("fprintf"),
-                        c_ast.ExprList([c_ast.ID("trace_handle"), 
-                                        c_ast.Constant("string", '"%s\\n"' % (n['origname'],))]
-                                   )))
 
-                passthru.body.block_items.append(c_ast.Return(n['fncall']))
-
+                for l in self.generate_plugins(n):
+                    passthru.body.block_items.append(l)
+                    
                 f.write(generator.visit(passthru) + "\n")
 
             if self.dlopen:
                 f.write(TEMPLATE_INIT_ORIG_HANDLE.format(env_variable = 'DLOPEN_LIBRARY'))
 
-            if self.trace:
-                f.write(TEMPLATE_INIT_TRACE_HANDLE.format(env_variable = 'TRACE_OUTPUT'))
+            for l in self.generate_plugin_post_code():
+                f.write(l)
+                
 
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
@@ -256,11 +334,16 @@ if __name__ == "__main__":
 
     preprocessed = preprocess(args.hfile, args.cppargsfile, args.fake_c_headers)
     ast = get_ast(preprocessed)
+    
     ig = InterposerGenerator(args.hfile, ast)
-
+    
     ig.dlopen = args.dlopen
-    ig.trace = args.trace
 
+    if args.trace:
+        ig.trace = args.trace
+        ig.add_plugin(TracePlugin)
+
+    ig.add_plugin(ReturnPlugin)
     ig.generate_shells()
 
     if not args.output:
