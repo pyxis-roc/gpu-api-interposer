@@ -206,8 +206,7 @@ class ReturnValuePlugin(InterposerPlugin):
 
         if decl_node['retval_decl']:
             context['retval'] = decl_node['retval_decl'].name
-            return [decl_node['retval_decl'],
-                    c_ast.Assignment("=", c_ast.ID(context['retval']),
+            return [c_ast.Assignment("=", c_ast.ID(context['retval']),
                                      decl_node['fncall'])]
         else:
             return [decl_node['fncall']]
@@ -269,26 +268,19 @@ class TracePlugin(InterposerPlugin):
         """Generate code before all API functions generated, must be list of strings"""
         return [TEMPLATE_INIT_TRACE_HANDLE.format(env_variable = 'TRACE_OUTPUT')]
 
-class PreInstrumentPlugin(InterposerPlugin):
-    def generate(self, decl_node, context):
-        return []
+class CommonInstrumentMixin(object):
+    def get_ctx_arg_type(self):
+        return c_ast.Decl('_ctx', [], [], [],
+                          c_ast.PtrDecl([],
+                                        c_ast.TypeDecl("_ctx", [],
+                                                       c_ast.IdentifierType(['void']))), None, None)
 
-    def generate_includes(self):
-        return ['#include "%s"' % ('pre_instrument.h',)]
-
-class PostInstrumentPlugin(InterposerPlugin):
-    def __init__(self, *args, **kwargs):
-        super(PostInstrumentPlugin, self).__init__(*args, **kwargs)
-
-        self.hfile = self.generator.hinclude[:-2] + "_post_instr.h"
-        self.ast = c_ast.FileAST([])
-        
-    def _generate_post_decl(self, decl_node):
-
+    def _generate_instr_decl(self, decl_node, new_ret_type):
         new_decl_node = copy.deepcopy(decl_node['decl'])
-        void_type = c_ast.TypeDecl(decl_node['origname'] + "_post", [], c_ast.IdentifierType(['void']))
+        ret_ty = c_ast.TypeDecl(decl_node['origname'] + self.fn_suffix, [],
+                                c_ast.IdentifierType([new_ret_type]))
 
-        new_decl_node.type = void_type
+        new_decl_node.type = ret_ty
 
         if len(new_decl_node.args.params) == 1 and is_void_type(new_decl_node.args.params[0].type):
             new_decl_node.args.params = []
@@ -301,31 +293,9 @@ class PostInstrumentPlugin(InterposerPlugin):
 
             new_decl_node.args.params.append(retval_arg_type)
 
-        context_arg_type = c_ast.Decl('_ctx', [], [], [],
-                                      c_ast.PtrDecl([], c_ast.TypeDecl("_ctx", [],
-                                                                       c_ast.IdentifierType(['void']))), None, None)
-            
-        new_decl_node.args.params.append(context_arg_type)
-        
-        #print(new_decl_node)
+        new_decl_node.args.params.append(self.get_ctx_arg_type())
         return new_decl_node
-        
-    def generate(self, decl_node, context):
-        posthookfn = decl_node['origname'] + '_post'
-        args = copy.deepcopy(decl_node['fncall'].args)
 
-        if decl_node['retval_decl']:
-            assert 'retval' in context, "PostInstrumentPlugin requires return value"
-            args.exprs.append(c_ast.UnaryOp("&", c_ast.ID(context['retval'])))
-
-        args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
-            
-        self.ast.ext.append(self._generate_post_decl(decl_node))
-        
-        # TODO: post- and pre- context variable        
-        return [c_ast.FuncCall(c_ast.ID(posthookfn), 
-                             args)]
-    
     def generate_includes(self):
         return ['#include "%s"' % (self.hfile,)]
 
@@ -338,6 +308,60 @@ class PostInstrumentPlugin(InterposerPlugin):
             f.write(cgen.visit(self.ast))
 
         return []
+    
+class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
+    fn_suffix = "_pre"
+    
+    def __init__(self, *args, **kwargs):
+        super(PreInstrumentPlugin, self).__init__(*args, **kwargs)
+
+        self.hfile = self.generator.hinclude[:-2] + "_pre_instr.h"
+        self.ast = c_ast.FileAST([])
+
+    def generate(self, decl_node, context):
+        prehookfn = decl_node['origname'] + self.fn_suffix
+        args = copy.deepcopy(decl_node['fncall'].args)
+
+        if decl_node['retval_decl']:
+            args.exprs.append(c_ast.UnaryOp("&", c_ast.ID(decl_node['retval_decl'].name)))
+            return_stmt = c_ast.Return(c_ast.ID(decl_node['retval_decl'].name))
+        else:
+            return_stmt = c_ast.Return(None)
+
+        args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
+
+        self.ast.ext.append(self._generate_instr_decl(decl_node, 'int'))
+
+        # TODO: post- and pre- context variable
+        return [c_ast.If(c_ast.FuncCall(c_ast.ID(prehookfn), args),
+                         c_ast.Compound([return_stmt]),
+                         None)]
+    
+
+class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
+    fn_suffix = "_post"
+    
+    def __init__(self, *args, **kwargs):
+        super(PostInstrumentPlugin, self).__init__(*args, **kwargs)
+
+        self.hfile = self.generator.hinclude[:-2] + "_post_instr.h"
+        self.ast = c_ast.FileAST([])
+        
+    def generate(self, decl_node, context):
+        posthookfn = decl_node['origname'] + self.fn_suffix
+        args = copy.deepcopy(decl_node['fncall'].args)
+
+        if decl_node['retval_decl']:
+            assert 'retval' in context, "PostInstrumentPlugin requires return value"
+            args.exprs.append(c_ast.UnaryOp("&", c_ast.ID(context['retval'])))
+
+        args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
+            
+        self.ast.ext.append(self._generate_instr_decl(decl_node, 'void'))
+        
+        # TODO: post- and pre- context variable
+        return [c_ast.FuncCall(c_ast.ID(posthookfn), 
+                             args)]
     
 class InterposerGenerator(object):
     def __init__(self, hfile, ast):
@@ -375,7 +399,8 @@ class InterposerGenerator(object):
             return [node_data['fnptr'],
                     c_ast.If(c_ast.UnaryOp('!', varname), 
                              c_ast.Compound([a]),
-                             None),]
+                             None),
+                    node_data['retval_decl']]
 
         for nn in self.fdv.func_decl_nodes:
             n = nn['decl']
@@ -480,6 +505,8 @@ if __name__ == "__main__":
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true",
                    help="Original library is dlopen-ed")
+    p.add_argument("--pre-instrument", action="store_true",
+                   help="Instrument functions before they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--post-instrument", action="store_true",
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
 
@@ -504,7 +531,11 @@ if __name__ == "__main__":
     if args.trace:
         ig.add_plugin(TracePlugin)
 
+    if args.pre_instrument:
+        ig.add_plugin(PreInstrumentPlugin)
+
     ig.add_plugin(ReturnValuePlugin)
+    
     if args.post_instrument:
         ig.add_plugin(PostInstrumentPlugin)
         
