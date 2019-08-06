@@ -89,17 +89,18 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
             params.append(ent)
 
         new_type = copy.deepcopy(func_decl_node.type)
-        new_type.declname = new_type.declname + "_orig"
+        old_name = self.get_declname(new_type)
+        self.set_declname(new_type, old_name, old_name + "_orig")
 
         new_decl = c_ast.FuncDecl(c_ast.ParamList(params), new_type)
 
         new_fnptr = c_ast.PtrDecl([], new_decl)
-        d = c_ast.Decl(new_type.declname, [], ['static'], [], new_fnptr, c_ast.ID("NULL"), None)
+        d = c_ast.Decl(old_name + "_orig", [], ['static'], [], new_fnptr, c_ast.ID("NULL"), None)
 
         return d
 
     def decl_to_fncall(self, func_decl_node):
-        fn = c_ast.ID(func_decl_node.type.declname + "_orig")
+        fn = c_ast.ID(self.get_declname(func_decl_node.type) + "_orig")
 
         #print(func_decl_node.args)
 
@@ -112,14 +113,41 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
 
         return c_ast.FuncCall(fn, c_ast.ExprList([c_ast.ID(a) for a in args]))
 
+    def set_declname(self, ty, old_declname, new_declname):
+        if type(ty) is c_ast.PtrDecl:
+            return self.set_declname(ty.type, old_declname, new_declname)
+        else:
+            if ty.declname == old_declname:
+                ty.declname = new_declname
+                return
+            else:
+                self.set_declname(ty.type, old_declname, new_declname)
+    
+    def get_declname(self, ty):
+        if type(ty) is c_ast.PtrDecl:
+            return self.get_declname(ty.type)
+        else:
+            return ty.declname
+
+    def get_retval(self, fnptr): 
+        retval_type = copy.deepcopy(fnptr.type.type.type)
+        retval_decl = c_ast.Decl("_retval", [], [], [], retval_type, None, None)
+        self.set_declname(retval_decl.type, fnptr.name, "_retval")
+
+        return retval_decl
+        
     def visit_FuncDecl(self, node):
-        print(f'{node.type.declname} at {node.coord}')
+        #print(f'{node.type.declname} at {node.coord}')
 
         out = {}
-        out['origname'] = node.type.declname
+
+        out['origname'] = self.get_declname(node.type)
         out['decl'] = node
         out['fnptr'] = self.decl_to_fnptr(node)
         out['fncall'] = self.decl_to_fncall(node)
+
+        out['retval_decl'] = self.get_retval(out['fnptr'])
+        
         self.func_decl_nodes.append(out)
 
     def visit_Typedef(self, node):
@@ -148,6 +176,24 @@ class InterposerPlugin(object):
 class ReturnPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         return [c_ast.Return(decl_node['fncall'])]
+
+class ReturnValuePlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+
+        # get the fnptr node
+        # PtrDecl -> FuncDecl ->type
+
+        return [decl_node['retval_decl'],
+                c_ast.Assignment("=", c_ast.ID(decl_node['retval_decl'].name),
+                                 decl_node['fncall'])]
+
+class DefaultHeadersPlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+        # this doesn't generate anything.
+        return []
+
+    def generate_includes(self):
+        return ["#include <stddef.h>"]
 
 class StdDLPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
@@ -209,15 +255,15 @@ class InterposerGenerator(object):
         self.fdv.visit(self.ast)
         self.dlopen = False
         self.plugins = []
-
+        self.add_plugin(DefaultHeadersPlugin)
+        
     def add_plugin(self, plugin):
         # TODO: automate ordering later...
         self.plugins.append(plugin(self))
         
     def generate_shells(self):
         def next_func_code(node_data):
-            # PtrDecl -> FuncDecl -> actual type -> declname
-            varname = c_ast.ID(node_data['fnptr'].type.type.type.declname)
+            varname = c_ast.ID(node_data['fnptr'].name)
 
             if args.dlopen:
                 handle = c_ast.ID("orig_handle")
@@ -358,11 +404,10 @@ if __name__ == "__main__":
     else:
         ig.add_plugin(StdDLPlugin)
 
-    ig.trace = args.trace
     if args.trace:
         ig.add_plugin(TracePlugin)
 
-    ig.add_plugin(ReturnPlugin)
+    ig.add_plugin(ReturnValuePlugin)
 
     ig.generate_shells()
 
