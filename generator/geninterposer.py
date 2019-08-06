@@ -57,6 +57,9 @@ static __attribute__((destructor)) void deinit_trace_handle() {{
 }}
 """
 
+def is_void_type(ty):
+    return type(ty) is c_ast.TypeDecl and type(ty.type) is c_ast.IdentifierType \
+        and (len(ty.type.names) == 1) and (ty.type.names[0] == 'void')
 
 class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
     def __init__(self, *args, **kwargs):
@@ -131,6 +134,10 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
 
     def get_retval(self, fnptr): 
         retval_type = copy.deepcopy(fnptr.type.type.type)
+
+        if is_void_type(retval_type):
+            return None
+        
         retval_decl = c_ast.Decl("_retval", [], [], [], retval_type, None, None)
         self.set_declname(retval_decl.type, fnptr.name, "_retval")
 
@@ -175,20 +182,35 @@ class InterposerPlugin(object):
 
 class ReturnPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
-        if 'retval' in context:
-            return [c_ast.Return(c_ast.ID(context['retval']))]
+        if decl_node['retval_decl']:
+            if 'retval' in context:
+                return [c_ast.Return(c_ast.ID(context['retval']))]
+            else:
+                assert 'called' not in context, "Can't have called function with no retval"
+                return [c_ast.Return(decl_node['fncall'])]
         else:
-            return [c_ast.Return(decl_node['fncall'])]
+            if 'called' not in context:
+                # function with no return value, but may already have been called
+                context['called'] = True
+                return [decl_node['fncall']]
+
+        return []
 
 class ReturnValuePlugin(InterposerPlugin):
     def generate(self, decl_node, context):
 
         # get the fnptr node
         # PtrDecl -> FuncDecl ->type
-        context['retval'] = decl_node['retval_decl'].name
-        return [decl_node['retval_decl'],
-                c_ast.Assignment("=", c_ast.ID(context['retval']),
-                                 decl_node['fncall'])]
+
+        context['called'] = True
+
+        if decl_node['retval_decl']:
+            context['retval'] = decl_node['retval_decl'].name
+            return [decl_node['retval_decl'],
+                    c_ast.Assignment("=", c_ast.ID(context['retval']),
+                                     decl_node['fncall'])]
+        else:
+            return [decl_node['fncall']]
 
 class DefaultHeadersPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
@@ -247,6 +269,75 @@ class TracePlugin(InterposerPlugin):
         """Generate code before all API functions generated, must be list of strings"""
         return [TEMPLATE_INIT_TRACE_HANDLE.format(env_variable = 'TRACE_OUTPUT')]
 
+class PreInstrumentPlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+        return []
+
+    def generate_includes(self):
+        return ['#include "%s"' % ('pre_instrument.h',)]
+
+class PostInstrumentPlugin(InterposerPlugin):
+    def __init__(self, *args, **kwargs):
+        super(PostInstrumentPlugin, self).__init__(*args, **kwargs)
+
+        self.hfile = self.generator.hinclude[:-2] + "_post_instr.h"
+        self.ast = c_ast.FileAST([])
+        
+    def _generate_post_decl(self, decl_node):
+
+        new_decl_node = copy.deepcopy(decl_node['decl'])
+        void_type = c_ast.TypeDecl(decl_node['origname'] + "_post", [], c_ast.IdentifierType(['void']))
+
+        new_decl_node.type = void_type
+
+        if len(new_decl_node.args.params) == 1 and is_void_type(new_decl_node.args.params[0].type):
+            new_decl_node.args.params = []
+        
+        if decl_node['retval_decl']:
+            retval_arg_type = c_ast.Decl('_retval', [], [], [],
+                                         c_ast.PtrDecl([],
+                                                       copy.deepcopy(decl_node['retval_decl'].type)),
+                                         None, None)
+
+            new_decl_node.args.params.append(retval_arg_type)
+
+        context_arg_type = c_ast.Decl('_ctx', [], [], [],
+                                      c_ast.PtrDecl([], c_ast.TypeDecl("_ctx", [],
+                                                                       c_ast.IdentifierType(['void']))), None, None)
+            
+        new_decl_node.args.params.append(context_arg_type)
+        
+        #print(new_decl_node)
+        return new_decl_node
+        
+    def generate(self, decl_node, context):
+        posthookfn = decl_node['origname'] + '_post'
+        args = copy.deepcopy(decl_node['fncall'].args)
+
+        if decl_node['retval_decl']:
+            assert 'retval' in context, "PostInstrumentPlugin requires return value"
+            args.exprs.append(c_ast.UnaryOp("&", c_ast.ID(context['retval'])))
+
+        args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
+            
+        self.ast.ext.append(self._generate_post_decl(decl_node))
+        
+        # TODO: post- and pre- context variable        
+        return [c_ast.FuncCall(c_ast.ID(posthookfn), 
+                             args)]
+    
+    def generate_includes(self):
+        return ['#include "%s"' % (self.hfile,)]
+
+    def generate_post_code(self):
+        with open(self.hfile, "w") as f:
+            f.write("/* automatically generated, do not edit */\n")
+            f.write(f"#include <{self.generator.hinclude}>\n")
+        
+            cgen = c_generator.CGenerator()
+            f.write(cgen.visit(self.ast))
+
+        return []
     
 class InterposerGenerator(object):
     def __init__(self, hfile, ast):
@@ -293,7 +384,7 @@ class InterposerGenerator(object):
                                               )
 
     def generate_plugins(self, decl_node):
-        context = {}
+        context = {'called': False}
 
         for p in self.plugins:
             l = p.generate(decl_node, context)
@@ -389,6 +480,9 @@ if __name__ == "__main__":
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true",
                    help="Original library is dlopen-ed")
+    p.add_argument("--post-instrument", action="store_true",
+                   help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
+
     p.add_argument("--trace", action="store_true",
                    help="Generate tracer")
 
@@ -411,7 +505,9 @@ if __name__ == "__main__":
         ig.add_plugin(TracePlugin)
 
     ig.add_plugin(ReturnValuePlugin)
-
+    if args.post_instrument:
+        ig.add_plugin(PostInstrumentPlugin)
+        
     ig.add_plugin(ReturnPlugin)
 
     ig.generate_shells()
