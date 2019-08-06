@@ -149,6 +149,34 @@ class ReturnPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         return [c_ast.Return(decl_node['fncall'])]
 
+class StdDLPlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+        # this doesn't generate anything.
+        return []
+
+    def generate_includes(self):
+        return ["#define _GNU_SOURCE", # for RTLD_NEXT
+                "#include <dlfcn.h>"]
+    
+class DLOpenPlugin(InterposerPlugin):
+    def generate(self, decl_node, context):
+        # this doesn't generate anything.
+        return []
+
+    def generate_includes(self):
+        return ["#include <dlfcn.h>",
+                "#include <stdio.h>",
+                "#include <stdlib.h>"]
+    
+    def generate_pre_code(self):
+        """Generate code before all API functions generated, must be list of strings"""
+        return ["static void * orig_handle;\n"]
+
+    def generate_post_code(self):
+        """Generate code before all API functions generated, must be list of strings"""
+        return [TEMPLATE_INIT_ORIG_HANDLE.format(env_variable = 'DLOPEN_LIBRARY')]
+    
+    
 class TracePlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         return [c_ast.FuncCall(c_ast.ID("fprintf"),
@@ -158,7 +186,9 @@ class TracePlugin(InterposerPlugin):
                                ))]
 
     def generate_includes(self):
-        return ["#include <errno.h>"]
+        return ["#include <stdio.h>",
+                "#include <stdlib.h>",
+                "#include <errno.h>"]
 
     def generate_pre_code(self):
         """Generate code before all API functions generated, must be list of strings"""
@@ -249,22 +279,12 @@ class InterposerGenerator(object):
         with open(outputfile, "w") as f:
             f.write("/* automatically generated */\n")
 
-            if not self.dlopen:
-                f.write("#define _GNU_SOURCE\n") # for RTLD_NEXT
-
-            f.write("#include <dlfcn.h>\n")
-            f.write(f"#include <{self.hinclude}>\n")
-            f.write("#include <stdio.h>\n")
-            f.write("#include <stdlib.h>\n")
-
             for l in self.generate_plugin_includes():
                 f.write(l)
-            
+
+            f.write(f"#include <{self.hinclude}>\n")
             f.write("\n")
 
-            if self.dlopen:
-                f.write("static void * orig_handle;\n")
-            
             for l in self.generate_plugin_pre_code():
                 f.write(l)
 
@@ -280,13 +300,8 @@ class InterposerGenerator(object):
                     
                 f.write(generator.visit(passthru) + "\n")
 
-            if self.dlopen:
-                f.write(TEMPLATE_INIT_ORIG_HANDLE.format(env_variable = 'DLOPEN_LIBRARY'))
-
             for l in self.generate_plugin_post_code():
                 f.write(l)
-                
-
     
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
     h, fn = tempfile.mkstemp(suffix = ".h")
@@ -336,14 +351,19 @@ if __name__ == "__main__":
     ast = get_ast(preprocessed)
     
     ig = InterposerGenerator(args.hfile, ast)
-    
-    ig.dlopen = args.dlopen
 
+    ig.dlopen = args.dlopen    
+    if args.dlopen:
+        ig.add_plugin(DLOpenPlugin)
+    else:
+        ig.add_plugin(StdDLPlugin)
+
+    ig.trace = args.trace
     if args.trace:
-        ig.trace = args.trace
         ig.add_plugin(TracePlugin)
 
     ig.add_plugin(ReturnPlugin)
+
     ig.generate_shells()
 
     if not args.output:
