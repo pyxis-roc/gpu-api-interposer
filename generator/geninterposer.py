@@ -175,16 +175,19 @@ class InterposerPlugin(object):
 
 class ReturnPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
-        return [c_ast.Return(decl_node['fncall'])]
+        if 'retval' in context:
+            return [c_ast.Return(c_ast.ID(context['retval']))]
+        else:
+            return [c_ast.Return(decl_node['fncall'])]
 
 class ReturnValuePlugin(InterposerPlugin):
     def generate(self, decl_node, context):
 
         # get the fnptr node
         # PtrDecl -> FuncDecl ->type
-
+        context['retval'] = decl_node['retval_decl'].name
         return [decl_node['retval_decl'],
-                c_ast.Assignment("=", c_ast.ID(decl_node['retval_decl'].name),
+                c_ast.Assignment("=", c_ast.ID(context['retval']),
                                  decl_node['fncall'])]
 
 class DefaultHeadersPlugin(InterposerPlugin):
@@ -408,6 +411,8 @@ if __name__ == "__main__":
         ig.add_plugin(TracePlugin)
 
     ig.add_plugin(ReturnValuePlugin)
+
+    ig.add_plugin(ReturnPlugin)
 
     ig.generate_shells()
 
