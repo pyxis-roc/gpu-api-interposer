@@ -1,0 +1,90 @@
+---
+main:
+  provider: "libcuda_interposer"
+includes:
+  system:
+    - cuda.h
+common_args:
+  - retval_arg: &retval_arg
+      _retval: 
+        type: CUresult *
+common_fields:
+  - retval_field: &retval_field
+      _retval: 
+        type: ctf_integer
+        type_args:
+          int_type: CUresult
+          expr: "*_retval"
+tracepoint_events:
+  cuDriverGetVersion_post:
+    fn: cuDriverGetVersion
+    args:
+      - driverVersion:
+          type: "int *"
+      - *retval_arg
+    fields:
+      - driverVersion:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "*driverVersion"
+      - *retval_field
+  cuDriverGetVersion_pre:
+    fn: cuDriverGetVersion
+    args:
+      - driverVersion:
+          type: "int *"
+    fields:
+      - driverVersion:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "driverVersion"
+  cuGetErrorString_post:
+    fn: cuGetErrorString
+    args:
+      - error:
+          type: CUresult
+      - pStr:
+          type: const char **
+      - *retval_arg
+    fields:
+      - error:
+          type: ctf_integer
+          type_args:
+            int_type: CUresult
+            expr: error
+      - pStr_contents:
+          type: ctf_string
+          type_args:
+            field_name: pStr_contents
+            expr: '(*pStr == NULL) ? "" : *pStr'
+      - *retval_field
+  cuMemAlloc_v2_pre:
+    fn: cuMemAlloc_v2
+    args:
+      - dptr:
+          type: "CUdeviceptr *"
+      - bytesize:
+          type: size_t
+    fields:
+      - dptr: 
+          type: ctf_integer
+          type_args:
+            int_type: intptr_t
+            expr: dptr
+  cuMemAlloc_v2_post:
+    fn: cuMemAlloc_v2
+    args:
+      - dptr:
+          type: "CUdeviceptr *"
+      - bytesize:
+          type: size_t
+      - *retval_arg
+    fields:
+      - dptr_contents: 
+          type: ctf_integer
+          type_args:
+            int_type: intptr_t
+            expr: "*dptr"
+      - *retval_field
