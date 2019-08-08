@@ -380,6 +380,9 @@ class InterposerGenerator(object):
         self.add_plugin(DefaultHeadersPlugin)
         self.filter_data = None
 
+    def get_decl_nodes(self):
+        return self.fdv.func_decl_nodes
+
     def check_filter(self, plugin, function):
         if self.filter_data is not None:
             if hasattr(plugin, "filter_section_name"):
@@ -541,6 +544,13 @@ def get_ast(preprocessed_file):
     ast = pycparser.parse_file(preprocessed_file)
     return ast
 
+def get_generator_for_header(hfile, cppargsfile, fake_c_headers):
+    preprocessed = preprocess(hfile, cppargsfile, fake_c_headers)
+    ast = get_ast(preprocessed)
+    ig = InterposerGenerator(hfile, ast)
+
+    return ig
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Generate a interceptor")
     p.add_argument("hfile", help="Include file")
@@ -559,10 +569,7 @@ if __name__ == "__main__":
 
     args = p.parse_args()
 
-    preprocessed = preprocess(args.hfile, args.cppargsfile, args.fake_c_headers)
-    ast = get_ast(preprocessed)
-    
-    ig = InterposerGenerator(args.hfile, ast)
+    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers)
     if args.filter:
         if not ig.add_filter(args.filter):
             sys.exit(1)
