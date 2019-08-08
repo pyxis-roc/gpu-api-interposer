@@ -12,7 +12,8 @@ TP_Field = namedtuple('tp_field', ['type', 'fieldname', 'type_args'])
 
 FIELD_FMTS = {
     "ctf_integer": "ctf_integer({int_type}, {fieldname}, {expr})",
-    "ctf_integer_hex": "ctf_integer_hex({int_type}, {fieldname}, {expr})"
+    "ctf_integer_hex": "ctf_integer_hex({int_type}, {fieldname}, {expr})",
+    "ctf_string": "ctf_string({field_name}, {expr})"
 }
 
 def generate_tracepoint_template(recipe, output, ig):
