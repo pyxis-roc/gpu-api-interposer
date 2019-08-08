@@ -3,4 +3,5 @@ syntax: glob
 *.so
 *.o
 *.orig
+__pycache__
 
