@@ -9,6 +9,8 @@ import tempfile
 import os
 import logging
 import copy
+import yaml
+import difflib
 
 TEMPLATE_INIT_ORIG_HANDLE = """static __attribute__((constructor)) void init_orig_handle() {{
     char *original_library_path = getenv("{env_variable}");
@@ -311,6 +313,7 @@ class CommonInstrumentMixin(object):
     
 class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     fn_suffix = "_pre"
+    filter_section_name = ["pre", "pre_and_post"]
     
     def __init__(self, *args, **kwargs):
         super(PreInstrumentPlugin, self).__init__(*args, **kwargs)
@@ -340,7 +343,8 @@ class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
 
 class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     fn_suffix = "_post"
-    
+    filter_section_name = ["post", "pre_and_post"]
+
     def __init__(self, *args, **kwargs):
         super(PostInstrumentPlugin, self).__init__(*args, **kwargs)
 
@@ -374,7 +378,45 @@ class InterposerGenerator(object):
         self.dlopen = False
         self.plugins = []
         self.add_plugin(DefaultHeadersPlugin)
-        
+        self.filter_data = None
+
+    def check_filter(self, plugin, function):
+        if self.filter_data is not None:
+            if hasattr(plugin, "filter_section_name"):
+                fsn = plugin.filter_section_name
+                if isinstance(fsn, str): fsn = [fsn]
+
+                checks = [function in self.filter_data[s] for s in fsn if s in self.filter_data]
+                if len(checks): return any(checks)
+
+        # no section or no filter data means everything gets through ...
+        return True
+
+    def add_filter(self, filter_file):
+        okay = True
+
+        with open(filter_file, "r") as f:
+            self.filter_data = yaml.safe_load(f)
+
+            header_functions = set([x['origname'] for x in self.fdv.func_decl_nodes])
+
+            # make it 
+            for x in ['pre', 'post', 'pre_and_post']:
+                if x not in self.filter_data: 
+                    self.filter_data[x] = []
+                else:
+                    assert isinstance(self.filter_data[x], list), f"Data for {x} is not a list"
+                                      
+                # TODO: add support for "*"/wildcards
+                for fn in self.filter_data[x]:
+                    if fn not in header_functions:
+                        closest = " ".join(difflib.get_close_matches(fn, header_functions))
+
+                        print(f"ERROR: Function '{fn}' in {x} filter list does not exist in header [closest: {closest}]", file=sys.stderr)
+                        okay = False
+
+        return okay
+
     def add_plugin(self, plugin):
         # TODO: automate ordering later...
         self.plugins.append(plugin(self))
@@ -412,11 +454,12 @@ class InterposerGenerator(object):
         context = {'called': False}
 
         for p in self.plugins:
-            l = p.generate(decl_node, context)
-            assert isinstance(l, list) # should be iterable, actually...
+            if self.check_filter(p, decl_node['origname']):
+                l = p.generate(decl_node, context)
+                assert isinstance(l, list) # should be iterable, actually...
 
-            for ll in l:
-                yield ll
+                for ll in l:
+                    yield ll
 
     def generate_plugin_includes(self):
         already_generated = set()
@@ -505,14 +548,13 @@ if __name__ == "__main__":
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true",
                    help="Original library is dlopen-ed")
+    p.add_argument("--filter", help="Filter file (YAML)")
     p.add_argument("--pre-instrument", action="store_true",
                    help="Instrument functions before they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--post-instrument", action="store_true",
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
-
     p.add_argument("--trace", action="store_true",
                    help="Generate tracer")
-
     p.add_argument("-o", dest="output", help="Output file")
 
     args = p.parse_args()
@@ -521,7 +563,10 @@ if __name__ == "__main__":
     ast = get_ast(preprocessed)
     
     ig = InterposerGenerator(args.hfile, ast)
-
+    if args.filter:
+        if not ig.add_filter(args.filter):
+            sys.exit(1)
+        
     ig.dlopen = args.dlopen    
     if args.dlopen:
         ig.add_plugin(DLOpenPlugin)
