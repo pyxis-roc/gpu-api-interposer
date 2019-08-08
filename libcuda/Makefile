@@ -1,7 +1,8 @@
 GENINTERPOSER=../generator/geninterposer.py
 GENTRACEPOINTS=../generator/gentracepoints.py
 FAKE_C_HEADERS=~/extsrc/pycparser/utils/fake_libc_include/
-CUDA_H=/usr/local/cuda/include/cuda.h
+CUDA_INC=$(CUDA_LIB)/../include
+CUDA_H=$(CUDA_INC)/cuda.h
 SONAME=libcuda.so.1
 OBJS=libcuda_passthru.so libcuda_trace.so libcuda_record.c
 
@@ -19,8 +20,9 @@ libcuda_trace.c:
 libcuda_record.c: libcuda.tp
 	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --pre-instrument --post-instrument --filter libcuda_record_filter.yaml --oprefix libcuda_record -o $@
 
-libcuda.tp: libcuda_tp.yaml
-	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $@ --oprobes libcuda_probes.yaml
+libcuda-tracepoints.o: libcuda_tp.yaml
+	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $(@:.o=.tp) --oprobes libcuda_probes.yaml
+	CFLAGS="-fPIC -I$(CUDA_INC)" lttng-gen-tp -v $(@:.o=.tp)
 
 .phony: clean
 
