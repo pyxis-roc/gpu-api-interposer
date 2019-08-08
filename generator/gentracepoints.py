@@ -22,7 +22,7 @@ def generate_tracepoint_template(recipe, output, ig):
     dn = dict([(x['origname'], x) for x in ig.get_decl_nodes()])
 
     with open(output, "w") as outf:
-        outf.write("/* automatically generated, do not edit */")
+        outf.write("/* automatically generated, do not edit */\n")
 
         if 'includes' in recipe:            
             for i in recipe['includes'].get('system', []):
