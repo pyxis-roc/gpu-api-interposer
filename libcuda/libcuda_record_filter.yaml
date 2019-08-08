@@ -1,0 +1,7 @@
+---
+pre_and_post:
+  - cuMemAlloc_v2
+pre:
+  - cuDriverGetVersion
+post:
+  - cuGetErrorString
