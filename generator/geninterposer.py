@@ -188,7 +188,7 @@ class ReturnPlugin(InterposerPlugin):
             if 'retval' in context:
                 return [c_ast.Return(c_ast.ID(context['retval']))]
             else:
-                assert 'called' not in context, "Can't have called function with no retval"
+                assert 'called' not in context or not context['called'], "Can't have called function with no retval"
                 return [c_ast.Return(decl_node['fncall'])]
         else:
             if 'called' not in context:
@@ -318,7 +318,7 @@ class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     def __init__(self, *args, **kwargs):
         super(PreInstrumentPlugin, self).__init__(*args, **kwargs)
 
-        self.hfile = self.generator.hinclude[:-2] + "_pre_instr.h"
+        self.hfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_pre_instr.h"
         self.ast = c_ast.FileAST([])
 
     def generate(self, decl_node, context):
@@ -348,7 +348,7 @@ class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     def __init__(self, *args, **kwargs):
         super(PostInstrumentPlugin, self).__init__(*args, **kwargs)
 
-        self.hfile = self.generator.hinclude[:-2] + "_post_instr.h"
+        self.hfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_post_instr.h"
         self.ast = c_ast.FileAST([])
         
     def generate(self, decl_node, context):
@@ -368,9 +368,10 @@ class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
                              args)]
     
 class InterposerGenerator(object):
-    def __init__(self, hfile, ast):
+    def __init__(self, hfile, ast, oprefix):
         self.hfile = hfile
         self.hinclude = os.path.basename(hfile)
+        self.oprefix = oprefix
         self.ast = ast
 
         self.fdv = FuncDeclVisitor()
@@ -544,10 +545,10 @@ def get_ast(preprocessed_file):
     ast = pycparser.parse_file(preprocessed_file)
     return ast
 
-def get_generator_for_header(hfile, cppargsfile, fake_c_headers):
+def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None):
     preprocessed = preprocess(hfile, cppargsfile, fake_c_headers)
     ast = get_ast(preprocessed)
-    ig = InterposerGenerator(hfile, ast)
+    ig = InterposerGenerator(hfile, ast, oprefix)
 
     return ig
 
@@ -556,20 +557,19 @@ if __name__ == "__main__":
     p.add_argument("hfile", help="Include file")
     p.add_argument("--fake-c-headers", help="Path to pycparser's fake C headers")
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
-    p.add_argument("--dlopen", action="store_true",
-                   help="Original library is dlopen-ed")
+    p.add_argument("--dlopen", action="store_true", help="Original library is dlopen-ed")
     p.add_argument("--filter", help="Filter file (YAML)")
     p.add_argument("--pre-instrument", action="store_true",
                    help="Instrument functions before they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--post-instrument", action="store_true",
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
-    p.add_argument("--trace", action="store_true",
-                   help="Generate tracer")
+    p.add_argument("--trace", action="store_true", help="Generate tracer")
+    p.add_argument("--oprefix", dest="output_prefix", help="Output prefix for supplementary output files")
     p.add_argument("-o", dest="output", help="Output file")
 
     args = p.parse_args()
 
-    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers)
+    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers, args.output_prefix)
     if args.filter:
         if not ig.add_filter(args.filter):
             sys.exit(1)
