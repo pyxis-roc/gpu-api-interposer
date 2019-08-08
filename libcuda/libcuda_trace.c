@@ -1,10 +1,15 @@
 /* automatically generated */
+#include <stddef.h>
 #include <dlfcn.h>
-#include <cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-static void * orig_handle;static FILE * trace_handle;CUresult cuGetErrorString(CUresult error, const char **pStr)
+#include <cuda.h>
+
+static void * orig_handle;
+static FILE * trace_handle;
+
+CUresult cuGetErrorString(CUresult error, const char **pStr)
 {
   static CUresult (*cuGetErrorString_orig)(CUresult, const char **) = NULL;
   if (!cuGetErrorString_orig)
@@ -12,8 +17,10 @@ static void * orig_handle;static FILE * trace_handle;CUresult cuGetErrorString(C
     cuGetErrorString_orig = dlsym(orig_handle, "cuGetErrorString");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGetErrorString\n");
-  return cuGetErrorString_orig(error, pStr);
+  _retval = cuGetErrorString_orig(error, pStr);
+  return _retval;
 }
 
 
@@ -25,8 +32,10 @@ CUresult cuGetErrorName(CUresult error, const char **pStr)
     cuGetErrorName_orig = dlsym(orig_handle, "cuGetErrorName");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGetErrorName\n");
-  return cuGetErrorName_orig(error, pStr);
+  _retval = cuGetErrorName_orig(error, pStr);
+  return _retval;
 }
 
 
@@ -38,8 +47,10 @@ CUresult cuInit(unsigned int Flags)
     cuInit_orig = dlsym(orig_handle, "cuInit");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuInit\n");
-  return cuInit_orig(Flags);
+  _retval = cuInit_orig(Flags);
+  return _retval;
 }
 
 
@@ -51,8 +62,10 @@ CUresult cuDriverGetVersion(int *driverVersion)
     cuDriverGetVersion_orig = dlsym(orig_handle, "cuDriverGetVersion");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDriverGetVersion\n");
-  return cuDriverGetVersion_orig(driverVersion);
+  _retval = cuDriverGetVersion_orig(driverVersion);
+  return _retval;
 }
 
 
@@ -64,8 +77,10 @@ CUresult cuDeviceGet(CUdevice *device, int ordinal)
     cuDeviceGet_orig = dlsym(orig_handle, "cuDeviceGet");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGet\n");
-  return cuDeviceGet_orig(device, ordinal);
+  _retval = cuDeviceGet_orig(device, ordinal);
+  return _retval;
 }
 
 
@@ -77,8 +92,10 @@ CUresult cuDeviceGetCount(int *count)
     cuDeviceGetCount_orig = dlsym(orig_handle, "cuDeviceGetCount");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetCount\n");
-  return cuDeviceGetCount_orig(count);
+  _retval = cuDeviceGetCount_orig(count);
+  return _retval;
 }
 
 
@@ -90,8 +107,10 @@ CUresult cuDeviceGetName(char *name, int len, CUdevice dev)
     cuDeviceGetName_orig = dlsym(orig_handle, "cuDeviceGetName");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetName\n");
-  return cuDeviceGetName_orig(name, len, dev);
+  _retval = cuDeviceGetName_orig(name, len, dev);
+  return _retval;
 }
 
 
@@ -103,8 +122,10 @@ CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev)
     cuDeviceGetUuid_orig = dlsym(orig_handle, "cuDeviceGetUuid");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetUuid\n");
-  return cuDeviceGetUuid_orig(uuid, dev);
+  _retval = cuDeviceGetUuid_orig(uuid, dev);
+  return _retval;
 }
 
 
@@ -116,8 +137,10 @@ CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev)
     cuDeviceTotalMem_v2_orig = dlsym(orig_handle, "cuDeviceTotalMem_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceTotalMem_v2\n");
-  return cuDeviceTotalMem_v2_orig(bytes, dev);
+  _retval = cuDeviceTotalMem_v2_orig(bytes, dev);
+  return _retval;
 }
 
 
@@ -129,8 +152,10 @@ CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUdevice dev)
     cuDeviceGetAttribute_orig = dlsym(orig_handle, "cuDeviceGetAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetAttribute\n");
-  return cuDeviceGetAttribute_orig(pi, attrib, dev);
+  _retval = cuDeviceGetAttribute_orig(pi, attrib, dev);
+  return _retval;
 }
 
 
@@ -142,8 +167,10 @@ CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev)
     cuDeviceGetProperties_orig = dlsym(orig_handle, "cuDeviceGetProperties");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetProperties\n");
-  return cuDeviceGetProperties_orig(prop, dev);
+  _retval = cuDeviceGetProperties_orig(prop, dev);
+  return _retval;
 }
 
 
@@ -155,8 +182,10 @@ CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice dev)
     cuDeviceComputeCapability_orig = dlsym(orig_handle, "cuDeviceComputeCapability");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceComputeCapability\n");
-  return cuDeviceComputeCapability_orig(major, minor, dev);
+  _retval = cuDeviceComputeCapability_orig(major, minor, dev);
+  return _retval;
 }
 
 
@@ -168,8 +197,10 @@ CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev)
     cuDevicePrimaryCtxRetain_orig = dlsym(orig_handle, "cuDevicePrimaryCtxRetain");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDevicePrimaryCtxRetain\n");
-  return cuDevicePrimaryCtxRetain_orig(pctx, dev);
+  _retval = cuDevicePrimaryCtxRetain_orig(pctx, dev);
+  return _retval;
 }
 
 
@@ -181,8 +212,10 @@ CUresult cuDevicePrimaryCtxRelease(CUdevice dev)
     cuDevicePrimaryCtxRelease_orig = dlsym(orig_handle, "cuDevicePrimaryCtxRelease");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDevicePrimaryCtxRelease\n");
-  return cuDevicePrimaryCtxRelease_orig(dev);
+  _retval = cuDevicePrimaryCtxRelease_orig(dev);
+  return _retval;
 }
 
 
@@ -194,8 +227,10 @@ CUresult cuDevicePrimaryCtxSetFlags(CUdevice dev, unsigned int flags)
     cuDevicePrimaryCtxSetFlags_orig = dlsym(orig_handle, "cuDevicePrimaryCtxSetFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDevicePrimaryCtxSetFlags\n");
-  return cuDevicePrimaryCtxSetFlags_orig(dev, flags);
+  _retval = cuDevicePrimaryCtxSetFlags_orig(dev, flags);
+  return _retval;
 }
 
 
@@ -207,8 +242,10 @@ CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags, int *acti
     cuDevicePrimaryCtxGetState_orig = dlsym(orig_handle, "cuDevicePrimaryCtxGetState");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDevicePrimaryCtxGetState\n");
-  return cuDevicePrimaryCtxGetState_orig(dev, flags, active);
+  _retval = cuDevicePrimaryCtxGetState_orig(dev, flags, active);
+  return _retval;
 }
 
 
@@ -220,8 +257,10 @@ CUresult cuDevicePrimaryCtxReset(CUdevice dev)
     cuDevicePrimaryCtxReset_orig = dlsym(orig_handle, "cuDevicePrimaryCtxReset");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDevicePrimaryCtxReset\n");
-  return cuDevicePrimaryCtxReset_orig(dev);
+  _retval = cuDevicePrimaryCtxReset_orig(dev);
+  return _retval;
 }
 
 
@@ -233,8 +272,10 @@ CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice dev)
     cuCtxCreate_v2_orig = dlsym(orig_handle, "cuCtxCreate_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxCreate_v2\n");
-  return cuCtxCreate_v2_orig(pctx, flags, dev);
+  _retval = cuCtxCreate_v2_orig(pctx, flags, dev);
+  return _retval;
 }
 
 
@@ -246,8 +287,10 @@ CUresult cuCtxDestroy_v2(CUcontext ctx)
     cuCtxDestroy_v2_orig = dlsym(orig_handle, "cuCtxDestroy_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxDestroy_v2\n");
-  return cuCtxDestroy_v2_orig(ctx);
+  _retval = cuCtxDestroy_v2_orig(ctx);
+  return _retval;
 }
 
 
@@ -259,8 +302,10 @@ CUresult cuCtxPushCurrent_v2(CUcontext ctx)
     cuCtxPushCurrent_v2_orig = dlsym(orig_handle, "cuCtxPushCurrent_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxPushCurrent_v2\n");
-  return cuCtxPushCurrent_v2_orig(ctx);
+  _retval = cuCtxPushCurrent_v2_orig(ctx);
+  return _retval;
 }
 
 
@@ -272,8 +317,10 @@ CUresult cuCtxPopCurrent_v2(CUcontext *pctx)
     cuCtxPopCurrent_v2_orig = dlsym(orig_handle, "cuCtxPopCurrent_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxPopCurrent_v2\n");
-  return cuCtxPopCurrent_v2_orig(pctx);
+  _retval = cuCtxPopCurrent_v2_orig(pctx);
+  return _retval;
 }
 
 
@@ -285,8 +332,10 @@ CUresult cuCtxSetCurrent(CUcontext ctx)
     cuCtxSetCurrent_orig = dlsym(orig_handle, "cuCtxSetCurrent");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxSetCurrent\n");
-  return cuCtxSetCurrent_orig(ctx);
+  _retval = cuCtxSetCurrent_orig(ctx);
+  return _retval;
 }
 
 
@@ -298,8 +347,10 @@ CUresult cuCtxGetCurrent(CUcontext *pctx)
     cuCtxGetCurrent_orig = dlsym(orig_handle, "cuCtxGetCurrent");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetCurrent\n");
-  return cuCtxGetCurrent_orig(pctx);
+  _retval = cuCtxGetCurrent_orig(pctx);
+  return _retval;
 }
 
 
@@ -311,8 +362,10 @@ CUresult cuCtxGetDevice(CUdevice *device)
     cuCtxGetDevice_orig = dlsym(orig_handle, "cuCtxGetDevice");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetDevice\n");
-  return cuCtxGetDevice_orig(device);
+  _retval = cuCtxGetDevice_orig(device);
+  return _retval;
 }
 
 
@@ -324,8 +377,10 @@ CUresult cuCtxGetFlags(unsigned int *flags)
     cuCtxGetFlags_orig = dlsym(orig_handle, "cuCtxGetFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetFlags\n");
-  return cuCtxGetFlags_orig(flags);
+  _retval = cuCtxGetFlags_orig(flags);
+  return _retval;
 }
 
 
@@ -337,8 +392,10 @@ CUresult cuCtxSynchronize(void)
     cuCtxSynchronize_orig = dlsym(orig_handle, "cuCtxSynchronize");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxSynchronize\n");
-  return cuCtxSynchronize_orig();
+  _retval = cuCtxSynchronize_orig();
+  return _retval;
 }
 
 
@@ -350,8 +407,10 @@ CUresult cuCtxSetLimit(CUlimit limit, size_t value)
     cuCtxSetLimit_orig = dlsym(orig_handle, "cuCtxSetLimit");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxSetLimit\n");
-  return cuCtxSetLimit_orig(limit, value);
+  _retval = cuCtxSetLimit_orig(limit, value);
+  return _retval;
 }
 
 
@@ -363,8 +422,10 @@ CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit)
     cuCtxGetLimit_orig = dlsym(orig_handle, "cuCtxGetLimit");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetLimit\n");
-  return cuCtxGetLimit_orig(pvalue, limit);
+  _retval = cuCtxGetLimit_orig(pvalue, limit);
+  return _retval;
 }
 
 
@@ -376,8 +437,10 @@ CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig)
     cuCtxGetCacheConfig_orig = dlsym(orig_handle, "cuCtxGetCacheConfig");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetCacheConfig\n");
-  return cuCtxGetCacheConfig_orig(pconfig);
+  _retval = cuCtxGetCacheConfig_orig(pconfig);
+  return _retval;
 }
 
 
@@ -389,8 +452,10 @@ CUresult cuCtxSetCacheConfig(CUfunc_cache config)
     cuCtxSetCacheConfig_orig = dlsym(orig_handle, "cuCtxSetCacheConfig");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxSetCacheConfig\n");
-  return cuCtxSetCacheConfig_orig(config);
+  _retval = cuCtxSetCacheConfig_orig(config);
+  return _retval;
 }
 
 
@@ -402,8 +467,10 @@ CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig)
     cuCtxGetSharedMemConfig_orig = dlsym(orig_handle, "cuCtxGetSharedMemConfig");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetSharedMemConfig\n");
-  return cuCtxGetSharedMemConfig_orig(pConfig);
+  _retval = cuCtxGetSharedMemConfig_orig(pConfig);
+  return _retval;
 }
 
 
@@ -415,8 +482,10 @@ CUresult cuCtxSetSharedMemConfig(CUsharedconfig config)
     cuCtxSetSharedMemConfig_orig = dlsym(orig_handle, "cuCtxSetSharedMemConfig");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxSetSharedMemConfig\n");
-  return cuCtxSetSharedMemConfig_orig(config);
+  _retval = cuCtxSetSharedMemConfig_orig(config);
+  return _retval;
 }
 
 
@@ -428,8 +497,10 @@ CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version)
     cuCtxGetApiVersion_orig = dlsym(orig_handle, "cuCtxGetApiVersion");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetApiVersion\n");
-  return cuCtxGetApiVersion_orig(ctx, version);
+  _retval = cuCtxGetApiVersion_orig(ctx, version);
+  return _retval;
 }
 
 
@@ -441,8 +512,10 @@ CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greatestPriority)
     cuCtxGetStreamPriorityRange_orig = dlsym(orig_handle, "cuCtxGetStreamPriorityRange");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxGetStreamPriorityRange\n");
-  return cuCtxGetStreamPriorityRange_orig(leastPriority, greatestPriority);
+  _retval = cuCtxGetStreamPriorityRange_orig(leastPriority, greatestPriority);
+  return _retval;
 }
 
 
@@ -454,8 +527,10 @@ CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags)
     cuCtxAttach_orig = dlsym(orig_handle, "cuCtxAttach");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxAttach\n");
-  return cuCtxAttach_orig(pctx, flags);
+  _retval = cuCtxAttach_orig(pctx, flags);
+  return _retval;
 }
 
 
@@ -467,8 +542,10 @@ CUresult cuCtxDetach(CUcontext ctx)
     cuCtxDetach_orig = dlsym(orig_handle, "cuCtxDetach");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxDetach\n");
-  return cuCtxDetach_orig(ctx);
+  _retval = cuCtxDetach_orig(ctx);
+  return _retval;
 }
 
 
@@ -480,8 +557,10 @@ CUresult cuModuleLoad(CUmodule *module, const char *fname)
     cuModuleLoad_orig = dlsym(orig_handle, "cuModuleLoad");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleLoad\n");
-  return cuModuleLoad_orig(module, fname);
+  _retval = cuModuleLoad_orig(module, fname);
+  return _retval;
 }
 
 
@@ -493,8 +572,10 @@ CUresult cuModuleLoadData(CUmodule *module, const void *image)
     cuModuleLoadData_orig = dlsym(orig_handle, "cuModuleLoadData");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleLoadData\n");
-  return cuModuleLoadData_orig(module, image);
+  _retval = cuModuleLoadData_orig(module, image);
+  return _retval;
 }
 
 
@@ -506,8 +587,10 @@ CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsigned int nu
     cuModuleLoadDataEx_orig = dlsym(orig_handle, "cuModuleLoadDataEx");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleLoadDataEx\n");
-  return cuModuleLoadDataEx_orig(module, image, numOptions, options, optionValues);
+  _retval = cuModuleLoadDataEx_orig(module, image, numOptions, options, optionValues);
+  return _retval;
 }
 
 
@@ -519,8 +602,10 @@ CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin)
     cuModuleLoadFatBinary_orig = dlsym(orig_handle, "cuModuleLoadFatBinary");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleLoadFatBinary\n");
-  return cuModuleLoadFatBinary_orig(module, fatCubin);
+  _retval = cuModuleLoadFatBinary_orig(module, fatCubin);
+  return _retval;
 }
 
 
@@ -532,8 +617,10 @@ CUresult cuModuleUnload(CUmodule hmod)
     cuModuleUnload_orig = dlsym(orig_handle, "cuModuleUnload");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleUnload\n");
-  return cuModuleUnload_orig(hmod);
+  _retval = cuModuleUnload_orig(hmod);
+  return _retval;
 }
 
 
@@ -545,8 +632,10 @@ CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const char *name)
     cuModuleGetFunction_orig = dlsym(orig_handle, "cuModuleGetFunction");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleGetFunction\n");
-  return cuModuleGetFunction_orig(hfunc, hmod, name);
+  _retval = cuModuleGetFunction_orig(hfunc, hmod, name);
+  return _retval;
 }
 
 
@@ -558,8 +647,10 @@ CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, c
     cuModuleGetGlobal_v2_orig = dlsym(orig_handle, "cuModuleGetGlobal_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleGetGlobal_v2\n");
-  return cuModuleGetGlobal_v2_orig(dptr, bytes, hmod, name);
+  _retval = cuModuleGetGlobal_v2_orig(dptr, bytes, hmod, name);
+  return _retval;
 }
 
 
@@ -571,8 +662,10 @@ CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *name)
     cuModuleGetTexRef_orig = dlsym(orig_handle, "cuModuleGetTexRef");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleGetTexRef\n");
-  return cuModuleGetTexRef_orig(pTexRef, hmod, name);
+  _retval = cuModuleGetTexRef_orig(pTexRef, hmod, name);
+  return _retval;
 }
 
 
@@ -584,8 +677,10 @@ CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const char *name
     cuModuleGetSurfRef_orig = dlsym(orig_handle, "cuModuleGetSurfRef");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuModuleGetSurfRef\n");
-  return cuModuleGetSurfRef_orig(pSurfRef, hmod, name);
+  _retval = cuModuleGetSurfRef_orig(pSurfRef, hmod, name);
+  return _retval;
 }
 
 
@@ -597,8 +692,10 @@ CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *options, void **
     cuLinkCreate_v2_orig = dlsym(orig_handle, "cuLinkCreate_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLinkCreate_v2\n");
-  return cuLinkCreate_v2_orig(numOptions, options, optionValues, stateOut);
+  _retval = cuLinkCreate_v2_orig(numOptions, options, optionValues, stateOut);
+  return _retval;
 }
 
 
@@ -610,8 +707,10 @@ CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, void *data, si
     cuLinkAddData_v2_orig = dlsym(orig_handle, "cuLinkAddData_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLinkAddData_v2\n");
-  return cuLinkAddData_v2_orig(state, type, data, size, name, numOptions, options, optionValues);
+  _retval = cuLinkAddData_v2_orig(state, type, data, size, name, numOptions, options, optionValues);
+  return _retval;
 }
 
 
@@ -623,8 +722,10 @@ CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, const char *pa
     cuLinkAddFile_v2_orig = dlsym(orig_handle, "cuLinkAddFile_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLinkAddFile_v2\n");
-  return cuLinkAddFile_v2_orig(state, type, path, numOptions, options, optionValues);
+  _retval = cuLinkAddFile_v2_orig(state, type, path, numOptions, options, optionValues);
+  return _retval;
 }
 
 
@@ -636,8 +737,10 @@ CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *sizeOut)
     cuLinkComplete_orig = dlsym(orig_handle, "cuLinkComplete");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLinkComplete\n");
-  return cuLinkComplete_orig(state, cubinOut, sizeOut);
+  _retval = cuLinkComplete_orig(state, cubinOut, sizeOut);
+  return _retval;
 }
 
 
@@ -649,8 +752,10 @@ CUresult cuLinkDestroy(CUlinkState state)
     cuLinkDestroy_orig = dlsym(orig_handle, "cuLinkDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLinkDestroy\n");
-  return cuLinkDestroy_orig(state);
+  _retval = cuLinkDestroy_orig(state);
+  return _retval;
 }
 
 
@@ -662,8 +767,10 @@ CUresult cuMemGetInfo_v2(size_t *free, size_t *total)
     cuMemGetInfo_v2_orig = dlsym(orig_handle, "cuMemGetInfo_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemGetInfo_v2\n");
-  return cuMemGetInfo_v2_orig(free, total);
+  _retval = cuMemGetInfo_v2_orig(free, total);
+  return _retval;
 }
 
 
@@ -675,8 +782,10 @@ CUresult cuMemAlloc_v2(CUdeviceptr *dptr, size_t bytesize)
     cuMemAlloc_v2_orig = dlsym(orig_handle, "cuMemAlloc_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemAlloc_v2\n");
-  return cuMemAlloc_v2_orig(dptr, bytesize);
+  _retval = cuMemAlloc_v2_orig(dptr, bytesize);
+  return _retval;
 }
 
 
@@ -688,8 +797,10 @@ CUresult cuMemAllocPitch_v2(CUdeviceptr *dptr, size_t *pPitch, size_t WidthInByt
     cuMemAllocPitch_v2_orig = dlsym(orig_handle, "cuMemAllocPitch_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemAllocPitch_v2\n");
-  return cuMemAllocPitch_v2_orig(dptr, pPitch, WidthInBytes, Height, ElementSizeBytes);
+  _retval = cuMemAllocPitch_v2_orig(dptr, pPitch, WidthInBytes, Height, ElementSizeBytes);
+  return _retval;
 }
 
 
@@ -701,8 +812,10 @@ CUresult cuMemFree_v2(CUdeviceptr dptr)
     cuMemFree_v2_orig = dlsym(orig_handle, "cuMemFree_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemFree_v2\n");
-  return cuMemFree_v2_orig(dptr);
+  _retval = cuMemFree_v2_orig(dptr);
+  return _retval;
 }
 
 
@@ -714,8 +827,10 @@ CUresult cuMemGetAddressRange_v2(CUdeviceptr *pbase, size_t *psize, CUdeviceptr 
     cuMemGetAddressRange_v2_orig = dlsym(orig_handle, "cuMemGetAddressRange_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemGetAddressRange_v2\n");
-  return cuMemGetAddressRange_v2_orig(pbase, psize, dptr);
+  _retval = cuMemGetAddressRange_v2_orig(pbase, psize, dptr);
+  return _retval;
 }
 
 
@@ -727,8 +842,10 @@ CUresult cuMemAllocHost_v2(void **pp, size_t bytesize)
     cuMemAllocHost_v2_orig = dlsym(orig_handle, "cuMemAllocHost_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemAllocHost_v2\n");
-  return cuMemAllocHost_v2_orig(pp, bytesize);
+  _retval = cuMemAllocHost_v2_orig(pp, bytesize);
+  return _retval;
 }
 
 
@@ -740,8 +857,10 @@ CUresult cuMemFreeHost(void *p)
     cuMemFreeHost_orig = dlsym(orig_handle, "cuMemFreeHost");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemFreeHost\n");
-  return cuMemFreeHost_orig(p);
+  _retval = cuMemFreeHost_orig(p);
+  return _retval;
 }
 
 
@@ -753,8 +872,10 @@ CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flags)
     cuMemHostAlloc_orig = dlsym(orig_handle, "cuMemHostAlloc");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemHostAlloc\n");
-  return cuMemHostAlloc_orig(pp, bytesize, Flags);
+  _retval = cuMemHostAlloc_orig(pp, bytesize, Flags);
+  return _retval;
 }
 
 
@@ -766,8 +887,10 @@ CUresult cuMemHostGetDevicePointer_v2(CUdeviceptr *pdptr, void *p, unsigned int 
     cuMemHostGetDevicePointer_v2_orig = dlsym(orig_handle, "cuMemHostGetDevicePointer_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemHostGetDevicePointer_v2\n");
-  return cuMemHostGetDevicePointer_v2_orig(pdptr, p, Flags);
+  _retval = cuMemHostGetDevicePointer_v2_orig(pdptr, p, Flags);
+  return _retval;
 }
 
 
@@ -779,8 +902,10 @@ CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p)
     cuMemHostGetFlags_orig = dlsym(orig_handle, "cuMemHostGetFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemHostGetFlags\n");
-  return cuMemHostGetFlags_orig(pFlags, p);
+  _retval = cuMemHostGetFlags_orig(pFlags, p);
+  return _retval;
 }
 
 
@@ -792,8 +917,10 @@ CUresult cuMemAllocManaged(CUdeviceptr *dptr, size_t bytesize, unsigned int flag
     cuMemAllocManaged_orig = dlsym(orig_handle, "cuMemAllocManaged");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemAllocManaged\n");
-  return cuMemAllocManaged_orig(dptr, bytesize, flags);
+  _retval = cuMemAllocManaged_orig(dptr, bytesize, flags);
+  return _retval;
 }
 
 
@@ -805,8 +932,10 @@ CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId)
     cuDeviceGetByPCIBusId_orig = dlsym(orig_handle, "cuDeviceGetByPCIBusId");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetByPCIBusId\n");
-  return cuDeviceGetByPCIBusId_orig(dev, pciBusId);
+  _retval = cuDeviceGetByPCIBusId_orig(dev, pciBusId);
+  return _retval;
 }
 
 
@@ -818,8 +947,10 @@ CUresult cuDeviceGetPCIBusId(char *pciBusId, int len, CUdevice dev)
     cuDeviceGetPCIBusId_orig = dlsym(orig_handle, "cuDeviceGetPCIBusId");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetPCIBusId\n");
-  return cuDeviceGetPCIBusId_orig(pciBusId, len, dev);
+  _retval = cuDeviceGetPCIBusId_orig(pciBusId, len, dev);
+  return _retval;
 }
 
 
@@ -831,8 +962,10 @@ CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event)
     cuIpcGetEventHandle_orig = dlsym(orig_handle, "cuIpcGetEventHandle");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuIpcGetEventHandle\n");
-  return cuIpcGetEventHandle_orig(pHandle, event);
+  _retval = cuIpcGetEventHandle_orig(pHandle, event);
+  return _retval;
 }
 
 
@@ -844,8 +977,10 @@ CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle handle)
     cuIpcOpenEventHandle_orig = dlsym(orig_handle, "cuIpcOpenEventHandle");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuIpcOpenEventHandle\n");
-  return cuIpcOpenEventHandle_orig(phEvent, handle);
+  _retval = cuIpcOpenEventHandle_orig(phEvent, handle);
+  return _retval;
 }
 
 
@@ -857,8 +992,10 @@ CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
     cuIpcGetMemHandle_orig = dlsym(orig_handle, "cuIpcGetMemHandle");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuIpcGetMemHandle\n");
-  return cuIpcGetMemHandle_orig(pHandle, dptr);
+  _retval = cuIpcGetMemHandle_orig(pHandle, dptr);
+  return _retval;
 }
 
 
@@ -870,8 +1007,10 @@ CUresult cuIpcOpenMemHandle(CUdeviceptr *pdptr, CUipcMemHandle handle, unsigned 
     cuIpcOpenMemHandle_orig = dlsym(orig_handle, "cuIpcOpenMemHandle");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuIpcOpenMemHandle\n");
-  return cuIpcOpenMemHandle_orig(pdptr, handle, Flags);
+  _retval = cuIpcOpenMemHandle_orig(pdptr, handle, Flags);
+  return _retval;
 }
 
 
@@ -883,8 +1022,10 @@ CUresult cuIpcCloseMemHandle(CUdeviceptr dptr)
     cuIpcCloseMemHandle_orig = dlsym(orig_handle, "cuIpcCloseMemHandle");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuIpcCloseMemHandle\n");
-  return cuIpcCloseMemHandle_orig(dptr);
+  _retval = cuIpcCloseMemHandle_orig(dptr);
+  return _retval;
 }
 
 
@@ -896,8 +1037,10 @@ CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int Flags)
     cuMemHostRegister_v2_orig = dlsym(orig_handle, "cuMemHostRegister_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemHostRegister_v2\n");
-  return cuMemHostRegister_v2_orig(p, bytesize, Flags);
+  _retval = cuMemHostRegister_v2_orig(p, bytesize, Flags);
+  return _retval;
 }
 
 
@@ -909,8 +1052,10 @@ CUresult cuMemHostUnregister(void *p)
     cuMemHostUnregister_orig = dlsym(orig_handle, "cuMemHostUnregister");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemHostUnregister\n");
-  return cuMemHostUnregister_orig(p);
+  _retval = cuMemHostUnregister_orig(p);
+  return _retval;
 }
 
 
@@ -922,8 +1067,10 @@ CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
     cuMemcpy_orig = dlsym(orig_handle, "cuMemcpy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy\n");
-  return cuMemcpy_orig(dst, src, ByteCount);
+  _retval = cuMemcpy_orig(dst, src, ByteCount);
+  return _retval;
 }
 
 
@@ -935,8 +1082,10 @@ CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CUdeviceptr s
     cuMemcpyPeer_orig = dlsym(orig_handle, "cuMemcpyPeer");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyPeer\n");
-  return cuMemcpyPeer_orig(dstDevice, dstContext, srcDevice, srcContext, ByteCount);
+  _retval = cuMemcpyPeer_orig(dstDevice, dstContext, srcDevice, srcContext, ByteCount);
+  return _retval;
 }
 
 
@@ -948,8 +1097,10 @@ CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, size_t Byte
     cuMemcpyHtoD_v2_orig = dlsym(orig_handle, "cuMemcpyHtoD_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyHtoD_v2\n");
-  return cuMemcpyHtoD_v2_orig(dstDevice, srcHost, ByteCount);
+  _retval = cuMemcpyHtoD_v2_orig(dstDevice, srcHost, ByteCount);
+  return _retval;
 }
 
 
@@ -961,8 +1112,10 @@ CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t ByteCount)
     cuMemcpyDtoH_v2_orig = dlsym(orig_handle, "cuMemcpyDtoH_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyDtoH_v2\n");
-  return cuMemcpyDtoH_v2_orig(dstHost, srcDevice, ByteCount);
+  _retval = cuMemcpyDtoH_v2_orig(dstHost, srcDevice, ByteCount);
+  return _retval;
 }
 
 
@@ -974,8 +1127,10 @@ CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t By
     cuMemcpyDtoD_v2_orig = dlsym(orig_handle, "cuMemcpyDtoD_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyDtoD_v2\n");
-  return cuMemcpyDtoD_v2_orig(dstDevice, srcDevice, ByteCount);
+  _retval = cuMemcpyDtoD_v2_orig(dstDevice, srcDevice, ByteCount);
+  return _retval;
 }
 
 
@@ -987,8 +1142,10 @@ CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdeviceptr srcDevi
     cuMemcpyDtoA_v2_orig = dlsym(orig_handle, "cuMemcpyDtoA_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyDtoA_v2\n");
-  return cuMemcpyDtoA_v2_orig(dstArray, dstOffset, srcDevice, ByteCount);
+  _retval = cuMemcpyDtoA_v2_orig(dstArray, dstOffset, srcDevice, ByteCount);
+  return _retval;
 }
 
 
@@ -1000,8 +1157,10 @@ CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, size_t srcOffs
     cuMemcpyAtoD_v2_orig = dlsym(orig_handle, "cuMemcpyAtoD_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyAtoD_v2\n");
-  return cuMemcpyAtoD_v2_orig(dstDevice, srcArray, srcOffset, ByteCount);
+  _retval = cuMemcpyAtoD_v2_orig(dstDevice, srcArray, srcOffset, ByteCount);
+  return _retval;
 }
 
 
@@ -1013,8 +1172,10 @@ CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const void *srcHost
     cuMemcpyHtoA_v2_orig = dlsym(orig_handle, "cuMemcpyHtoA_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyHtoA_v2\n");
-  return cuMemcpyHtoA_v2_orig(dstArray, dstOffset, srcHost, ByteCount);
+  _retval = cuMemcpyHtoA_v2_orig(dstArray, dstOffset, srcHost, ByteCount);
+  return _retval;
 }
 
 
@@ -1026,8 +1187,10 @@ CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcOffset, size
     cuMemcpyAtoH_v2_orig = dlsym(orig_handle, "cuMemcpyAtoH_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyAtoH_v2\n");
-  return cuMemcpyAtoH_v2_orig(dstHost, srcArray, srcOffset, ByteCount);
+  _retval = cuMemcpyAtoH_v2_orig(dstHost, srcArray, srcOffset, ByteCount);
+  return _retval;
 }
 
 
@@ -1039,8 +1202,10 @@ CUresult cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray srcArray, s
     cuMemcpyAtoA_v2_orig = dlsym(orig_handle, "cuMemcpyAtoA_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyAtoA_v2\n");
-  return cuMemcpyAtoA_v2_orig(dstArray, dstOffset, srcArray, srcOffset, ByteCount);
+  _retval = cuMemcpyAtoA_v2_orig(dstArray, dstOffset, srcArray, srcOffset, ByteCount);
+  return _retval;
 }
 
 
@@ -1052,8 +1217,10 @@ CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy)
     cuMemcpy2D_v2_orig = dlsym(orig_handle, "cuMemcpy2D_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy2D_v2\n");
-  return cuMemcpy2D_v2_orig(pCopy);
+  _retval = cuMemcpy2D_v2_orig(pCopy);
+  return _retval;
 }
 
 
@@ -1065,8 +1232,10 @@ CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy)
     cuMemcpy2DUnaligned_v2_orig = dlsym(orig_handle, "cuMemcpy2DUnaligned_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy2DUnaligned_v2\n");
-  return cuMemcpy2DUnaligned_v2_orig(pCopy);
+  _retval = cuMemcpy2DUnaligned_v2_orig(pCopy);
+  return _retval;
 }
 
 
@@ -1078,8 +1247,10 @@ CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy)
     cuMemcpy3D_v2_orig = dlsym(orig_handle, "cuMemcpy3D_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy3D_v2\n");
-  return cuMemcpy3D_v2_orig(pCopy);
+  _retval = cuMemcpy3D_v2_orig(pCopy);
+  return _retval;
 }
 
 
@@ -1091,8 +1262,10 @@ CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy)
     cuMemcpy3DPeer_orig = dlsym(orig_handle, "cuMemcpy3DPeer");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy3DPeer\n");
-  return cuMemcpy3DPeer_orig(pCopy);
+  _retval = cuMemcpy3DPeer_orig(pCopy);
+  return _retval;
 }
 
 
@@ -1104,8 +1277,10 @@ CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount, CUstr
     cuMemcpyAsync_orig = dlsym(orig_handle, "cuMemcpyAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyAsync\n");
-  return cuMemcpyAsync_orig(dst, src, ByteCount, hStream);
+  _retval = cuMemcpyAsync_orig(dst, src, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1117,8 +1292,10 @@ CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContext, CUdevice
     cuMemcpyPeerAsync_orig = dlsym(orig_handle, "cuMemcpyPeerAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyPeerAsync\n");
-  return cuMemcpyPeerAsync_orig(dstDevice, dstContext, srcDevice, srcContext, ByteCount, hStream);
+  _retval = cuMemcpyPeerAsync_orig(dstDevice, dstContext, srcDevice, srcContext, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1130,8 +1307,10 @@ CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcHost, size_t
     cuMemcpyHtoDAsync_v2_orig = dlsym(orig_handle, "cuMemcpyHtoDAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyHtoDAsync_v2\n");
-  return cuMemcpyHtoDAsync_v2_orig(dstDevice, srcHost, ByteCount, hStream);
+  _retval = cuMemcpyHtoDAsync_v2_orig(dstDevice, srcHost, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1143,8 +1322,10 @@ CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, size_t ByteC
     cuMemcpyDtoHAsync_v2_orig = dlsym(orig_handle, "cuMemcpyDtoHAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyDtoHAsync_v2\n");
-  return cuMemcpyDtoHAsync_v2_orig(dstHost, srcDevice, ByteCount, hStream);
+  _retval = cuMemcpyDtoHAsync_v2_orig(dstHost, srcDevice, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1156,8 +1337,10 @@ CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size
     cuMemcpyDtoDAsync_v2_orig = dlsym(orig_handle, "cuMemcpyDtoDAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyDtoDAsync_v2\n");
-  return cuMemcpyDtoDAsync_v2_orig(dstDevice, srcDevice, ByteCount, hStream);
+  _retval = cuMemcpyDtoDAsync_v2_orig(dstDevice, srcDevice, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1169,8 +1352,10 @@ CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, const void *sr
     cuMemcpyHtoAAsync_v2_orig = dlsym(orig_handle, "cuMemcpyHtoAAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyHtoAAsync_v2\n");
-  return cuMemcpyHtoAAsync_v2_orig(dstArray, dstOffset, srcHost, ByteCount, hStream);
+  _retval = cuMemcpyHtoAAsync_v2_orig(dstArray, dstOffset, srcHost, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1182,8 +1367,10 @@ CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t srcOffset,
     cuMemcpyAtoHAsync_v2_orig = dlsym(orig_handle, "cuMemcpyAtoHAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpyAtoHAsync_v2\n");
-  return cuMemcpyAtoHAsync_v2_orig(dstHost, srcArray, srcOffset, ByteCount, hStream);
+  _retval = cuMemcpyAtoHAsync_v2_orig(dstHost, srcArray, srcOffset, ByteCount, hStream);
+  return _retval;
 }
 
 
@@ -1195,8 +1382,10 @@ CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStream)
     cuMemcpy2DAsync_v2_orig = dlsym(orig_handle, "cuMemcpy2DAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy2DAsync_v2\n");
-  return cuMemcpy2DAsync_v2_orig(pCopy, hStream);
+  _retval = cuMemcpy2DAsync_v2_orig(pCopy, hStream);
+  return _retval;
 }
 
 
@@ -1208,8 +1397,10 @@ CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStream)
     cuMemcpy3DAsync_v2_orig = dlsym(orig_handle, "cuMemcpy3DAsync_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy3DAsync_v2\n");
-  return cuMemcpy3DAsync_v2_orig(pCopy, hStream);
+  _retval = cuMemcpy3DAsync_v2_orig(pCopy, hStream);
+  return _retval;
 }
 
 
@@ -1221,8 +1412,10 @@ CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstream hStream)
     cuMemcpy3DPeerAsync_orig = dlsym(orig_handle, "cuMemcpy3DPeerAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemcpy3DPeerAsync\n");
-  return cuMemcpy3DPeerAsync_orig(pCopy, hStream);
+  _retval = cuMemcpy3DPeerAsync_orig(pCopy, hStream);
+  return _retval;
 }
 
 
@@ -1234,8 +1427,10 @@ CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N)
     cuMemsetD8_v2_orig = dlsym(orig_handle, "cuMemsetD8_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD8_v2\n");
-  return cuMemsetD8_v2_orig(dstDevice, uc, N);
+  _retval = cuMemsetD8_v2_orig(dstDevice, uc, N);
+  return _retval;
 }
 
 
@@ -1247,8 +1442,10 @@ CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, size_t N)
     cuMemsetD16_v2_orig = dlsym(orig_handle, "cuMemsetD16_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD16_v2\n");
-  return cuMemsetD16_v2_orig(dstDevice, us, N);
+  _retval = cuMemsetD16_v2_orig(dstDevice, us, N);
+  return _retval;
 }
 
 
@@ -1260,8 +1457,10 @@ CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_t N)
     cuMemsetD32_v2_orig = dlsym(orig_handle, "cuMemsetD32_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD32_v2\n");
-  return cuMemsetD32_v2_orig(dstDevice, ui, N);
+  _retval = cuMemsetD32_v2_orig(dstDevice, ui, N);
+  return _retval;
 }
 
 
@@ -1273,8 +1472,10 @@ CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned char u
     cuMemsetD2D8_v2_orig = dlsym(orig_handle, "cuMemsetD2D8_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD2D8_v2\n");
-  return cuMemsetD2D8_v2_orig(dstDevice, dstPitch, uc, Width, Height);
+  _retval = cuMemsetD2D8_v2_orig(dstDevice, dstPitch, uc, Width, Height);
+  return _retval;
 }
 
 
@@ -1286,8 +1487,10 @@ CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned short
     cuMemsetD2D16_v2_orig = dlsym(orig_handle, "cuMemsetD2D16_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD2D16_v2\n");
-  return cuMemsetD2D16_v2_orig(dstDevice, dstPitch, us, Width, Height);
+  _retval = cuMemsetD2D16_v2_orig(dstDevice, dstPitch, us, Width, Height);
+  return _retval;
 }
 
 
@@ -1299,8 +1502,10 @@ CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, unsigned int u
     cuMemsetD2D32_v2_orig = dlsym(orig_handle, "cuMemsetD2D32_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD2D32_v2\n");
-  return cuMemsetD2D32_v2_orig(dstDevice, dstPitch, ui, Width, Height);
+  _retval = cuMemsetD2D32_v2_orig(dstDevice, dstPitch, ui, Width, Height);
+  return _retval;
 }
 
 
@@ -1312,8 +1517,10 @@ CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_t N, CUst
     cuMemsetD8Async_orig = dlsym(orig_handle, "cuMemsetD8Async");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD8Async\n");
-  return cuMemsetD8Async_orig(dstDevice, uc, N, hStream);
+  _retval = cuMemsetD8Async_orig(dstDevice, uc, N, hStream);
+  return _retval;
 }
 
 
@@ -1325,8 +1532,10 @@ CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, size_t N, CU
     cuMemsetD16Async_orig = dlsym(orig_handle, "cuMemsetD16Async");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD16Async\n");
-  return cuMemsetD16Async_orig(dstDevice, us, N, hStream);
+  _retval = cuMemsetD16Async_orig(dstDevice, us, N, hStream);
+  return _retval;
 }
 
 
@@ -1338,8 +1547,10 @@ CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N, CUst
     cuMemsetD32Async_orig = dlsym(orig_handle, "cuMemsetD32Async");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD32Async\n");
-  return cuMemsetD32Async_orig(dstDevice, ui, N, hStream);
+  _retval = cuMemsetD32Async_orig(dstDevice, ui, N, hStream);
+  return _retval;
 }
 
 
@@ -1351,8 +1562,10 @@ CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned char
     cuMemsetD2D8Async_orig = dlsym(orig_handle, "cuMemsetD2D8Async");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD2D8Async\n");
-  return cuMemsetD2D8Async_orig(dstDevice, dstPitch, uc, Width, Height, hStream);
+  _retval = cuMemsetD2D8Async_orig(dstDevice, dstPitch, uc, Width, Height, hStream);
+  return _retval;
 }
 
 
@@ -1364,8 +1577,10 @@ CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned sho
     cuMemsetD2D16Async_orig = dlsym(orig_handle, "cuMemsetD2D16Async");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD2D16Async\n");
-  return cuMemsetD2D16Async_orig(dstDevice, dstPitch, us, Width, Height, hStream);
+  _retval = cuMemsetD2D16Async_orig(dstDevice, dstPitch, us, Width, Height, hStream);
+  return _retval;
 }
 
 
@@ -1377,8 +1592,10 @@ CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, unsigned int
     cuMemsetD2D32Async_orig = dlsym(orig_handle, "cuMemsetD2D32Async");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemsetD2D32Async\n");
-  return cuMemsetD2D32Async_orig(dstDevice, dstPitch, ui, Width, Height, hStream);
+  _retval = cuMemsetD2D32Async_orig(dstDevice, dstPitch, ui, Width, Height, hStream);
+  return _retval;
 }
 
 
@@ -1390,8 +1607,10 @@ CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPTOR *pAlloca
     cuArrayCreate_v2_orig = dlsym(orig_handle, "cuArrayCreate_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuArrayCreate_v2\n");
-  return cuArrayCreate_v2_orig(pHandle, pAllocateArray);
+  _retval = cuArrayCreate_v2_orig(pHandle, pAllocateArray);
+  return _retval;
 }
 
 
@@ -1403,8 +1622,10 @@ CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescriptor, CUarra
     cuArrayGetDescriptor_v2_orig = dlsym(orig_handle, "cuArrayGetDescriptor_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuArrayGetDescriptor_v2\n");
-  return cuArrayGetDescriptor_v2_orig(pArrayDescriptor, hArray);
+  _retval = cuArrayGetDescriptor_v2_orig(pArrayDescriptor, hArray);
+  return _retval;
 }
 
 
@@ -1416,8 +1637,10 @@ CUresult cuArrayDestroy(CUarray hArray)
     cuArrayDestroy_orig = dlsym(orig_handle, "cuArrayDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuArrayDestroy\n");
-  return cuArrayDestroy_orig(hArray);
+  _retval = cuArrayDestroy_orig(hArray);
+  return _retval;
 }
 
 
@@ -1429,8 +1652,10 @@ CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESCRIPTOR *pAl
     cuArray3DCreate_v2_orig = dlsym(orig_handle, "cuArray3DCreate_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuArray3DCreate_v2\n");
-  return cuArray3DCreate_v2_orig(pHandle, pAllocateArray);
+  _retval = cuArray3DCreate_v2_orig(pHandle, pAllocateArray);
+  return _retval;
 }
 
 
@@ -1442,8 +1667,10 @@ CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDescriptor, CU
     cuArray3DGetDescriptor_v2_orig = dlsym(orig_handle, "cuArray3DGetDescriptor_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuArray3DGetDescriptor_v2\n");
-  return cuArray3DGetDescriptor_v2_orig(pArrayDescriptor, hArray);
+  _retval = cuArray3DGetDescriptor_v2_orig(pArrayDescriptor, hArray);
+  return _retval;
 }
 
 
@@ -1455,8 +1682,10 @@ CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA_ARRAY3D_DE
     cuMipmappedArrayCreate_orig = dlsym(orig_handle, "cuMipmappedArrayCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMipmappedArrayCreate\n");
-  return cuMipmappedArrayCreate_orig(pHandle, pMipmappedArrayDesc, numMipmapLevels);
+  _retval = cuMipmappedArrayCreate_orig(pHandle, pMipmappedArrayDesc, numMipmapLevels);
+  return _retval;
 }
 
 
@@ -1468,8 +1697,10 @@ CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedArray hMipmap
     cuMipmappedArrayGetLevel_orig = dlsym(orig_handle, "cuMipmappedArrayGetLevel");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMipmappedArrayGetLevel\n");
-  return cuMipmappedArrayGetLevel_orig(pLevelArray, hMipmappedArray, level);
+  _retval = cuMipmappedArrayGetLevel_orig(pLevelArray, hMipmappedArray, level);
+  return _retval;
 }
 
 
@@ -1481,8 +1712,10 @@ CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray)
     cuMipmappedArrayDestroy_orig = dlsym(orig_handle, "cuMipmappedArrayDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMipmappedArrayDestroy\n");
-  return cuMipmappedArrayDestroy_orig(hMipmappedArray);
+  _retval = cuMipmappedArrayDestroy_orig(hMipmappedArray);
+  return _retval;
 }
 
 
@@ -1494,8 +1727,10 @@ CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attribute, CUdevi
     cuPointerGetAttribute_orig = dlsym(orig_handle, "cuPointerGetAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuPointerGetAttribute\n");
-  return cuPointerGetAttribute_orig(data, attribute, ptr);
+  _retval = cuPointerGetAttribute_orig(data, attribute, ptr);
+  return _retval;
 }
 
 
@@ -1507,8 +1742,10 @@ CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevice dstDevice
     cuMemPrefetchAsync_orig = dlsym(orig_handle, "cuMemPrefetchAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemPrefetchAsync\n");
-  return cuMemPrefetchAsync_orig(devPtr, count, dstDevice, hStream);
+  _retval = cuMemPrefetchAsync_orig(devPtr, count, dstDevice, hStream);
+  return _retval;
 }
 
 
@@ -1520,8 +1757,10 @@ CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUde
     cuMemAdvise_orig = dlsym(orig_handle, "cuMemAdvise");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemAdvise\n");
-  return cuMemAdvise_orig(devPtr, count, advice, device);
+  _retval = cuMemAdvise_orig(devPtr, count, advice, device);
+  return _retval;
 }
 
 
@@ -1533,8 +1772,10 @@ CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_range_attribu
     cuMemRangeGetAttribute_orig = dlsym(orig_handle, "cuMemRangeGetAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemRangeGetAttribute\n");
-  return cuMemRangeGetAttribute_orig(data, dataSize, attribute, devPtr, count);
+  _retval = cuMemRangeGetAttribute_orig(data, dataSize, attribute, devPtr, count);
+  return _retval;
 }
 
 
@@ -1546,8 +1787,10 @@ CUresult cuMemRangeGetAttributes(void **data, size_t *dataSizes, CUmem_range_att
     cuMemRangeGetAttributes_orig = dlsym(orig_handle, "cuMemRangeGetAttributes");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuMemRangeGetAttributes\n");
-  return cuMemRangeGetAttributes_orig(data, dataSizes, attributes, numAttributes, devPtr, count);
+  _retval = cuMemRangeGetAttributes_orig(data, dataSizes, attributes, numAttributes, devPtr, count);
+  return _retval;
 }
 
 
@@ -1559,8 +1802,10 @@ CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute attribute,
     cuPointerSetAttribute_orig = dlsym(orig_handle, "cuPointerSetAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuPointerSetAttribute\n");
-  return cuPointerSetAttribute_orig(value, attribute, ptr);
+  _retval = cuPointerSetAttribute_orig(value, attribute, ptr);
+  return _retval;
 }
 
 
@@ -1572,8 +1817,10 @@ CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute 
     cuPointerGetAttributes_orig = dlsym(orig_handle, "cuPointerGetAttributes");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuPointerGetAttributes\n");
-  return cuPointerGetAttributes_orig(numAttributes, attributes, data, ptr);
+  _retval = cuPointerGetAttributes_orig(numAttributes, attributes, data, ptr);
+  return _retval;
 }
 
 
@@ -1585,8 +1832,10 @@ CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags)
     cuStreamCreate_orig = dlsym(orig_handle, "cuStreamCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamCreate\n");
-  return cuStreamCreate_orig(phStream, Flags);
+  _retval = cuStreamCreate_orig(phStream, Flags);
+  return _retval;
 }
 
 
@@ -1598,8 +1847,10 @@ CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int flags, int 
     cuStreamCreateWithPriority_orig = dlsym(orig_handle, "cuStreamCreateWithPriority");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamCreateWithPriority\n");
-  return cuStreamCreateWithPriority_orig(phStream, flags, priority);
+  _retval = cuStreamCreateWithPriority_orig(phStream, flags, priority);
+  return _retval;
 }
 
 
@@ -1611,8 +1862,10 @@ CUresult cuStreamGetPriority(CUstream hStream, int *priority)
     cuStreamGetPriority_orig = dlsym(orig_handle, "cuStreamGetPriority");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamGetPriority\n");
-  return cuStreamGetPriority_orig(hStream, priority);
+  _retval = cuStreamGetPriority_orig(hStream, priority);
+  return _retval;
 }
 
 
@@ -1624,8 +1877,10 @@ CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags)
     cuStreamGetFlags_orig = dlsym(orig_handle, "cuStreamGetFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamGetFlags\n");
-  return cuStreamGetFlags_orig(hStream, flags);
+  _retval = cuStreamGetFlags_orig(hStream, flags);
+  return _retval;
 }
 
 
@@ -1637,8 +1892,10 @@ CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx)
     cuStreamGetCtx_orig = dlsym(orig_handle, "cuStreamGetCtx");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamGetCtx\n");
-  return cuStreamGetCtx_orig(hStream, pctx);
+  _retval = cuStreamGetCtx_orig(hStream, pctx);
+  return _retval;
 }
 
 
@@ -1650,8 +1907,10 @@ CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned int Flags)
     cuStreamWaitEvent_orig = dlsym(orig_handle, "cuStreamWaitEvent");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamWaitEvent\n");
-  return cuStreamWaitEvent_orig(hStream, hEvent, Flags);
+  _retval = cuStreamWaitEvent_orig(hStream, hEvent, Flags);
+  return _retval;
 }
 
 
@@ -1663,8 +1922,10 @@ CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void *
     cuStreamAddCallback_orig = dlsym(orig_handle, "cuStreamAddCallback");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamAddCallback\n");
-  return cuStreamAddCallback_orig(hStream, callback, userData, flags);
+  _retval = cuStreamAddCallback_orig(hStream, callback, userData, flags);
+  return _retval;
 }
 
 
@@ -1676,8 +1937,10 @@ CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mode)
     cuStreamBeginCapture_v2_orig = dlsym(orig_handle, "cuStreamBeginCapture_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamBeginCapture_v2\n");
-  return cuStreamBeginCapture_v2_orig(hStream, mode);
+  _retval = cuStreamBeginCapture_v2_orig(hStream, mode);
+  return _retval;
 }
 
 
@@ -1689,8 +1952,10 @@ CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
     cuThreadExchangeStreamCaptureMode_orig = dlsym(orig_handle, "cuThreadExchangeStreamCaptureMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuThreadExchangeStreamCaptureMode\n");
-  return cuThreadExchangeStreamCaptureMode_orig(mode);
+  _retval = cuThreadExchangeStreamCaptureMode_orig(mode);
+  return _retval;
 }
 
 
@@ -1702,8 +1967,10 @@ CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph)
     cuStreamEndCapture_orig = dlsym(orig_handle, "cuStreamEndCapture");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamEndCapture\n");
-  return cuStreamEndCapture_orig(hStream, phGraph);
+  _retval = cuStreamEndCapture_orig(hStream, phGraph);
+  return _retval;
 }
 
 
@@ -1715,8 +1982,10 @@ CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus *captureSta
     cuStreamIsCapturing_orig = dlsym(orig_handle, "cuStreamIsCapturing");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamIsCapturing\n");
-  return cuStreamIsCapturing_orig(hStream, captureStatus);
+  _retval = cuStreamIsCapturing_orig(hStream, captureStatus);
+  return _retval;
 }
 
 
@@ -1728,8 +1997,10 @@ CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus *capture
     cuStreamGetCaptureInfo_orig = dlsym(orig_handle, "cuStreamGetCaptureInfo");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamGetCaptureInfo\n");
-  return cuStreamGetCaptureInfo_orig(hStream, captureStatus, id);
+  _retval = cuStreamGetCaptureInfo_orig(hStream, captureStatus, id);
+  return _retval;
 }
 
 
@@ -1741,8 +2012,10 @@ CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, size_t lengt
     cuStreamAttachMemAsync_orig = dlsym(orig_handle, "cuStreamAttachMemAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamAttachMemAsync\n");
-  return cuStreamAttachMemAsync_orig(hStream, dptr, length, flags);
+  _retval = cuStreamAttachMemAsync_orig(hStream, dptr, length, flags);
+  return _retval;
 }
 
 
@@ -1754,8 +2027,10 @@ CUresult cuStreamQuery(CUstream hStream)
     cuStreamQuery_orig = dlsym(orig_handle, "cuStreamQuery");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamQuery\n");
-  return cuStreamQuery_orig(hStream);
+  _retval = cuStreamQuery_orig(hStream);
+  return _retval;
 }
 
 
@@ -1767,8 +2042,10 @@ CUresult cuStreamSynchronize(CUstream hStream)
     cuStreamSynchronize_orig = dlsym(orig_handle, "cuStreamSynchronize");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamSynchronize\n");
-  return cuStreamSynchronize_orig(hStream);
+  _retval = cuStreamSynchronize_orig(hStream);
+  return _retval;
 }
 
 
@@ -1780,8 +2057,10 @@ CUresult cuStreamDestroy_v2(CUstream hStream)
     cuStreamDestroy_v2_orig = dlsym(orig_handle, "cuStreamDestroy_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamDestroy_v2\n");
-  return cuStreamDestroy_v2_orig(hStream);
+  _retval = cuStreamDestroy_v2_orig(hStream);
+  return _retval;
 }
 
 
@@ -1793,8 +2072,10 @@ CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags)
     cuEventCreate_orig = dlsym(orig_handle, "cuEventCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuEventCreate\n");
-  return cuEventCreate_orig(phEvent, Flags);
+  _retval = cuEventCreate_orig(phEvent, Flags);
+  return _retval;
 }
 
 
@@ -1806,8 +2087,10 @@ CUresult cuEventRecord(CUevent hEvent, CUstream hStream)
     cuEventRecord_orig = dlsym(orig_handle, "cuEventRecord");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuEventRecord\n");
-  return cuEventRecord_orig(hEvent, hStream);
+  _retval = cuEventRecord_orig(hEvent, hStream);
+  return _retval;
 }
 
 
@@ -1819,8 +2102,10 @@ CUresult cuEventQuery(CUevent hEvent)
     cuEventQuery_orig = dlsym(orig_handle, "cuEventQuery");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuEventQuery\n");
-  return cuEventQuery_orig(hEvent);
+  _retval = cuEventQuery_orig(hEvent);
+  return _retval;
 }
 
 
@@ -1832,8 +2117,10 @@ CUresult cuEventSynchronize(CUevent hEvent)
     cuEventSynchronize_orig = dlsym(orig_handle, "cuEventSynchronize");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuEventSynchronize\n");
-  return cuEventSynchronize_orig(hEvent);
+  _retval = cuEventSynchronize_orig(hEvent);
+  return _retval;
 }
 
 
@@ -1845,8 +2132,10 @@ CUresult cuEventDestroy_v2(CUevent hEvent)
     cuEventDestroy_v2_orig = dlsym(orig_handle, "cuEventDestroy_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuEventDestroy_v2\n");
-  return cuEventDestroy_v2_orig(hEvent);
+  _retval = cuEventDestroy_v2_orig(hEvent);
+  return _retval;
 }
 
 
@@ -1858,8 +2147,10 @@ CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUevent hEnd)
     cuEventElapsedTime_orig = dlsym(orig_handle, "cuEventElapsedTime");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuEventElapsedTime\n");
-  return cuEventElapsedTime_orig(pMilliseconds, hStart, hEnd);
+  _retval = cuEventElapsedTime_orig(pMilliseconds, hStart, hEnd);
+  return _retval;
 }
 
 
@@ -1871,8 +2162,10 @@ CUresult cuImportExternalMemory(CUexternalMemory *extMem_out, const CUDA_EXTERNA
     cuImportExternalMemory_orig = dlsym(orig_handle, "cuImportExternalMemory");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuImportExternalMemory\n");
-  return cuImportExternalMemory_orig(extMem_out, memHandleDesc);
+  _retval = cuImportExternalMemory_orig(extMem_out, memHandleDesc);
+  return _retval;
 }
 
 
@@ -1884,8 +2177,10 @@ CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr *devPtr, CUexternalMemory e
     cuExternalMemoryGetMappedBuffer_orig = dlsym(orig_handle, "cuExternalMemoryGetMappedBuffer");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuExternalMemoryGetMappedBuffer\n");
-  return cuExternalMemoryGetMappedBuffer_orig(devPtr, extMem, bufferDesc);
+  _retval = cuExternalMemoryGetMappedBuffer_orig(devPtr, extMem, bufferDesc);
+  return _retval;
 }
 
 
@@ -1897,8 +2192,10 @@ CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mipmap, CUext
     cuExternalMemoryGetMappedMipmappedArray_orig = dlsym(orig_handle, "cuExternalMemoryGetMappedMipmappedArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuExternalMemoryGetMappedMipmappedArray\n");
-  return cuExternalMemoryGetMappedMipmappedArray_orig(mipmap, extMem, mipmapDesc);
+  _retval = cuExternalMemoryGetMappedMipmappedArray_orig(mipmap, extMem, mipmapDesc);
+  return _retval;
 }
 
 
@@ -1910,8 +2207,10 @@ CUresult cuDestroyExternalMemory(CUexternalMemory extMem)
     cuDestroyExternalMemory_orig = dlsym(orig_handle, "cuDestroyExternalMemory");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDestroyExternalMemory\n");
-  return cuDestroyExternalMemory_orig(extMem);
+  _retval = cuDestroyExternalMemory_orig(extMem);
+  return _retval;
 }
 
 
@@ -1923,8 +2222,10 @@ CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, const CUDA_E
     cuImportExternalSemaphore_orig = dlsym(orig_handle, "cuImportExternalSemaphore");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuImportExternalSemaphore\n");
-  return cuImportExternalSemaphore_orig(extSem_out, semHandleDesc);
+  _retval = cuImportExternalSemaphore_orig(extSem_out, semHandleDesc);
+  return _retval;
 }
 
 
@@ -1936,8 +2237,10 @@ CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *extSemArray,
     cuSignalExternalSemaphoresAsync_orig = dlsym(orig_handle, "cuSignalExternalSemaphoresAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuSignalExternalSemaphoresAsync\n");
-  return cuSignalExternalSemaphoresAsync_orig(extSemArray, paramsArray, numExtSems, stream);
+  _retval = cuSignalExternalSemaphoresAsync_orig(extSemArray, paramsArray, numExtSems, stream);
+  return _retval;
 }
 
 
@@ -1949,8 +2252,10 @@ CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *extSemArray, c
     cuWaitExternalSemaphoresAsync_orig = dlsym(orig_handle, "cuWaitExternalSemaphoresAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuWaitExternalSemaphoresAsync\n");
-  return cuWaitExternalSemaphoresAsync_orig(extSemArray, paramsArray, numExtSems, stream);
+  _retval = cuWaitExternalSemaphoresAsync_orig(extSemArray, paramsArray, numExtSems, stream);
+  return _retval;
 }
 
 
@@ -1962,8 +2267,10 @@ CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem)
     cuDestroyExternalSemaphore_orig = dlsym(orig_handle, "cuDestroyExternalSemaphore");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDestroyExternalSemaphore\n");
-  return cuDestroyExternalSemaphore_orig(extSem);
+  _retval = cuDestroyExternalSemaphore_orig(extSem);
+  return _retval;
 }
 
 
@@ -1975,8 +2282,10 @@ CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value
     cuStreamWaitValue32_orig = dlsym(orig_handle, "cuStreamWaitValue32");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamWaitValue32\n");
-  return cuStreamWaitValue32_orig(stream, addr, value, flags);
+  _retval = cuStreamWaitValue32_orig(stream, addr, value, flags);
+  return _retval;
 }
 
 
@@ -1988,8 +2297,10 @@ CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value
     cuStreamWaitValue64_orig = dlsym(orig_handle, "cuStreamWaitValue64");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamWaitValue64\n");
-  return cuStreamWaitValue64_orig(stream, addr, value, flags);
+  _retval = cuStreamWaitValue64_orig(stream, addr, value, flags);
+  return _retval;
 }
 
 
@@ -2001,8 +2312,10 @@ CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuuint32_t valu
     cuStreamWriteValue32_orig = dlsym(orig_handle, "cuStreamWriteValue32");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamWriteValue32\n");
-  return cuStreamWriteValue32_orig(stream, addr, value, flags);
+  _retval = cuStreamWriteValue32_orig(stream, addr, value, flags);
+  return _retval;
 }
 
 
@@ -2014,8 +2327,10 @@ CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t valu
     cuStreamWriteValue64_orig = dlsym(orig_handle, "cuStreamWriteValue64");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamWriteValue64\n");
-  return cuStreamWriteValue64_orig(stream, addr, value, flags);
+  _retval = cuStreamWriteValue64_orig(stream, addr, value, flags);
+  return _retval;
 }
 
 
@@ -2027,8 +2342,10 @@ CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMe
     cuStreamBatchMemOp_orig = dlsym(orig_handle, "cuStreamBatchMemOp");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuStreamBatchMemOp\n");
-  return cuStreamBatchMemOp_orig(stream, count, paramArray, flags);
+  _retval = cuStreamBatchMemOp_orig(stream, count, paramArray, flags);
+  return _retval;
 }
 
 
@@ -2040,8 +2357,10 @@ CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUfunction hfu
     cuFuncGetAttribute_orig = dlsym(orig_handle, "cuFuncGetAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuFuncGetAttribute\n");
-  return cuFuncGetAttribute_orig(pi, attrib, hfunc);
+  _retval = cuFuncGetAttribute_orig(pi, attrib, hfunc);
+  return _retval;
 }
 
 
@@ -2053,8 +2372,10 @@ CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int v
     cuFuncSetAttribute_orig = dlsym(orig_handle, "cuFuncSetAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuFuncSetAttribute\n");
-  return cuFuncSetAttribute_orig(hfunc, attrib, value);
+  _retval = cuFuncSetAttribute_orig(hfunc, attrib, value);
+  return _retval;
 }
 
 
@@ -2066,8 +2387,10 @@ CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config)
     cuFuncSetCacheConfig_orig = dlsym(orig_handle, "cuFuncSetCacheConfig");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuFuncSetCacheConfig\n");
-  return cuFuncSetCacheConfig_orig(hfunc, config);
+  _retval = cuFuncSetCacheConfig_orig(hfunc, config);
+  return _retval;
 }
 
 
@@ -2079,8 +2402,10 @@ CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config)
     cuFuncSetSharedMemConfig_orig = dlsym(orig_handle, "cuFuncSetSharedMemConfig");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuFuncSetSharedMemConfig\n");
-  return cuFuncSetSharedMemConfig_orig(hfunc, config);
+  _retval = cuFuncSetSharedMemConfig_orig(hfunc, config);
+  return _retval;
 }
 
 
@@ -2092,8 +2417,10 @@ CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDi
     cuLaunchKernel_orig = dlsym(orig_handle, "cuLaunchKernel");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunchKernel\n");
-  return cuLaunchKernel_orig(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams, extra);
+  _retval = cuLaunchKernel_orig(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams, extra);
+  return _retval;
 }
 
 
@@ -2105,8 +2432,10 @@ CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned
     cuLaunchCooperativeKernel_orig = dlsym(orig_handle, "cuLaunchCooperativeKernel");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunchCooperativeKernel\n");
-  return cuLaunchCooperativeKernel_orig(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams);
+  _retval = cuLaunchCooperativeKernel_orig(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams);
+  return _retval;
 }
 
 
@@ -2118,8 +2447,10 @@ CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *launchParamsLi
     cuLaunchCooperativeKernelMultiDevice_orig = dlsym(orig_handle, "cuLaunchCooperativeKernelMultiDevice");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunchCooperativeKernelMultiDevice\n");
-  return cuLaunchCooperativeKernelMultiDevice_orig(launchParamsList, numDevices, flags);
+  _retval = cuLaunchCooperativeKernelMultiDevice_orig(launchParamsList, numDevices, flags);
+  return _retval;
 }
 
 
@@ -2131,8 +2462,10 @@ CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userData)
     cuLaunchHostFunc_orig = dlsym(orig_handle, "cuLaunchHostFunc");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunchHostFunc\n");
-  return cuLaunchHostFunc_orig(hStream, fn, userData);
+  _retval = cuLaunchHostFunc_orig(hStream, fn, userData);
+  return _retval;
 }
 
 
@@ -2144,8 +2477,10 @@ CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z)
     cuFuncSetBlockShape_orig = dlsym(orig_handle, "cuFuncSetBlockShape");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuFuncSetBlockShape\n");
-  return cuFuncSetBlockShape_orig(hfunc, x, y, z);
+  _retval = cuFuncSetBlockShape_orig(hfunc, x, y, z);
+  return _retval;
 }
 
 
@@ -2157,8 +2492,10 @@ CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes)
     cuFuncSetSharedSize_orig = dlsym(orig_handle, "cuFuncSetSharedSize");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuFuncSetSharedSize\n");
-  return cuFuncSetSharedSize_orig(hfunc, bytes);
+  _retval = cuFuncSetSharedSize_orig(hfunc, bytes);
+  return _retval;
 }
 
 
@@ -2170,8 +2507,10 @@ CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes)
     cuParamSetSize_orig = dlsym(orig_handle, "cuParamSetSize");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuParamSetSize\n");
-  return cuParamSetSize_orig(hfunc, numbytes);
+  _retval = cuParamSetSize_orig(hfunc, numbytes);
+  return _retval;
 }
 
 
@@ -2183,8 +2522,10 @@ CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value)
     cuParamSeti_orig = dlsym(orig_handle, "cuParamSeti");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuParamSeti\n");
-  return cuParamSeti_orig(hfunc, offset, value);
+  _retval = cuParamSeti_orig(hfunc, offset, value);
+  return _retval;
 }
 
 
@@ -2196,8 +2537,10 @@ CUresult cuParamSetf(CUfunction hfunc, int offset, float value)
     cuParamSetf_orig = dlsym(orig_handle, "cuParamSetf");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuParamSetf\n");
-  return cuParamSetf_orig(hfunc, offset, value);
+  _retval = cuParamSetf_orig(hfunc, offset, value);
+  return _retval;
 }
 
 
@@ -2209,8 +2552,10 @@ CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigned int numby
     cuParamSetv_orig = dlsym(orig_handle, "cuParamSetv");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuParamSetv\n");
-  return cuParamSetv_orig(hfunc, offset, ptr, numbytes);
+  _retval = cuParamSetv_orig(hfunc, offset, ptr, numbytes);
+  return _retval;
 }
 
 
@@ -2222,8 +2567,10 @@ CUresult cuLaunch(CUfunction f)
     cuLaunch_orig = dlsym(orig_handle, "cuLaunch");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunch\n");
-  return cuLaunch_orig(f);
+  _retval = cuLaunch_orig(f);
+  return _retval;
 }
 
 
@@ -2235,8 +2582,10 @@ CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height)
     cuLaunchGrid_orig = dlsym(orig_handle, "cuLaunchGrid");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunchGrid\n");
-  return cuLaunchGrid_orig(f, grid_width, grid_height);
+  _retval = cuLaunchGrid_orig(f, grid_width, grid_height);
+  return _retval;
 }
 
 
@@ -2248,8 +2597,10 @@ CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstre
     cuLaunchGridAsync_orig = dlsym(orig_handle, "cuLaunchGridAsync");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuLaunchGridAsync\n");
-  return cuLaunchGridAsync_orig(f, grid_width, grid_height, hStream);
+  _retval = cuLaunchGridAsync_orig(f, grid_width, grid_height, hStream);
+  return _retval;
 }
 
 
@@ -2261,8 +2612,10 @@ CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef)
     cuParamSetTexRef_orig = dlsym(orig_handle, "cuParamSetTexRef");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuParamSetTexRef\n");
-  return cuParamSetTexRef_orig(hfunc, texunit, hTexRef);
+  _retval = cuParamSetTexRef_orig(hfunc, texunit, hTexRef);
+  return _retval;
 }
 
 
@@ -2274,8 +2627,10 @@ CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags)
     cuGraphCreate_orig = dlsym(orig_handle, "cuGraphCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphCreate\n");
-  return cuGraphCreate_orig(phGraph, flags);
+  _retval = cuGraphCreate_orig(phGraph, flags);
+  return _retval;
 }
 
 
@@ -2287,8 +2642,10 @@ CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CU
     cuGraphAddKernelNode_orig = dlsym(orig_handle, "cuGraphAddKernelNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddKernelNode\n");
-  return cuGraphAddKernelNode_orig(phGraphNode, hGraph, dependencies, numDependencies, nodeParams);
+  _retval = cuGraphAddKernelNode_orig(phGraphNode, hGraph, dependencies, numDependencies, nodeParams);
+  return _retval;
 }
 
 
@@ -2300,8 +2657,10 @@ CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS *
     cuGraphKernelNodeGetParams_orig = dlsym(orig_handle, "cuGraphKernelNodeGetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphKernelNodeGetParams\n");
-  return cuGraphKernelNodeGetParams_orig(hNode, nodeParams);
+  _retval = cuGraphKernelNodeGetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2313,8 +2672,10 @@ CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KERNEL_NODE_PA
     cuGraphKernelNodeSetParams_orig = dlsym(orig_handle, "cuGraphKernelNodeSetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphKernelNodeSetParams\n");
-  return cuGraphKernelNodeSetParams_orig(hNode, nodeParams);
+  _retval = cuGraphKernelNodeSetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2326,8 +2687,10 @@ CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CU
     cuGraphAddMemcpyNode_orig = dlsym(orig_handle, "cuGraphAddMemcpyNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddMemcpyNode\n");
-  return cuGraphAddMemcpyNode_orig(phGraphNode, hGraph, dependencies, numDependencies, copyParams, ctx);
+  _retval = cuGraphAddMemcpyNode_orig(phGraphNode, hGraph, dependencies, numDependencies, copyParams, ctx);
+  return _retval;
 }
 
 
@@ -2339,8 +2702,10 @@ CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D *nodeParams
     cuGraphMemcpyNodeGetParams_orig = dlsym(orig_handle, "cuGraphMemcpyNodeGetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphMemcpyNodeGetParams\n");
-  return cuGraphMemcpyNodeGetParams_orig(hNode, nodeParams);
+  _retval = cuGraphMemcpyNodeGetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2352,8 +2717,10 @@ CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D *node
     cuGraphMemcpyNodeSetParams_orig = dlsym(orig_handle, "cuGraphMemcpyNodeSetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphMemcpyNodeSetParams\n");
-  return cuGraphMemcpyNodeSetParams_orig(hNode, nodeParams);
+  _retval = cuGraphMemcpyNodeSetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2365,8 +2732,10 @@ CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CU
     cuGraphAddMemsetNode_orig = dlsym(orig_handle, "cuGraphAddMemsetNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddMemsetNode\n");
-  return cuGraphAddMemsetNode_orig(phGraphNode, hGraph, dependencies, numDependencies, memsetParams, ctx);
+  _retval = cuGraphAddMemsetNode_orig(phGraphNode, hGraph, dependencies, numDependencies, memsetParams, ctx);
+  return _retval;
 }
 
 
@@ -2378,8 +2747,10 @@ CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NODE_PARAMS *
     cuGraphMemsetNodeGetParams_orig = dlsym(orig_handle, "cuGraphMemsetNodeGetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphMemsetNodeGetParams\n");
-  return cuGraphMemsetNodeGetParams_orig(hNode, nodeParams);
+  _retval = cuGraphMemsetNodeGetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2391,8 +2762,10 @@ CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_NODE_PA
     cuGraphMemsetNodeSetParams_orig = dlsym(orig_handle, "cuGraphMemsetNodeSetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphMemsetNodeSetParams\n");
-  return cuGraphMemsetNodeSetParams_orig(hNode, nodeParams);
+  _retval = cuGraphMemsetNodeSetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2404,8 +2777,10 @@ CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgr
     cuGraphAddHostNode_orig = dlsym(orig_handle, "cuGraphAddHostNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddHostNode\n");
-  return cuGraphAddHostNode_orig(phGraphNode, hGraph, dependencies, numDependencies, nodeParams);
+  _retval = cuGraphAddHostNode_orig(phGraphNode, hGraph, dependencies, numDependencies, nodeParams);
+  return _retval;
 }
 
 
@@ -2417,8 +2792,10 @@ CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_PARAMS *node
     cuGraphHostNodeGetParams_orig = dlsym(orig_handle, "cuGraphHostNodeGetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphHostNodeGetParams\n");
-  return cuGraphHostNodeGetParams_orig(hNode, nodeParams);
+  _retval = cuGraphHostNodeGetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2430,8 +2807,10 @@ CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS
     cuGraphHostNodeSetParams_orig = dlsym(orig_handle, "cuGraphHostNodeSetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphHostNodeSetParams\n");
-  return cuGraphHostNodeSetParams_orig(hNode, nodeParams);
+  _retval = cuGraphHostNodeSetParams_orig(hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2443,8 +2822,10 @@ CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph hGraph, cons
     cuGraphAddChildGraphNode_orig = dlsym(orig_handle, "cuGraphAddChildGraphNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddChildGraphNode\n");
-  return cuGraphAddChildGraphNode_orig(phGraphNode, hGraph, dependencies, numDependencies, childGraph);
+  _retval = cuGraphAddChildGraphNode_orig(phGraphNode, hGraph, dependencies, numDependencies, childGraph);
+  return _retval;
 }
 
 
@@ -2456,8 +2837,10 @@ CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *phGraph)
     cuGraphChildGraphNodeGetGraph_orig = dlsym(orig_handle, "cuGraphChildGraphNodeGetGraph");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphChildGraphNodeGetGraph\n");
-  return cuGraphChildGraphNodeGetGraph_orig(hNode, phGraph);
+  _retval = cuGraphChildGraphNodeGetGraph_orig(hNode, phGraph);
+  return _retval;
 }
 
 
@@ -2469,8 +2852,10 @@ CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUg
     cuGraphAddEmptyNode_orig = dlsym(orig_handle, "cuGraphAddEmptyNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddEmptyNode\n");
-  return cuGraphAddEmptyNode_orig(phGraphNode, hGraph, dependencies, numDependencies);
+  _retval = cuGraphAddEmptyNode_orig(phGraphNode, hGraph, dependencies, numDependencies);
+  return _retval;
 }
 
 
@@ -2482,8 +2867,10 @@ CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph)
     cuGraphClone_orig = dlsym(orig_handle, "cuGraphClone");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphClone\n");
-  return cuGraphClone_orig(phGraphClone, originalGraph);
+  _retval = cuGraphClone_orig(phGraphClone, originalGraph);
+  return _retval;
 }
 
 
@@ -2495,8 +2882,10 @@ CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOriginalNode, 
     cuGraphNodeFindInClone_orig = dlsym(orig_handle, "cuGraphNodeFindInClone");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphNodeFindInClone\n");
-  return cuGraphNodeFindInClone_orig(phNode, hOriginalNode, hClonedGraph);
+  _retval = cuGraphNodeFindInClone_orig(phNode, hOriginalNode, hClonedGraph);
+  return _retval;
 }
 
 
@@ -2508,8 +2897,10 @@ CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
     cuGraphNodeGetType_orig = dlsym(orig_handle, "cuGraphNodeGetType");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphNodeGetType\n");
-  return cuGraphNodeGetType_orig(hNode, type);
+  _retval = cuGraphNodeGetType_orig(hNode, type);
+  return _retval;
 }
 
 
@@ -2521,8 +2912,10 @@ CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *numNodes)
     cuGraphGetNodes_orig = dlsym(orig_handle, "cuGraphGetNodes");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphGetNodes\n");
-  return cuGraphGetNodes_orig(hGraph, nodes, numNodes);
+  _retval = cuGraphGetNodes_orig(hGraph, nodes, numNodes);
+  return _retval;
 }
 
 
@@ -2534,8 +2927,10 @@ CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, size_t *num
     cuGraphGetRootNodes_orig = dlsym(orig_handle, "cuGraphGetRootNodes");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphGetRootNodes\n");
-  return cuGraphGetRootNodes_orig(hGraph, rootNodes, numRootNodes);
+  _retval = cuGraphGetRootNodes_orig(hGraph, rootNodes, numRootNodes);
+  return _retval;
 }
 
 
@@ -2547,8 +2942,10 @@ CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNode *to, siz
     cuGraphGetEdges_orig = dlsym(orig_handle, "cuGraphGetEdges");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphGetEdges\n");
-  return cuGraphGetEdges_orig(hGraph, from, to, numEdges);
+  _retval = cuGraphGetEdges_orig(hGraph, from, to, numEdges);
+  return _retval;
 }
 
 
@@ -2560,8 +2957,10 @@ CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *dependencies
     cuGraphNodeGetDependencies_orig = dlsym(orig_handle, "cuGraphNodeGetDependencies");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphNodeGetDependencies\n");
-  return cuGraphNodeGetDependencies_orig(hNode, dependencies, numDependencies);
+  _retval = cuGraphNodeGetDependencies_orig(hNode, dependencies, numDependencies);
+  return _retval;
 }
 
 
@@ -2573,8 +2972,10 @@ CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode *dependentN
     cuGraphNodeGetDependentNodes_orig = dlsym(orig_handle, "cuGraphNodeGetDependentNodes");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphNodeGetDependentNodes\n");
-  return cuGraphNodeGetDependentNodes_orig(hNode, dependentNodes, numDependentNodes);
+  _retval = cuGraphNodeGetDependentNodes_orig(hNode, dependentNodes, numDependentNodes);
+  return _retval;
 }
 
 
@@ -2586,8 +2987,10 @@ CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *from, const C
     cuGraphAddDependencies_orig = dlsym(orig_handle, "cuGraphAddDependencies");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphAddDependencies\n");
-  return cuGraphAddDependencies_orig(hGraph, from, to, numDependencies);
+  _retval = cuGraphAddDependencies_orig(hGraph, from, to, numDependencies);
+  return _retval;
 }
 
 
@@ -2599,8 +3002,10 @@ CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode *from, cons
     cuGraphRemoveDependencies_orig = dlsym(orig_handle, "cuGraphRemoveDependencies");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphRemoveDependencies\n");
-  return cuGraphRemoveDependencies_orig(hGraph, from, to, numDependencies);
+  _retval = cuGraphRemoveDependencies_orig(hGraph, from, to, numDependencies);
+  return _retval;
 }
 
 
@@ -2612,8 +3017,10 @@ CUresult cuGraphDestroyNode(CUgraphNode hNode)
     cuGraphDestroyNode_orig = dlsym(orig_handle, "cuGraphDestroyNode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphDestroyNode\n");
-  return cuGraphDestroyNode_orig(hNode);
+  _retval = cuGraphDestroyNode_orig(hNode);
+  return _retval;
 }
 
 
@@ -2625,8 +3032,10 @@ CUresult cuGraphInstantiate(CUgraphExec *phGraphExec, CUgraph hGraph, CUgraphNod
     cuGraphInstantiate_orig = dlsym(orig_handle, "cuGraphInstantiate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphInstantiate\n");
-  return cuGraphInstantiate_orig(phGraphExec, hGraph, phErrorNode, logBuffer, bufferSize);
+  _retval = cuGraphInstantiate_orig(phGraphExec, hGraph, phErrorNode, logBuffer, bufferSize);
+  return _retval;
 }
 
 
@@ -2638,8 +3047,10 @@ CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNod
     cuGraphExecKernelNodeSetParams_orig = dlsym(orig_handle, "cuGraphExecKernelNodeSetParams");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphExecKernelNodeSetParams\n");
-  return cuGraphExecKernelNodeSetParams_orig(hGraphExec, hNode, nodeParams);
+  _retval = cuGraphExecKernelNodeSetParams_orig(hGraphExec, hNode, nodeParams);
+  return _retval;
 }
 
 
@@ -2651,8 +3062,10 @@ CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream)
     cuGraphLaunch_orig = dlsym(orig_handle, "cuGraphLaunch");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphLaunch\n");
-  return cuGraphLaunch_orig(hGraphExec, hStream);
+  _retval = cuGraphLaunch_orig(hGraphExec, hStream);
+  return _retval;
 }
 
 
@@ -2664,8 +3077,10 @@ CUresult cuGraphExecDestroy(CUgraphExec hGraphExec)
     cuGraphExecDestroy_orig = dlsym(orig_handle, "cuGraphExecDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphExecDestroy\n");
-  return cuGraphExecDestroy_orig(hGraphExec);
+  _retval = cuGraphExecDestroy_orig(hGraphExec);
+  return _retval;
 }
 
 
@@ -2677,8 +3092,10 @@ CUresult cuGraphDestroy(CUgraph hGraph)
     cuGraphDestroy_orig = dlsym(orig_handle, "cuGraphDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphDestroy\n");
-  return cuGraphDestroy_orig(hGraph);
+  _retval = cuGraphDestroy_orig(hGraph);
+  return _retval;
 }
 
 
@@ -2690,8 +3107,10 @@ CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, CUfunction 
     cuOccupancyMaxActiveBlocksPerMultiprocessor_orig = dlsym(orig_handle, "cuOccupancyMaxActiveBlocksPerMultiprocessor");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuOccupancyMaxActiveBlocksPerMultiprocessor\n");
-  return cuOccupancyMaxActiveBlocksPerMultiprocessor_orig(numBlocks, func, blockSize, dynamicSMemSize);
+  _retval = cuOccupancyMaxActiveBlocksPerMultiprocessor_orig(numBlocks, func, blockSize, dynamicSMemSize);
+  return _retval;
 }
 
 
@@ -2703,8 +3122,10 @@ CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *numBlocks, CU
     cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_orig = dlsym(orig_handle, "cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags\n");
-  return cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_orig(numBlocks, func, blockSize, dynamicSMemSize, flags);
+  _retval = cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags_orig(numBlocks, func, blockSize, dynamicSMemSize, flags);
+  return _retval;
 }
 
 
@@ -2716,8 +3137,10 @@ CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *blockSize, CUfu
     cuOccupancyMaxPotentialBlockSize_orig = dlsym(orig_handle, "cuOccupancyMaxPotentialBlockSize");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuOccupancyMaxPotentialBlockSize\n");
-  return cuOccupancyMaxPotentialBlockSize_orig(minGridSize, blockSize, func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit);
+  _retval = cuOccupancyMaxPotentialBlockSize_orig(minGridSize, blockSize, func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit);
+  return _retval;
 }
 
 
@@ -2729,8 +3152,10 @@ CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, int *blockS
     cuOccupancyMaxPotentialBlockSizeWithFlags_orig = dlsym(orig_handle, "cuOccupancyMaxPotentialBlockSizeWithFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuOccupancyMaxPotentialBlockSizeWithFlags\n");
-  return cuOccupancyMaxPotentialBlockSizeWithFlags_orig(minGridSize, blockSize, func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit, flags);
+  _retval = cuOccupancyMaxPotentialBlockSizeWithFlags_orig(minGridSize, blockSize, func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit, flags);
+  return _retval;
 }
 
 
@@ -2742,8 +3167,10 @@ CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags)
     cuTexRefSetArray_orig = dlsym(orig_handle, "cuTexRefSetArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetArray\n");
-  return cuTexRefSetArray_orig(hTexRef, hArray, Flags);
+  _retval = cuTexRefSetArray_orig(hTexRef, hArray, Flags);
+  return _retval;
 }
 
 
@@ -2755,8 +3182,10 @@ CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray hMipmapped
     cuTexRefSetMipmappedArray_orig = dlsym(orig_handle, "cuTexRefSetMipmappedArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetMipmappedArray\n");
-  return cuTexRefSetMipmappedArray_orig(hTexRef, hMipmappedArray, Flags);
+  _retval = cuTexRefSetMipmappedArray_orig(hTexRef, hMipmappedArray, Flags);
+  return _retval;
 }
 
 
@@ -2768,8 +3197,10 @@ CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, CUdeviceptr
     cuTexRefSetAddress_v2_orig = dlsym(orig_handle, "cuTexRefSetAddress_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetAddress_v2\n");
-  return cuTexRefSetAddress_v2_orig(ByteOffset, hTexRef, dptr, bytes);
+  _retval = cuTexRefSetAddress_v2_orig(ByteOffset, hTexRef, dptr, bytes);
+  return _retval;
 }
 
 
@@ -2781,8 +3212,10 @@ CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR *
     cuTexRefSetAddress2D_v3_orig = dlsym(orig_handle, "cuTexRefSetAddress2D_v3");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetAddress2D_v3\n");
-  return cuTexRefSetAddress2D_v3_orig(hTexRef, desc, dptr, Pitch);
+  _retval = cuTexRefSetAddress2D_v3_orig(hTexRef, desc, dptr, Pitch);
+  return _retval;
 }
 
 
@@ -2794,8 +3227,10 @@ CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPackedCo
     cuTexRefSetFormat_orig = dlsym(orig_handle, "cuTexRefSetFormat");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetFormat\n");
-  return cuTexRefSetFormat_orig(hTexRef, fmt, NumPackedComponents);
+  _retval = cuTexRefSetFormat_orig(hTexRef, fmt, NumPackedComponents);
+  return _retval;
 }
 
 
@@ -2807,8 +3242,10 @@ CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am)
     cuTexRefSetAddressMode_orig = dlsym(orig_handle, "cuTexRefSetAddressMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetAddressMode\n");
-  return cuTexRefSetAddressMode_orig(hTexRef, dim, am);
+  _retval = cuTexRefSetAddressMode_orig(hTexRef, dim, am);
+  return _retval;
 }
 
 
@@ -2820,8 +3257,10 @@ CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm)
     cuTexRefSetFilterMode_orig = dlsym(orig_handle, "cuTexRefSetFilterMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetFilterMode\n");
-  return cuTexRefSetFilterMode_orig(hTexRef, fm);
+  _retval = cuTexRefSetFilterMode_orig(hTexRef, fm);
+  return _retval;
 }
 
 
@@ -2833,8 +3272,10 @@ CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode fm)
     cuTexRefSetMipmapFilterMode_orig = dlsym(orig_handle, "cuTexRefSetMipmapFilterMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetMipmapFilterMode\n");
-  return cuTexRefSetMipmapFilterMode_orig(hTexRef, fm);
+  _retval = cuTexRefSetMipmapFilterMode_orig(hTexRef, fm);
+  return _retval;
 }
 
 
@@ -2846,8 +3287,10 @@ CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias)
     cuTexRefSetMipmapLevelBias_orig = dlsym(orig_handle, "cuTexRefSetMipmapLevelBias");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetMipmapLevelBias\n");
-  return cuTexRefSetMipmapLevelBias_orig(hTexRef, bias);
+  _retval = cuTexRefSetMipmapLevelBias_orig(hTexRef, bias);
+  return _retval;
 }
 
 
@@ -2859,8 +3302,10 @@ CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipmapLevelClamp
     cuTexRefSetMipmapLevelClamp_orig = dlsym(orig_handle, "cuTexRefSetMipmapLevelClamp");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetMipmapLevelClamp\n");
-  return cuTexRefSetMipmapLevelClamp_orig(hTexRef, minMipmapLevelClamp, maxMipmapLevelClamp);
+  _retval = cuTexRefSetMipmapLevelClamp_orig(hTexRef, minMipmapLevelClamp, maxMipmapLevelClamp);
+  return _retval;
 }
 
 
@@ -2872,8 +3317,10 @@ CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxAniso)
     cuTexRefSetMaxAnisotropy_orig = dlsym(orig_handle, "cuTexRefSetMaxAnisotropy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetMaxAnisotropy\n");
-  return cuTexRefSetMaxAnisotropy_orig(hTexRef, maxAniso);
+  _retval = cuTexRefSetMaxAnisotropy_orig(hTexRef, maxAniso);
+  return _retval;
 }
 
 
@@ -2885,8 +3332,10 @@ CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor)
     cuTexRefSetBorderColor_orig = dlsym(orig_handle, "cuTexRefSetBorderColor");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetBorderColor\n");
-  return cuTexRefSetBorderColor_orig(hTexRef, pBorderColor);
+  _retval = cuTexRefSetBorderColor_orig(hTexRef, pBorderColor);
+  return _retval;
 }
 
 
@@ -2898,8 +3347,10 @@ CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags)
     cuTexRefSetFlags_orig = dlsym(orig_handle, "cuTexRefSetFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefSetFlags\n");
-  return cuTexRefSetFlags_orig(hTexRef, Flags);
+  _retval = cuTexRefSetFlags_orig(hTexRef, Flags);
+  return _retval;
 }
 
 
@@ -2911,8 +3362,10 @@ CUresult cuTexRefGetAddress_v2(CUdeviceptr *pdptr, CUtexref hTexRef)
     cuTexRefGetAddress_v2_orig = dlsym(orig_handle, "cuTexRefGetAddress_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetAddress_v2\n");
-  return cuTexRefGetAddress_v2_orig(pdptr, hTexRef);
+  _retval = cuTexRefGetAddress_v2_orig(pdptr, hTexRef);
+  return _retval;
 }
 
 
@@ -2924,8 +3377,10 @@ CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef)
     cuTexRefGetArray_orig = dlsym(orig_handle, "cuTexRefGetArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetArray\n");
-  return cuTexRefGetArray_orig(phArray, hTexRef);
+  _retval = cuTexRefGetArray_orig(phArray, hTexRef);
+  return _retval;
 }
 
 
@@ -2937,8 +3392,10 @@ CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray, CUtexref 
     cuTexRefGetMipmappedArray_orig = dlsym(orig_handle, "cuTexRefGetMipmappedArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetMipmappedArray\n");
-  return cuTexRefGetMipmappedArray_orig(phMipmappedArray, hTexRef);
+  _retval = cuTexRefGetMipmappedArray_orig(phMipmappedArray, hTexRef);
+  return _retval;
 }
 
 
@@ -2950,8 +3407,10 @@ CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef, int dim)
     cuTexRefGetAddressMode_orig = dlsym(orig_handle, "cuTexRefGetAddressMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetAddressMode\n");
-  return cuTexRefGetAddressMode_orig(pam, hTexRef, dim);
+  _retval = cuTexRefGetAddressMode_orig(pam, hTexRef, dim);
+  return _retval;
 }
 
 
@@ -2963,8 +3422,10 @@ CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef)
     cuTexRefGetFilterMode_orig = dlsym(orig_handle, "cuTexRefGetFilterMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetFilterMode\n");
-  return cuTexRefGetFilterMode_orig(pfm, hTexRef);
+  _retval = cuTexRefGetFilterMode_orig(pfm, hTexRef);
+  return _retval;
 }
 
 
@@ -2976,8 +3437,10 @@ CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels, CUtexref 
     cuTexRefGetFormat_orig = dlsym(orig_handle, "cuTexRefGetFormat");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetFormat\n");
-  return cuTexRefGetFormat_orig(pFormat, pNumChannels, hTexRef);
+  _retval = cuTexRefGetFormat_orig(pFormat, pNumChannels, hTexRef);
+  return _retval;
 }
 
 
@@ -2989,8 +3452,10 @@ CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTexRef)
     cuTexRefGetMipmapFilterMode_orig = dlsym(orig_handle, "cuTexRefGetMipmapFilterMode");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetMipmapFilterMode\n");
-  return cuTexRefGetMipmapFilterMode_orig(pfm, hTexRef);
+  _retval = cuTexRefGetMipmapFilterMode_orig(pfm, hTexRef);
+  return _retval;
 }
 
 
@@ -3002,8 +3467,10 @@ CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef)
     cuTexRefGetMipmapLevelBias_orig = dlsym(orig_handle, "cuTexRefGetMipmapLevelBias");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetMipmapLevelBias\n");
-  return cuTexRefGetMipmapLevelBias_orig(pbias, hTexRef);
+  _retval = cuTexRefGetMipmapLevelBias_orig(pbias, hTexRef);
+  return _retval;
 }
 
 
@@ -3015,8 +3482,10 @@ CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, float *pmaxMip
     cuTexRefGetMipmapLevelClamp_orig = dlsym(orig_handle, "cuTexRefGetMipmapLevelClamp");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetMipmapLevelClamp\n");
-  return cuTexRefGetMipmapLevelClamp_orig(pminMipmapLevelClamp, pmaxMipmapLevelClamp, hTexRef);
+  _retval = cuTexRefGetMipmapLevelClamp_orig(pminMipmapLevelClamp, pmaxMipmapLevelClamp, hTexRef);
+  return _retval;
 }
 
 
@@ -3028,8 +3497,10 @@ CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef)
     cuTexRefGetMaxAnisotropy_orig = dlsym(orig_handle, "cuTexRefGetMaxAnisotropy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetMaxAnisotropy\n");
-  return cuTexRefGetMaxAnisotropy_orig(pmaxAniso, hTexRef);
+  _retval = cuTexRefGetMaxAnisotropy_orig(pmaxAniso, hTexRef);
+  return _retval;
 }
 
 
@@ -3041,8 +3512,10 @@ CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef)
     cuTexRefGetBorderColor_orig = dlsym(orig_handle, "cuTexRefGetBorderColor");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetBorderColor\n");
-  return cuTexRefGetBorderColor_orig(pBorderColor, hTexRef);
+  _retval = cuTexRefGetBorderColor_orig(pBorderColor, hTexRef);
+  return _retval;
 }
 
 
@@ -3054,8 +3527,10 @@ CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef)
     cuTexRefGetFlags_orig = dlsym(orig_handle, "cuTexRefGetFlags");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefGetFlags\n");
-  return cuTexRefGetFlags_orig(pFlags, hTexRef);
+  _retval = cuTexRefGetFlags_orig(pFlags, hTexRef);
+  return _retval;
 }
 
 
@@ -3067,8 +3542,10 @@ CUresult cuTexRefCreate(CUtexref *pTexRef)
     cuTexRefCreate_orig = dlsym(orig_handle, "cuTexRefCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefCreate\n");
-  return cuTexRefCreate_orig(pTexRef);
+  _retval = cuTexRefCreate_orig(pTexRef);
+  return _retval;
 }
 
 
@@ -3080,8 +3557,10 @@ CUresult cuTexRefDestroy(CUtexref hTexRef)
     cuTexRefDestroy_orig = dlsym(orig_handle, "cuTexRefDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexRefDestroy\n");
-  return cuTexRefDestroy_orig(hTexRef);
+  _retval = cuTexRefDestroy_orig(hTexRef);
+  return _retval;
 }
 
 
@@ -3093,8 +3572,10 @@ CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsigned int Flag
     cuSurfRefSetArray_orig = dlsym(orig_handle, "cuSurfRefSetArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuSurfRefSetArray\n");
-  return cuSurfRefSetArray_orig(hSurfRef, hArray, Flags);
+  _retval = cuSurfRefSetArray_orig(hSurfRef, hArray, Flags);
+  return _retval;
 }
 
 
@@ -3106,8 +3587,10 @@ CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef)
     cuSurfRefGetArray_orig = dlsym(orig_handle, "cuSurfRefGetArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuSurfRefGetArray\n");
-  return cuSurfRefGetArray_orig(phArray, hSurfRef);
+  _retval = cuSurfRefGetArray_orig(phArray, hSurfRef);
+  return _retval;
 }
 
 
@@ -3119,8 +3602,10 @@ CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOURCE_DESC *pR
     cuTexObjectCreate_orig = dlsym(orig_handle, "cuTexObjectCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexObjectCreate\n");
-  return cuTexObjectCreate_orig(pTexObject, pResDesc, pTexDesc, pResViewDesc);
+  _retval = cuTexObjectCreate_orig(pTexObject, pResDesc, pTexDesc, pResViewDesc);
+  return _retval;
 }
 
 
@@ -3132,8 +3617,10 @@ CUresult cuTexObjectDestroy(CUtexObject texObject)
     cuTexObjectDestroy_orig = dlsym(orig_handle, "cuTexObjectDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexObjectDestroy\n");
-  return cuTexObjectDestroy_orig(texObject);
+  _retval = cuTexObjectDestroy_orig(texObject);
+  return _retval;
 }
 
 
@@ -3145,8 +3632,10 @@ CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUtexObject te
     cuTexObjectGetResourceDesc_orig = dlsym(orig_handle, "cuTexObjectGetResourceDesc");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexObjectGetResourceDesc\n");
-  return cuTexObjectGetResourceDesc_orig(pResDesc, texObject);
+  _retval = cuTexObjectGetResourceDesc_orig(pResDesc, texObject);
+  return _retval;
 }
 
 
@@ -3158,8 +3647,10 @@ CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtexObject texO
     cuTexObjectGetTextureDesc_orig = dlsym(orig_handle, "cuTexObjectGetTextureDesc");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexObjectGetTextureDesc\n");
-  return cuTexObjectGetTextureDesc_orig(pTexDesc, texObject);
+  _retval = cuTexObjectGetTextureDesc_orig(pTexDesc, texObject);
+  return _retval;
 }
 
 
@@ -3171,8 +3662,10 @@ CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pResViewDesc, C
     cuTexObjectGetResourceViewDesc_orig = dlsym(orig_handle, "cuTexObjectGetResourceViewDesc");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuTexObjectGetResourceViewDesc\n");
-  return cuTexObjectGetResourceViewDesc_orig(pResViewDesc, texObject);
+  _retval = cuTexObjectGetResourceViewDesc_orig(pResViewDesc, texObject);
+  return _retval;
 }
 
 
@@ -3184,8 +3677,10 @@ CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RESOURCE_DESC 
     cuSurfObjectCreate_orig = dlsym(orig_handle, "cuSurfObjectCreate");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuSurfObjectCreate\n");
-  return cuSurfObjectCreate_orig(pSurfObject, pResDesc);
+  _retval = cuSurfObjectCreate_orig(pSurfObject, pResDesc);
+  return _retval;
 }
 
 
@@ -3197,8 +3692,10 @@ CUresult cuSurfObjectDestroy(CUsurfObject surfObject)
     cuSurfObjectDestroy_orig = dlsym(orig_handle, "cuSurfObjectDestroy");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuSurfObjectDestroy\n");
-  return cuSurfObjectDestroy_orig(surfObject);
+  _retval = cuSurfObjectDestroy_orig(surfObject);
+  return _retval;
 }
 
 
@@ -3210,8 +3707,10 @@ CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUsurfObject 
     cuSurfObjectGetResourceDesc_orig = dlsym(orig_handle, "cuSurfObjectGetResourceDesc");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuSurfObjectGetResourceDesc\n");
-  return cuSurfObjectGetResourceDesc_orig(pResDesc, surfObject);
+  _retval = cuSurfObjectGetResourceDesc_orig(pResDesc, surfObject);
+  return _retval;
 }
 
 
@@ -3223,8 +3722,10 @@ CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUdevice peerDe
     cuDeviceCanAccessPeer_orig = dlsym(orig_handle, "cuDeviceCanAccessPeer");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceCanAccessPeer\n");
-  return cuDeviceCanAccessPeer_orig(canAccessPeer, dev, peerDev);
+  _retval = cuDeviceCanAccessPeer_orig(canAccessPeer, dev, peerDev);
+  return _retval;
 }
 
 
@@ -3236,8 +3737,10 @@ CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Flags)
     cuCtxEnablePeerAccess_orig = dlsym(orig_handle, "cuCtxEnablePeerAccess");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxEnablePeerAccess\n");
-  return cuCtxEnablePeerAccess_orig(peerContext, Flags);
+  _retval = cuCtxEnablePeerAccess_orig(peerContext, Flags);
+  return _retval;
 }
 
 
@@ -3249,8 +3752,10 @@ CUresult cuCtxDisablePeerAccess(CUcontext peerContext)
     cuCtxDisablePeerAccess_orig = dlsym(orig_handle, "cuCtxDisablePeerAccess");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuCtxDisablePeerAccess\n");
-  return cuCtxDisablePeerAccess_orig(peerContext);
+  _retval = cuCtxDisablePeerAccess_orig(peerContext);
+  return _retval;
 }
 
 
@@ -3262,8 +3767,10 @@ CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute attrib, CUdev
     cuDeviceGetP2PAttribute_orig = dlsym(orig_handle, "cuDeviceGetP2PAttribute");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuDeviceGetP2PAttribute\n");
-  return cuDeviceGetP2PAttribute_orig(value, attrib, srcDevice, dstDevice);
+  _retval = cuDeviceGetP2PAttribute_orig(value, attrib, srcDevice, dstDevice);
+  return _retval;
 }
 
 
@@ -3275,8 +3782,10 @@ CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource)
     cuGraphicsUnregisterResource_orig = dlsym(orig_handle, "cuGraphicsUnregisterResource");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsUnregisterResource\n");
-  return cuGraphicsUnregisterResource_orig(resource);
+  _retval = cuGraphicsUnregisterResource_orig(resource);
+  return _retval;
 }
 
 
@@ -3288,8 +3797,10 @@ CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraphicsResource
     cuGraphicsSubResourceGetMappedArray_orig = dlsym(orig_handle, "cuGraphicsSubResourceGetMappedArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsSubResourceGetMappedArray\n");
-  return cuGraphicsSubResourceGetMappedArray_orig(pArray, resource, arrayIndex, mipLevel);
+  _retval = cuGraphicsSubResourceGetMappedArray_orig(pArray, resource, arrayIndex, mipLevel);
+  return _retval;
 }
 
 
@@ -3301,8 +3812,10 @@ CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *pMipmappedA
     cuGraphicsResourceGetMappedMipmappedArray_orig = dlsym(orig_handle, "cuGraphicsResourceGetMappedMipmappedArray");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsResourceGetMappedMipmappedArray\n");
-  return cuGraphicsResourceGetMappedMipmappedArray_orig(pMipmappedArray, resource);
+  _retval = cuGraphicsResourceGetMappedMipmappedArray_orig(pMipmappedArray, resource);
+  return _retval;
 }
 
 
@@ -3314,8 +3827,10 @@ CUresult cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr *pDevPtr, size_t *pSi
     cuGraphicsResourceGetMappedPointer_v2_orig = dlsym(orig_handle, "cuGraphicsResourceGetMappedPointer_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsResourceGetMappedPointer_v2\n");
-  return cuGraphicsResourceGetMappedPointer_v2_orig(pDevPtr, pSize, resource);
+  _retval = cuGraphicsResourceGetMappedPointer_v2_orig(pDevPtr, pSize, resource);
+  return _retval;
 }
 
 
@@ -3327,8 +3842,10 @@ CUresult cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource, unsigned 
     cuGraphicsResourceSetMapFlags_v2_orig = dlsym(orig_handle, "cuGraphicsResourceSetMapFlags_v2");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsResourceSetMapFlags_v2\n");
-  return cuGraphicsResourceSetMapFlags_v2_orig(resource, flags);
+  _retval = cuGraphicsResourceSetMapFlags_v2_orig(resource, flags);
+  return _retval;
 }
 
 
@@ -3340,8 +3857,10 @@ CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResource *resource
     cuGraphicsMapResources_orig = dlsym(orig_handle, "cuGraphicsMapResources");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsMapResources\n");
-  return cuGraphicsMapResources_orig(count, resources, hStream);
+  _retval = cuGraphicsMapResources_orig(count, resources, hStream);
+  return _retval;
 }
 
 
@@ -3353,8 +3872,10 @@ CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResource *resour
     cuGraphicsUnmapResources_orig = dlsym(orig_handle, "cuGraphicsUnmapResources");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGraphicsUnmapResources\n");
-  return cuGraphicsUnmapResources_orig(count, resources, hStream);
+  _retval = cuGraphicsUnmapResources_orig(count, resources, hStream);
+  return _retval;
 }
 
 
@@ -3366,8 +3887,10 @@ CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *pExportTable
     cuGetExportTable_orig = dlsym(orig_handle, "cuGetExportTable");
   }
 
+  CUresult _retval;
   fprintf(trace_handle, "cuGetExportTable\n");
-  return cuGetExportTable_orig(ppExportTable, pExportTableId);
+  _retval = cuGetExportTable_orig(ppExportTable, pExportTableId);
+  return _retval;
 }
 
 
