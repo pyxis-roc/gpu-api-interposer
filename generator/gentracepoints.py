@@ -16,7 +16,11 @@ FIELD_FMTS = {
 def generate_tracepoint_template(recipe, output):
     provider = recipe['main']['provider']
 
+    tracepoint_probes = {}
+
     with open(output, "w") as outf:
+        outf.write("/* automatically generated, do not edit */")
+
         if 'includes' in recipe:            
             for i in recipe['includes'].get('system', []):
                 outf.write(f"#include <{i}>\n")
@@ -55,6 +59,9 @@ def generate_tracepoint_template(recipe, output):
                     # TODO: get field types from arg names
                     pass
 
+            CALL_ARGS = ", ".join([a.name for a in args])
+            if len(CALL_ARGS): CALL_ARGS = ", " + CALL_ARGS
+
             TP_ARGS = "TP_ARGS(" + ",\n".join([f"{a.type}, {a.name}" for a in args]) + ")"
             TP_FIELDS = "TP_FIELDS(" + "\n".join([FIELD_FMTS[f.type].format(fieldname=f.fieldname, 
                                                                         **f.type_args) for f in fields]) + ")"
@@ -70,6 +77,10 @@ TRACEPOINT_EVENT(
 """
             outf.write(out)
 
+            tracepoint_probes[e] = f"tracepoint({provider}, {e}{CALL_ARGS})"
+
+        return tracepoint_probes
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Generate a tracepoint template for a header file")
     p.add_argument("header", help="C header file")
@@ -80,4 +91,4 @@ if __name__ == "__main__":
 
     with open(args.tp_recipe_yaml, "r") as f:
         recipe = yaml.safe_load(f)
-        generate_tracepoint_template(recipe, args.output)
+        tp = generate_tracepoint_template(recipe, args.output)
