@@ -9,10 +9,10 @@ OBJS=libcuda_passthru.so libcuda_trace.so libcuda_record.c
 all: $(OBJS)
 
 %.so: %.c
-	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I/usr/local/cuda/include
+	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC)
 
 libcuda_record.so: libcuda_record.c libcuda_record_instr.c libcuda_record-tracepoints.o
-	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $^ -o $@ -ldl -I/usr/local/cuda/include
+	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $^ -o $@ -llttng-ust -ldl -I$(CUDA_INC)
 
 libcuda_passthru.c:
 	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) -o $@
