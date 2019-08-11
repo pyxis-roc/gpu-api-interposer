@@ -515,7 +515,7 @@ class InterposerGenerator(object):
             for l in self.generate_plugin_post_code():
                 f.write(l)
     
-def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
+def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None, addl_headers_path = None):
     h, fn = tempfile.mkstemp(suffix = ".h")
     
     args = [infile, "-o", fn]
@@ -523,7 +523,12 @@ def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None):
     if fake_c_headers_path is not None:
         args.insert(0, "-I")
         args.insert(1, fake_c_headers_path)
-    
+
+    if addl_headers_path is not None:
+        for x in addl_headers_path:
+            args.insert(0, "-I")
+            args.insert(1, x)
+        
     if cpp_args_file is not None:
         with open(cpp_args_file, "r") as f:
             args = [s.strip() for s in f.readlines() if s[0] != "#"] + args
@@ -548,6 +553,7 @@ def get_ast(preprocessed_file):
 def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None):
     preprocessed = preprocess(hfile, cppargsfile, fake_c_headers)
     ast = get_ast(preprocessed)
+    os.unlink(preprocessed)
     ig = InterposerGenerator(hfile, ast, oprefix)
 
     return ig

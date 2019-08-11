@@ -19,7 +19,9 @@ FIELD_FMTS = {
 def generate_tracepoint_template(recipe, output, ig):
     provider = recipe['main']['provider']
 
-    tracepoint_probes = {}
+    tracepoint_probes = {"output": output,
+                         "events": {}
+    }
     dn = dict([(x['origname'], x) for x in ig.get_decl_nodes()])
 
     with open(output, "w") as outf:
@@ -67,9 +69,6 @@ def generate_tracepoint_template(recipe, output, ig):
                     # TODO: get field types from arg names
                     pass
 
-            CALL_ARGS = ", ".join([a.name for a in args])
-            if len(CALL_ARGS): CALL_ARGS = ", " + CALL_ARGS
-
             TP_ARGS = "TP_ARGS(" + ",\n".join([f"{a.type}, {a.name}" for a in args]) + ")"
             TP_FIELDS = "TP_FIELDS(" + "\n".join([FIELD_FMTS[f.type].format(fieldname=f.fieldname, 
                                                                         **f.type_args) for f in fields]) + ")"
@@ -85,7 +84,7 @@ TRACEPOINT_EVENT(
 """
             outf.write(out)
 
-            tracepoint_probes[e] = f"tracepoint({provider}, {e}{CALL_ARGS})"
+            tracepoint_probes['events'][e] = {'args': [provider, e] + [a.name for a in args]}
 
         return tracepoint_probes
 
@@ -97,7 +96,7 @@ if __name__ == "__main__":
 
     p.add_argument("tp_recipe_yaml", help="Tracepoint recipe")
     p.add_argument("-o", "--output", help="Output template file", default="/dev/stdout")
-    p.add_argument("--oprobes", help="Output probes file")
+    p.add_argument("--tpinfo", help="Output tracepoint info file")
 
     args = p.parse_args()
 
@@ -108,6 +107,6 @@ if __name__ == "__main__":
     with open(args.tp_recipe_yaml, "r") as f:
         recipe = yaml.safe_load(f)
         tp = generate_tracepoint_template(recipe, args.output, ig)
-        if args.oprobes:
-            with open(args.oprobes, "w") as opf:
-                yaml.dump(tp, opf)
+        if args.tpinfo:
+            with open(args.tpinfo, "w") as tpinfo:
+                yaml.dump(tp, tpinfo)
