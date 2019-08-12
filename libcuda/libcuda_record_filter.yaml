@@ -4,3 +4,5 @@ pre_and_post:
   - cuDriverGetVersion
 post:
   - cuGetErrorString
+  - cuCtxGetCurrent
+  - cuCtxGetDevice
