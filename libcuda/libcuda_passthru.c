@@ -1799,30 +1799,16 @@ CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callback, void *
 }
 
 
-CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMode mode)
+CUresult cuStreamBeginCapture(CUstream hStream)
 {
-  static CUresult (*cuStreamBeginCapture_v2_orig)(CUstream, CUstreamCaptureMode) = NULL;
-  if (!cuStreamBeginCapture_v2_orig)
+  static CUresult (*cuStreamBeginCapture_orig)(CUstream) = NULL;
+  if (!cuStreamBeginCapture_orig)
   {
-    cuStreamBeginCapture_v2_orig = dlsym(orig_handle, "cuStreamBeginCapture_v2");
+    cuStreamBeginCapture_orig = dlsym(orig_handle, "cuStreamBeginCapture");
   }
 
   CUresult _retval;
-  _retval = cuStreamBeginCapture_v2_orig(hStream, mode);
-  return _retval;
-}
-
-
-CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
-{
-  static CUresult (*cuThreadExchangeStreamCaptureMode_orig)(CUstreamCaptureMode *) = NULL;
-  if (!cuThreadExchangeStreamCaptureMode_orig)
-  {
-    cuThreadExchangeStreamCaptureMode_orig = dlsym(orig_handle, "cuThreadExchangeStreamCaptureMode");
-  }
-
-  CUresult _retval;
-  _retval = cuThreadExchangeStreamCaptureMode_orig(mode);
+  _retval = cuStreamBeginCapture_orig(hStream);
   return _retval;
 }
 
@@ -1851,20 +1837,6 @@ CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus *captureSta
 
   CUresult _retval;
   _retval = cuStreamIsCapturing_orig(hStream, captureStatus);
-  return _retval;
-}
-
-
-CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus *captureStatus, cuuint64_t *id)
-{
-  static CUresult (*cuStreamGetCaptureInfo_orig)(CUstream, CUstreamCaptureStatus *, cuuint64_t *) = NULL;
-  if (!cuStreamGetCaptureInfo_orig)
-  {
-    cuStreamGetCaptureInfo_orig = dlsym(orig_handle, "cuStreamGetCaptureInfo");
-  }
-
-  CUresult _retval;
-  _retval = cuStreamGetCaptureInfo_orig(hStream, captureStatus, id);
   return _retval;
 }
 
@@ -2457,9 +2429,9 @@ CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags)
 }
 
 
-CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS *nodeParams)
+CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGraph, CUgraphNode *dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS *nodeParams)
 {
-  static CUresult (*cuGraphAddKernelNode_orig)(CUgraphNode *, CUgraph, const CUgraphNode *, size_t, const CUDA_KERNEL_NODE_PARAMS *) = NULL;
+  static CUresult (*cuGraphAddKernelNode_orig)(CUgraphNode *, CUgraph, CUgraphNode *, size_t, const CUDA_KERNEL_NODE_PARAMS *) = NULL;
   if (!cuGraphAddKernelNode_orig)
   {
     cuGraphAddKernelNode_orig = dlsym(orig_handle, "cuGraphAddKernelNode");
@@ -2499,9 +2471,9 @@ CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KERNEL_NODE_PA
 }
 
 
-CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_MEMCPY3D *copyParams, CUcontext ctx)
+CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGraph, CUgraphNode *dependencies, size_t numDependencies, const CUDA_MEMCPY3D *copyParams, CUcontext ctx)
 {
-  static CUresult (*cuGraphAddMemcpyNode_orig)(CUgraphNode *, CUgraph, const CUgraphNode *, size_t, const CUDA_MEMCPY3D *, CUcontext) = NULL;
+  static CUresult (*cuGraphAddMemcpyNode_orig)(CUgraphNode *, CUgraph, CUgraphNode *, size_t, const CUDA_MEMCPY3D *, CUcontext) = NULL;
   if (!cuGraphAddMemcpyNode_orig)
   {
     cuGraphAddMemcpyNode_orig = dlsym(orig_handle, "cuGraphAddMemcpyNode");
@@ -2541,9 +2513,9 @@ CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEMCPY3D *node
 }
 
 
-CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_MEMSET_NODE_PARAMS *memsetParams, CUcontext ctx)
+CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGraph, CUgraphNode *dependencies, size_t numDependencies, const CUDA_MEMSET_NODE_PARAMS *memsetParams, CUcontext ctx)
 {
-  static CUresult (*cuGraphAddMemsetNode_orig)(CUgraphNode *, CUgraph, const CUgraphNode *, size_t, const CUDA_MEMSET_NODE_PARAMS *, CUcontext) = NULL;
+  static CUresult (*cuGraphAddMemsetNode_orig)(CUgraphNode *, CUgraph, CUgraphNode *, size_t, const CUDA_MEMSET_NODE_PARAMS *, CUcontext) = NULL;
   if (!cuGraphAddMemsetNode_orig)
   {
     cuGraphAddMemsetNode_orig = dlsym(orig_handle, "cuGraphAddMemsetNode");
@@ -2583,9 +2555,9 @@ CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEMSET_NODE_PA
 }
 
 
-CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_HOST_NODE_PARAMS *nodeParams)
+CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph, CUgraphNode *dependencies, size_t numDependencies, const CUDA_HOST_NODE_PARAMS *nodeParams)
 {
-  static CUresult (*cuGraphAddHostNode_orig)(CUgraphNode *, CUgraph, const CUgraphNode *, size_t, const CUDA_HOST_NODE_PARAMS *) = NULL;
+  static CUresult (*cuGraphAddHostNode_orig)(CUgraphNode *, CUgraph, CUgraphNode *, size_t, const CUDA_HOST_NODE_PARAMS *) = NULL;
   if (!cuGraphAddHostNode_orig)
   {
     cuGraphAddHostNode_orig = dlsym(orig_handle, "cuGraphAddHostNode");
@@ -2625,9 +2597,9 @@ CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_NODE_PARAMS
 }
 
 
-CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, CUgraph childGraph)
+CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph hGraph, CUgraphNode *dependencies, size_t numDependencies, CUgraph childGraph)
 {
-  static CUresult (*cuGraphAddChildGraphNode_orig)(CUgraphNode *, CUgraph, const CUgraphNode *, size_t, CUgraph) = NULL;
+  static CUresult (*cuGraphAddChildGraphNode_orig)(CUgraphNode *, CUgraph, CUgraphNode *, size_t, CUgraph) = NULL;
   if (!cuGraphAddChildGraphNode_orig)
   {
     cuGraphAddChildGraphNode_orig = dlsym(orig_handle, "cuGraphAddChildGraphNode");
@@ -2653,9 +2625,9 @@ CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *phGraph)
 }
 
 
-CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies)
+CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph, CUgraphNode *dependencies, size_t numDependencies)
 {
-  static CUresult (*cuGraphAddEmptyNode_orig)(CUgraphNode *, CUgraph, const CUgraphNode *, size_t) = NULL;
+  static CUresult (*cuGraphAddEmptyNode_orig)(CUgraphNode *, CUgraph, CUgraphNode *, size_t) = NULL;
   if (!cuGraphAddEmptyNode_orig)
   {
     cuGraphAddEmptyNode_orig = dlsym(orig_handle, "cuGraphAddEmptyNode");
@@ -2779,9 +2751,9 @@ CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode *dependentN
 }
 
 
-CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *from, const CUgraphNode *to, size_t numDependencies)
+CUresult cuGraphAddDependencies(CUgraph hGraph, CUgraphNode *from, CUgraphNode *to, size_t numDependencies)
 {
-  static CUresult (*cuGraphAddDependencies_orig)(CUgraph, const CUgraphNode *, const CUgraphNode *, size_t) = NULL;
+  static CUresult (*cuGraphAddDependencies_orig)(CUgraph, CUgraphNode *, CUgraphNode *, size_t) = NULL;
   if (!cuGraphAddDependencies_orig)
   {
     cuGraphAddDependencies_orig = dlsym(orig_handle, "cuGraphAddDependencies");
@@ -2793,9 +2765,9 @@ CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *from, const C
 }
 
 
-CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode *from, const CUgraphNode *to, size_t numDependencies)
+CUresult cuGraphRemoveDependencies(CUgraph hGraph, CUgraphNode *from, CUgraphNode *to, size_t numDependencies)
 {
-  static CUresult (*cuGraphRemoveDependencies_orig)(CUgraph, const CUgraphNode *, const CUgraphNode *, size_t) = NULL;
+  static CUresult (*cuGraphRemoveDependencies_orig)(CUgraph, CUgraphNode *, CUgraphNode *, size_t) = NULL;
   if (!cuGraphRemoveDependencies_orig)
   {
     cuGraphRemoveDependencies_orig = dlsym(orig_handle, "cuGraphRemoveDependencies");
@@ -2831,20 +2803,6 @@ CUresult cuGraphInstantiate(CUgraphExec *phGraphExec, CUgraph hGraph, CUgraphNod
 
   CUresult _retval;
   _retval = cuGraphInstantiate_orig(phGraphExec, hGraph, phErrorNode, logBuffer, bufferSize);
-  return _retval;
-}
-
-
-CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS *nodeParams)
-{
-  static CUresult (*cuGraphExecKernelNodeSetParams_orig)(CUgraphExec, CUgraphNode, const CUDA_KERNEL_NODE_PARAMS *) = NULL;
-  if (!cuGraphExecKernelNodeSetParams_orig)
-  {
-    cuGraphExecKernelNodeSetParams_orig = dlsym(orig_handle, "cuGraphExecKernelNodeSetParams");
-  }
-
-  CUresult _retval;
-  _retval = cuGraphExecKernelNodeSetParams_orig(hGraphExec, hNode, nodeParams);
   return _retval;
 }
 

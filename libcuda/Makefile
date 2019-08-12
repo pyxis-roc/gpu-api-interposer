@@ -22,7 +22,7 @@ libcuda_trace.c:
 	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --trace -o $@
 
 libcuda_record.c: 
-	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --pre-instrument --post-instrument --tpargs --filter libcuda_record_filter.yaml --oprefix libcuda_record -o $@
+	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --ctx --pre-instrument --post-instrument --tpargs --filter libcuda_record_filter.yaml --oprefix libcuda_record -o $@
 
 libcuda_record_tp.o: libcuda_record_tp.yaml libcuda_record_tpargs.yaml
 	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $(@:.o=.tp) --tpargs libcuda_record_tpargs.yaml --tpinfo libcuda_record_tpinfo.yaml

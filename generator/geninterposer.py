@@ -321,6 +321,30 @@ class CommonInstrumentMixin(object):
 
         context[section][hookfn] = {'origname': origname,
                                     'instr_decl': instr_decl}
+
+class CtxPlugin(InterposerPlugin):
+    filter_section_name = ["pre", "pre_and_post", "post"]
+    ctx_global_variable = "_ctx_order"
+    ctx_local_variable = "_ctx"
+
+    def generate_pre_code(self, context):
+        """Generate code before all API functions generated, must be list of strings"""
+        return [f"static unsigned int {self.ctx_global_variable};\n"]
+
+    def generate(self, decl_node, context):
+        ctx_init = c_ast.FuncCall(c_ast.ID("__sync_fetch_and_add"),
+                                  c_ast.ExprList([c_ast.UnaryOp("&", 
+                                                                c_ast.ID(self.ctx_global_variable)), 
+                                                  c_ast.Constant("int", "0")]))
+
+        ctx_type = c_ast.TypeDecl(self.ctx_local_variable,
+                                  [], c_ast.IdentifierType(['unsigned', 'int']))
+
+        x = c_ast.Decl(self.ctx_local_variable, [], [], [], ctx_type, ctx_init, None)
+        context['ctx_expr'] = c_ast.UnaryOp("&", c_ast.ID(self.ctx_local_variable))
+
+        #print(c_generator.CGenerator().visit(x))        
+        return [x]
     
 class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     fn_suffix = "_pre"
@@ -342,7 +366,9 @@ class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
         else:
             return_stmt = c_ast.Return(None)
 
-        args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
+        args.exprs.append(context['ctx_expr'])
+        #else:
+        #    args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
 
         idecl = self._generate_instr_decl(decl_node, 'int')
 
@@ -374,7 +400,8 @@ class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
             assert 'retval' in context, "PostInstrumentPlugin requires return value"
             args.exprs.append(c_ast.UnaryOp("&", c_ast.ID(context['retval'])))
 
-        args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
+        args.exprs.append(context['ctx_expr'])
+        #args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
 
         idecl = self._generate_instr_decl(decl_node, 'void')        
         self.ast.ext.append(idecl)
@@ -526,7 +553,7 @@ class InterposerGenerator(object):
                                               )
 
     def generate_plugins(self, decl_node):
-        context = {'called': False}
+        context = {'called': False, 'ctx_expr': c_ast.ID("NULL")}
 
         for p in self.plugins:
             if self.check_filter(p, decl_node['origname']):
@@ -639,6 +666,8 @@ if __name__ == "__main__":
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true", help="Original library is dlopen-ed")
     p.add_argument("--filter", help="Filter file (YAML)")
+    p.add_argument("--ctx", dest="context", action="store_true",
+                   help="Generate ordered context variable")
     p.add_argument("--pre-instrument", action="store_true",
                    help="Instrument functions before they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--post-instrument", action="store_true",
@@ -663,6 +692,9 @@ if __name__ == "__main__":
 
     if args.trace:
         ig.add_plugin(TracePlugin)
+
+    if args.context:
+        ig.add_plugin(CtxPlugin)
 
     if args.pre_instrument:
         ig.add_plugin(PreInstrumentPlugin)
