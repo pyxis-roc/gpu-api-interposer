@@ -41,7 +41,8 @@ def generate_tracepoint_template(recipe, output, ig):
                          "events": {}
     }
     dn = dict([(x['origname'], x) for x in ig.get_decl_nodes()])
-
+    ALIGN=13
+    
     with open(output, "w") as outf:
         outf.write("/* automatically generated, do not edit */\n")
 
@@ -80,16 +81,24 @@ def generate_tracepoint_template(recipe, output, ig):
                     # yeah, yeah ...
                     name = fieldname if 'fieldname' not in f[fieldname] else f[fieldname]['fieldname']
 
+                    if 'expr' not in f[fieldname]['type_args']:
+                        # and field type expects expr?
+                        f[fieldname]['type_args']['expr'] = fieldname
+                    
                     fields.append(TP_Field(type=f[fieldname]['type'], 
                                            fieldname=name, 
                                            type_args=f[fieldname]['type_args']))
+
+                    
                 else:
                     # TODO: get field types from arg names
                     pass
 
-            TP_ARGS = "TP_ARGS(" + ",\n".join([f"{a.type}, {a.name}" for a in args]) + ")"
-            TP_FIELDS = "TP_FIELDS(" + "\n".join([FIELD_FMTS[f.type].format(fieldname=f.fieldname, 
-                                                                        **f.type_args) for f in fields]) + ")"
+            sep = ",\n"+(" "*(ALIGN+len("TP_ARGS")))
+            TP_ARGS = "TP_ARGS(" + sep.join([f"{a.type}, {a.name}" for a in args]) + ")"
+            print(TP_ARGS)
+            sep = "\n"+(" "*(ALIGN+len("TP_FIELDS")))
+            TP_FIELDS = "TP_FIELDS(" + sep.join([FIELD_FMTS[f.type].format(fieldname=f.fieldname, **f.type_args) for f in fields]) + ")"
 
             out = f"""
 /* {tpe['fn']} */
