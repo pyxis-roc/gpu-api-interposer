@@ -24,11 +24,11 @@ libcuda_trace.c:
 libcuda_record.c: 
 	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --pre-instrument --post-instrument --tpargs --filter libcuda_record_filter.yaml --oprefix libcuda_record -o $@
 
-libcuda_record_tp.o: libcuda_record_tp.yaml
-	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $(@:.o=.tp) --tpinfo libcuda_record_tpinfo.yaml
+libcuda_record_tp.o: libcuda_record_tp.yaml libcuda_record_tpargs.yaml
+	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $(@:.o=.tp) --tpargs libcuda_record_tpargs.yaml --tpinfo libcuda_record_tpinfo.yaml
 	CFLAGS="-fPIC -I$(CUDA_INC)" lttng-gen-tp -v $(@:.o=.tp)
 
-libcuda_record_instr.c: libcuda_record-tracepoints.o libcuda_record_tpinfo.yaml libcuda_record.c libcuda_record_pre_instr.h libcuda_record_post_instr.h
+libcuda_record_instr.c: libcuda_record_tp.o libcuda_record_tpinfo.yaml libcuda_record.c libcuda_record_pre_instr.h libcuda_record_post_instr.h
 	$(GENRECORDER) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args libcuda_record_tpinfo.yaml libcuda_record_pre_instr.h libcuda_record_post_instr.h -I$(CUDA_INC) -o $@
 
 .phony: clean

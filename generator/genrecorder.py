@@ -5,6 +5,7 @@ import yaml
 import os
 from pycparser import c_ast, c_generator
 from geninterposer import FuncDeclVisitor, get_ast, preprocess
+import sys
 
 def load_yaml(f):
     with open(f, "r") as yf:
@@ -67,7 +68,11 @@ def generate_output(fdvs, probes, outputfile, instr_headers):
         cgen = c_generator.CGenerator()
         
         for f in fdvs:
-            ofile.write(cgen.visit(f['shell']))
+            if 'shell' not in f:
+                # error?
+                print(f"WARNING: '{f['origname']}' does not tracepoints.",file=sys.stderr)
+            else:
+                ofile.write(cgen.visit(f['shell']))
         
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Generate a API recorder given filter file and a probe file")

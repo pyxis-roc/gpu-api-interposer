@@ -17,11 +17,6 @@ common_fields:
           expr: "*_retval"
 tracepoint_events:
   cuDriverGetVersion_post:
-    fn: cuDriverGetVersion
-    args:
-      - driverVersion:
-          type: "int *"
-      - *retval_arg
     fields:
       - driverVersion:
           type: ctf_integer
@@ -30,10 +25,6 @@ tracepoint_events:
             expr: "*driverVersion"
       - *retval_field
   cuDriverGetVersion_pre:
-    fn: cuDriverGetVersion
-    args:
-      - driverVersion:
-          type: "int *"
     fields:
       - driverVersion:
           type: ctf_integer_hex
@@ -41,13 +32,6 @@ tracepoint_events:
             int_type: intptr_t
             expr: "driverVersion"
   cuGetErrorString_post:
-    fn: cuGetErrorString
-    args:
-      - error:
-          type: CUresult
-      - pStr:
-          type: const char **
-      - *retval_arg
     fields:
       - error:
           type: ctf_integer
@@ -61,12 +45,6 @@ tracepoint_events:
             expr: '(*pStr == NULL) ? "" : *pStr'
       - *retval_field
   cuMemAlloc_v2_pre:
-    fn: cuMemAlloc_v2
-    args:
-      - dptr:
-          type: "CUdeviceptr *"
-      - bytesize:
-          type: size_t
     fields:
       - dptr: 
           type: ctf_integer_hex
@@ -79,13 +57,6 @@ tracepoint_events:
             int_type: size_t
             expr: bytesize
   cuMemAlloc_v2_post:
-    fn: cuMemAlloc_v2
-    args:
-      - dptr:
-          type: "CUdeviceptr *"
-      - bytesize:
-          type: size_t
-      - *retval_arg
     fields:
       - dptr_contents: 
           type: ctf_integer_hex
@@ -93,3 +64,20 @@ tracepoint_events:
             int_type: intptr_t
             expr: "*dptr"
       - *retval_field
+  cuCtxGetCurrent_post:
+    fields:
+      - pctx:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: pctx
+      - *retval_field
+  cuCtxGetDevice_post:
+    fields:
+      - device_contents:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+            expr: "*device"
+      - *retval_field
+      
