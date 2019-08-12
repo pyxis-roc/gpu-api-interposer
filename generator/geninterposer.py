@@ -335,7 +335,7 @@ class CtxPlugin(InterposerPlugin):
         ctx_init = c_ast.FuncCall(c_ast.ID("__sync_fetch_and_add"),
                                   c_ast.ExprList([c_ast.UnaryOp("&", 
                                                                 c_ast.ID(self.ctx_global_variable)), 
-                                                  c_ast.Constant("int", "0")]))
+                                                  c_ast.Constant("int", "1")]))
 
         ctx_type = c_ast.TypeDecl(self.ctx_local_variable,
                                   [], c_ast.IdentifierType(['unsigned', 'int']))
@@ -446,18 +446,20 @@ class TpEventArgGeneratorPlugin(InterposerPlugin):
                     x = {argname: {'type': argtype}}
                     out[f]['args'].append(x)
 
-            if f in self.generator.global_ctx['post']:
-                if len(origdecl['decl'].args.params) == 1 and is_void_type(origdecl['decl'].args.params[0].type):
-                    instr_args = fd['instr_decl'].args.params[:]
-                else:
-                    instr_args = fd['instr_decl'].args.params[len(origdecl['decl'].args.params):]
+            # add _retval and _ctx
+            if len(origdecl['decl'].args.params) == 1 and is_void_type(origdecl['decl'].args.params[0].type):
+                instr_args = fd['instr_decl'].args.params[:]
+            else:
+                instr_args = fd['instr_decl'].args.params[len(origdecl['decl'].args.params):]
 
-                instr_args = instr_args[:1] # only _retval for now
-                for arg in instr_args:
-                    argtype = cgen.visit(FuncDeclVisitor.erase_name(arg.type))
-                    argname = FuncDeclVisitor.get_declname(arg.type)
-                    x = {argname: {'type': argtype}}
-                    out[f]['args'].append(x)
+            if f not in self.generator.global_ctx['post']:
+                instr_args = instr_args[1:] # skip _retval
+
+            for arg in instr_args:
+                argtype = cgen.visit(FuncDeclVisitor.erase_name(arg.type))
+                argname = FuncDeclVisitor.get_declname(arg.type)
+                x = {argname: {'type': argtype}}
+                out[f]['args'].append(x)
             
         with open(self.tpargfile, "w") as f:
             yaml.dump(out, f)

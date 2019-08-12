@@ -7,6 +7,7 @@ from collections import namedtuple
 import geninterposer
 from pycparser import c_generator
 
+MAX_TP_ARGS = 10
 TP_Arg = namedtuple('tp_arg', ['type', 'name'])
 TP_Field = namedtuple('tp_field', ['type', 'fieldname', 'type_args'])
 
@@ -104,6 +105,18 @@ def generate_tracepoint_template(recipe, output, ig):
                     # TODO: get field types from arg names
                     pass
 
+
+            if len(args) > MAX_TP_ARGS:
+                print(f"WARNING: {e} has more than {MAX_TP_ARGS} arguments to tracepoint, trimming!")
+
+                args = args[:MAX_TP_ARGS]
+
+                # In general, fields has no relation to args, and we
+                # will need to identify exprs in each field that
+                # depend on a particular arg before removing it.  For
+                # now, this will work.
+                fields = fields[:MAX_TP_ARGS]
+
             try:
                 sep = ",\n"+(" "*(ALIGN+len("TP_ARGS")))
                 TP_ARGS = "TP_ARGS(" + sep.join([f"{a.type}, {a.name}" for a in args]) + ")"
@@ -113,6 +126,7 @@ def generate_tracepoint_template(recipe, output, ig):
             except:
                 print(f"ERROR: when processing {e}")
                 raise
+
             out = f"""
 /* {tpe['fn']} */
 TRACEPOINT_EVENT(

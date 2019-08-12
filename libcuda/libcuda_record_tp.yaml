@@ -15,6 +15,12 @@ common_fields:
         type_args:
           int_type: CUresult
           expr: "*_retval"
+  - ctx_field: &ctx_field
+      _ctx:
+        type: ctf_integer
+        type_args:
+          int_type: unsigned int
+          expr: "*((unsigned int *) _ctx)"
 tracepoint_events:
   cuDriverGetVersion_post:
     fields:
@@ -24,6 +30,7 @@ tracepoint_events:
             int_type: int
             expr: "*driverVersion"
       - *retval_field
+      - *ctx_field
   cuDriverGetVersion_pre:
     fields:
       - driverVersion:
@@ -31,6 +38,7 @@ tracepoint_events:
           type_args:
             int_type: intptr_t
             expr: "driverVersion"
+      - *ctx_field
   cuGetErrorString_post:
     fields:
       - error:
@@ -44,6 +52,7 @@ tracepoint_events:
             field_name: pStr_contents
             expr: '(*pStr == NULL) ? "" : *pStr'
       - *retval_field
+      - *ctx_field
   cuMemAlloc_v2_pre:
     fields:
       - dptr: 
@@ -56,6 +65,7 @@ tracepoint_events:
           type_args:
             int_type: size_t
             expr: bytesize
+      - *ctx_field
   cuMemAlloc_v2_post:
     fields:
       - dptr_contents: 
@@ -64,6 +74,7 @@ tracepoint_events:
             int_type: intptr_t
             expr: "*dptr"
       - *retval_field
+      - *ctx_field
   cuCtxGetCurrent_post:
     fields:
       - pctx_contents:
@@ -72,6 +83,7 @@ tracepoint_events:
             int_type: intptr_t
             expr: "*pctx"
       - *retval_field
+      - *ctx_field
   cuCtxGetDevice_post:
     fields:
       - device_contents:
@@ -80,9 +92,11 @@ tracepoint_events:
             int_type: CUdevice
             expr: "*device"
       - *retval_field
+      - *ctx_field
   cuCtxSynchronize_post:
     fields:
       - *retval_field
+      - *ctx_field
   cuDeviceGetAttribute_post:
     fields:
       - pi_contents:
@@ -99,6 +113,7 @@ tracepoint_events:
           type_args:
             int_type: CUdevice
       - *retval_field
+      - *ctx_field
   cuDeviceGetCount_post:
     fields:
       - count:
@@ -107,6 +122,7 @@ tracepoint_events:
             int_type: int
             expr: "*count"
       - *retval_field
+      - *ctx_field
   cuDeviceGetName_post:
     fields:
       - name:
@@ -122,6 +138,7 @@ tracepoint_events:
           type_args:
             int_type: CUdevice
       - *retval_field
+      - *ctx_field
   cuDeviceGetUuid_post:
     fields:
       - uuid:
@@ -135,6 +152,7 @@ tracepoint_events:
           type_args: 
             int_type: CUdevice
       - *retval_field
+      - *ctx_field
   cuDeviceGet_post:
     fields:
       - device_contents:
@@ -147,6 +165,7 @@ tracepoint_events:
           type_args:
             int_type: int
       - *retval_field
+      - *ctx_field
   cuDeviceTotalMem_v2_post:
     fields:
       - bytes_contents:
@@ -159,20 +178,7 @@ tracepoint_events:
           type_args:
             int_type: CUdevice
       - *retval_field
-  cuDriverGetVersion_post:
-    fields:
-      - driverVersion_contents:
-          type: ctf_integer
-          type_args:
-            int_type: int
-            expr: "*driverVersion"
-      - *retval_field
-  cuDriverGetVersion_pre:
-    fields:
-      - driverVersion:
-          type: ctf_integer_hex
-          type_args:
-            int_type: intptr_t
+      - *ctx_field
   cuEventCreate_post:
     fields:
       - phEvent:
@@ -184,6 +190,7 @@ tracepoint_events:
           type_args:
             int_type: unsigned int
       - *retval_field
+      - *ctx_field
   cuFuncGetAttribute_post:
     fields:
       - pi:
@@ -200,6 +207,7 @@ tracepoint_events:
           type_args:
             int_type: intptr_t
       - *retval_field
+      - *ctx_field
   cuLaunchKernel_post:
     remove_args:
       - kernelParams
@@ -251,6 +259,7 @@ tracepoint_events:
       #     type_args:
       #       int_type: intptr_t
       - *retval_field
+      - *ctx_field
   cuMemFree_v2_post:
     fields:
       - dptr:
@@ -258,6 +267,7 @@ tracepoint_events:
           type_args:
             int_type: intptr_t
       - *retval_field
+      - *ctx_field
   cuMemHostAlloc_post:
     fields:
       - pp:
@@ -274,6 +284,7 @@ tracepoint_events:
           type_args:
             int_type: unsigned int
       - *retval_field
+      - *ctx_field
   cuMemcpyDtoH_v2_post:
     fields:
       - dstHost:
@@ -289,6 +300,7 @@ tracepoint_events:
           type_args:
             int_type: size_t
       - *retval_field
+      - *ctx_field
   cuMemcpyHtoD_v2_pre:
     fields:
       - dstDevice:
@@ -303,6 +315,7 @@ tracepoint_events:
           type: ctf_integer
           type_args:
             int_type: size_t
+      - *ctx_field
   cuModuleGetFunction_post:
     fields:
       - hfunc_contents:
@@ -319,6 +332,7 @@ tracepoint_events:
           type_args:
             expr: name
       - *retval_field
+      - *ctx_field
   cuModuleGetGlobal_v2_post:
     fields:
       - dptr_contents:
@@ -340,13 +354,15 @@ tracepoint_events:
           type_args:
             expr: "name"
       - *retval_field
+      - *ctx_field
   cuModuleUnload_post:
     fields:
       - hmod:
           type: ctf_integer_hex
           type_args: 
             int_type: intptr_t
-      - *retval_field      
+      - *retval_field
+      - *ctx_field
   cuStreamCreate_post:
     fields:
       - phStream:
@@ -358,6 +374,7 @@ tracepoint_events:
           type_args:
             int_type: unsigned int
       - *retval_field
+      - *ctx_field
   cuTexObjectCreate_post:
     fields:
       - pTexObject_contents:
@@ -372,6 +389,7 @@ tracepoint_events:
       # - pResViewDesc:
       #     type: const CUDA_RESOURCE_VIEW_DESC *
       - *retval_field
+      - *ctx_field
   cuCtxSetCurrent_post:
     fields:
       - ctx:
@@ -379,3 +397,4 @@ tracepoint_events:
           type_args:
             int_type: intptr_t            
       - *retval_field
+      - *ctx_field
