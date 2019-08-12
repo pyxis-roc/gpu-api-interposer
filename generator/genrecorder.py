@@ -70,7 +70,7 @@ def generate_output(fdvs, probes, outputfile, instr_headers):
         for f in fdvs:
             if 'shell' not in f:
                 # error?
-                print(f"WARNING: '{f['origname']}' does not tracepoints.",file=sys.stderr)
+                print(f"WARNING: '{f['origname']}' does not have tracepoints defined.",file=sys.stderr)
             else:
                 ofile.write(cgen.visit(f['shell']))
         
