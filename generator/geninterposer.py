@@ -409,17 +409,22 @@ class TpEventArgGeneratorPlugin(InterposerPlugin):
                       'args': []}
 
             origdecl = decls[fd['origname']]
-            
-            for noname, withname in zip(origdecl['fnptr'].type.type.args.params,
-                         fd['instr_decl'].args.params):
 
-                argtype = cgen.visit(noname)
-                argname = FuncDeclVisitor.get_declname(withname.type)
-                x = {argname: {'type': argtype}}
-                out[f]['args'].append(x)
+            if not (len(origdecl['decl'].args.params) == 1 and is_void_type(origdecl['decl'].args.params[0].type)):
+                for noname, withname in zip(origdecl['fnptr'].type.type.args.params,
+                             fd['instr_decl'].args.params):
+
+                    argtype = cgen.visit(noname)
+                    argname = FuncDeclVisitor.get_declname(withname.type)
+                    x = {argname: {'type': argtype}}
+                    out[f]['args'].append(x)
 
             if f in self.generator.global_ctx['post']:
-                instr_args = fd['instr_decl'].args.params[len(origdecl['decl'].args.params):]
+                if len(origdecl['decl'].args.params) == 1 and is_void_type(origdecl['decl'].args.params[0].type):
+                    instr_args = fd['instr_decl'].args.params[:]
+                else:
+                    instr_args = fd['instr_decl'].args.params[len(origdecl['decl'].args.params):]
+
                 instr_args = instr_args[:1] # only _retval for now
                 for arg in instr_args:
                     argtype = cgen.visit(FuncDeclVisitor.erase_name(arg.type))
