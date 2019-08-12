@@ -13,7 +13,9 @@ TP_Field = namedtuple('tp_field', ['type', 'fieldname', 'type_args'])
 FIELD_FMTS = {
     "ctf_integer": "ctf_integer({int_type}, {fieldname}, {expr})",
     "ctf_integer_hex": "ctf_integer_hex({int_type}, {fieldname}, {expr})",
-    "ctf_string": "ctf_string({field_name}, {expr})"
+    "ctf_string": "ctf_string({fieldname}, {expr})",
+    "ctf_array": "ctf_array({int_type}, {fieldname}, {expr}, {count})",
+    "ctf_array_hex": "ctf_array_hex({int_type}, {fieldname}, {expr}, {count})"
 }
 
 def merge_tpargs(recipe, tpargs):
@@ -33,6 +35,12 @@ def merge_tpargs(recipe, tpargs):
                     tpfn[k] = tpargs[f][k]
                 else:
                     assert False, "Duplicate key '%s' in recipe and tpargs, don't know how to handle" % (k,)
+
+    for f in tpe:
+        if "remove_args" in tpe[f]:
+            remove_args = set(tpe[f]["remove_args"])
+            tpe[f]['args'] = [x for x in tpe[f]['args'] if list(x.keys())[0] not in remove_args]
+            
     
 def generate_tracepoint_template(recipe, output, ig):
     provider = recipe['main']['provider']
@@ -72,6 +80,8 @@ def generate_tracepoint_template(recipe, output, ig):
                     # string type, get arg type from function defn
                     pass
 
+            assert 'fields' in tpe, f"No 'fields' for {e}" 
+
             fields = []
             for f in tpe['fields']:
                 if isinstance(f, dict):
@@ -94,12 +104,15 @@ def generate_tracepoint_template(recipe, output, ig):
                     # TODO: get field types from arg names
                     pass
 
-            sep = ",\n"+(" "*(ALIGN+len("TP_ARGS")))
-            TP_ARGS = "TP_ARGS(" + sep.join([f"{a.type}, {a.name}" for a in args]) + ")"
-            print(TP_ARGS)
-            sep = "\n"+(" "*(ALIGN+len("TP_FIELDS")))
-            TP_FIELDS = "TP_FIELDS(" + sep.join([FIELD_FMTS[f.type].format(fieldname=f.fieldname, **f.type_args) for f in fields]) + ")"
+            try:
+                sep = ",\n"+(" "*(ALIGN+len("TP_ARGS")))
+                TP_ARGS = "TP_ARGS(" + sep.join([f"{a.type}, {a.name}" for a in args]) + ")"
 
+                sep = "\n"+(" "*(ALIGN+len("TP_FIELDS")))
+                TP_FIELDS = "TP_FIELDS(" + sep.join([FIELD_FMTS[f.type].format(fieldname=f.fieldname, **f.type_args) for f in fields]) + ")"
+            except:
+                print(f"ERROR: when processing {e}")
+                raise
             out = f"""
 /* {tpe['fn']} */
 TRACEPOINT_EVENT(
