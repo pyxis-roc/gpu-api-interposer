@@ -24,6 +24,11 @@ void cuGetErrorString_post(CUresult error, const char **pStr, CUresult *_retval,
   tracepoint(libcuda_interposer, cuGetErrorString_post, error, pStr, _retval, _ctx);
 }
 
+void cuInit_post(unsigned int Flags, CUresult *_retval, void *_ctx)
+{
+  tracepoint(libcuda_interposer, cuInit_post, Flags, _retval, _ctx);
+}
+
 void cuDriverGetVersion_post(int *driverVersion, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuDriverGetVersion_post, driverVersion, _retval, _ctx);
@@ -57,6 +62,16 @@ void cuDeviceTotalMem_v2_post(size_t *bytes, CUdevice dev, CUresult *_retval, vo
 void cuDeviceGetAttribute_post(int *pi, CUdevice_attribute attrib, CUdevice dev, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuDeviceGetAttribute_post, pi, attrib, dev, _retval, _ctx);
+}
+
+void cuDevicePrimaryCtxRetain_post(CUcontext *pctx, CUdevice dev, CUresult *_retval, void *_ctx)
+{
+  tracepoint(libcuda_interposer, cuDevicePrimaryCtxRetain_post, pctx, dev, _retval, _ctx);
+}
+
+void cuDevicePrimaryCtxRelease_post(CUdevice dev, CUresult *_retval, void *_ctx)
+{
+  tracepoint(libcuda_interposer, cuDevicePrimaryCtxRelease_post, dev, _retval, _ctx);
 }
 
 void cuCtxSetCurrent_post(CUcontext ctx, CUresult *_retval, void *_ctx)
@@ -137,5 +152,10 @@ void cuLaunchKernel_post(CUfunction f, unsigned int gridDimX, unsigned int gridD
 void cuTexObjectCreate_post(CUtexObject *pTexObject, const CUDA_RESOURCE_DESC *pResDesc, const CUDA_TEXTURE_DESC *pTexDesc, const CUDA_RESOURCE_VIEW_DESC *pResViewDesc, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuTexObjectCreate_post, pTexObject, pResDesc, pTexDesc, pResViewDesc, _retval, _ctx);
+}
+
+void cuGetExportTable_post(const void **ppExportTable, const CUuuid *pExportTableId, CUresult *_retval, void *_ctx)
+{
+  tracepoint(libcuda_interposer, cuGetExportTable_post, ppExportTable, pExportTableId, _retval, _ctx);
 }
 

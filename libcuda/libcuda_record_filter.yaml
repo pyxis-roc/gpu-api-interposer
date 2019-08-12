@@ -27,3 +27,7 @@ post:
   - cuTexObjectCreate
   - cuStreamCreate
   - cuModuleUnload
+  - cuInit
+  - cuDevicePrimaryCtxRetain
+  - cuGetExportTable
+  - cuDevicePrimaryCtxRelease

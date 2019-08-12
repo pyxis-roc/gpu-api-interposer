@@ -398,3 +398,47 @@ tracepoint_events:
             int_type: intptr_t            
       - *retval_field
       - *ctx_field
+  cuInit_post:
+    fields:
+      - Flags:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - *retval_field
+      - *ctx_field
+  cuDevicePrimaryCtxRelease_post:
+    fields:
+      - dev:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+      - *retval_field
+      - *ctx_field
+  cuDevicePrimaryCtxRetain_post:
+    fields:
+      - pctx_contents:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "*pctx"
+      - dev:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+      - *retval_field
+      - *ctx_field
+  cuGetExportTable_post:
+    fields:
+      - ppExportTable_exports:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "*ppExportTable"
+      - pExportTableId:
+          type: ctf_array
+          type_args:
+            int_type: char
+            expr: "pExportTableId->bytes"
+            count: 16
+      - *retval_field
+      - *ctx_field
