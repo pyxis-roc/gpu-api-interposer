@@ -2,6 +2,11 @@
 
 P=`dirname $0`
 
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 command..."
+    exit 1;
+fi;
+
 DLOPEN_LIBRARY=${DLOPEN_LIBRARY:-/usr/lib64/libcuda.so.1}
 LD_PRELOAD=${LD_PRELOAD:-$P/libcuda_record.so}
 
