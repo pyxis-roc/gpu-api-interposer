@@ -23,6 +23,11 @@ void cuDriverGetVersion_post(int *driverVersion, CUresult *_retval, void *_ctx)
   tracepoint(libcuda_interposer, cuDriverGetVersion_post, driverVersion, _retval);
 }
 
+void cuDeviceGetAttribute_post(int *pi, CUdevice_attribute attrib, CUdevice dev, CUresult *_retval, void *_ctx)
+{
+  tracepoint(libcuda_interposer, cuDeviceGetAttribute_post, pi, attrib, dev, _retval);
+}
+
 void cuCtxGetCurrent_post(CUcontext *pctx, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuCtxGetCurrent_post, pctx, _retval);
@@ -31,6 +36,11 @@ void cuCtxGetCurrent_post(CUcontext *pctx, CUresult *_retval, void *_ctx)
 void cuCtxGetDevice_post(CUdevice *device, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuCtxGetDevice_post, device, _retval);
+}
+
+void cuCtxSynchronize_post(CUresult *_retval, void *_ctx)
+{
+  tracepoint(libcuda_interposer, cuCtxSynchronize_post, _retval);
 }
 
 void cuMemAlloc_v2_post(CUdeviceptr *dptr, size_t bytesize, CUresult *_retval, void *_ctx)

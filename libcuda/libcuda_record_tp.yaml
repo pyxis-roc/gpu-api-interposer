@@ -80,4 +80,23 @@ tracepoint_events:
             int_type: CUdevice
             expr: "*device"
       - *retval_field
+  cuCtxSynchronize_post:
+    fields:
+      - *retval_field
+  cuDeviceGetAttribute_post:
+    fields:
+      - pi:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "*pi"
+      - attrib:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice_attribute
+      - dev:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+      - *retval_field
       
