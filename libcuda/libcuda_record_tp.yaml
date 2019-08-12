@@ -66,11 +66,11 @@ tracepoint_events:
       - *retval_field
   cuCtxGetCurrent_post:
     fields:
-      - pctx:
+      - pctx_contents:
           type: ctf_integer_hex
           type_args:
             int_type: intptr_t
-            expr: pctx
+            expr: "*pctx"
       - *retval_field
   cuCtxGetDevice_post:
     fields:
@@ -85,7 +85,7 @@ tracepoint_events:
       - *retval_field
   cuDeviceGetAttribute_post:
     fields:
-      - pi:
+      - pi_contents:
           type: ctf_integer
           type_args:
             int_type: int
@@ -99,4 +99,283 @@ tracepoint_events:
           type_args:
             int_type: CUdevice
       - *retval_field
-      
+  cuDeviceGetCount_post:
+    fields:
+      - count:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "*count"
+      - *retval_field
+  cuDeviceGetName_post:
+    fields:
+      - name:
+          type: ctf_string
+          type_args:
+            expr: name
+      - len:
+          type: ctf_integer
+          type_args:
+            int_type: int
+      - dev:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+      - *retval_field
+  cuDeviceGetUuid_post:
+    fields:
+      - uuid:
+          type: ctf_array # should be ctf_array_hex, but leads to issues
+          type_args:
+            int_type: char
+            count: 16
+            expr: "uuid->bytes"
+      - dev:
+          type: ctf_integer
+          type_args: 
+            int_type: CUdevice
+      - *retval_field
+  cuDeviceGet_post:
+    fields:
+      - device_contents:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+            expr: "*device"
+      - ordinal:
+          type: ctf_integer
+          type_args:
+            int_type: int
+      - *retval_field
+  cuDeviceTotalMem_v2_post:
+    fields:
+      - bytes_contents:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+            expr: "*bytes"
+      - dev:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+      - *retval_field
+  cuDriverGetVersion_post:
+    fields:
+      - driverVersion_contents:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "*driverVersion"
+      - *retval_field
+  cuDriverGetVersion_pre:
+    fields:
+      - driverVersion:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+  cuEventCreate_post:
+    fields:
+      - phEvent:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - Flags:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - *retval_field
+  cuFuncGetAttribute_post:
+    fields:
+      - pi:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "*pi"
+      - attrib:
+          type: ctf_integer
+          type_args:
+            int_type: CUfunction_attribute
+      - hfunc:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - *retval_field
+  cuLaunchKernel_post:
+    remove_args:
+      - kernelParams
+      - extra
+    fields:
+      - f:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - gridDimX:
+          type: ctf_integer
+          type_args: 
+            int_type: unsigned int
+      - gridDimY:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - gridDimZ:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - blockDimX:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - blockDimY:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - blockDimZ:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - sharedMemBytes:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - hStream:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      # - kernelParams:             #TODO: this will require parsing the binary to determine size...
+      #     type: ctf_integer_hex
+      #     type_args:
+      #       int_type: intptr_t
+      #       expr: "((intptr_t) kernelParams"
+      # - extra:
+      #     type: ctf_integer_hex
+      #     type_args:
+      #       int_type: intptr_t
+      - *retval_field
+  cuMemFree_v2_post:
+    fields:
+      - dptr:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - *retval_field
+  cuMemHostAlloc_post:
+    fields:
+      - pp:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "*((intptr_t *) pp)"
+      - bytesize:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - Flags:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - *retval_field
+  cuMemcpyDtoH_v2_post:
+    fields:
+      - dstHost:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t            
+      - srcDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - ByteCount:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - *retval_field
+  cuMemcpyHtoD_v2_pre:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - srcHost:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - ByteCount:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+  cuModuleGetFunction_post:
+    fields:
+      - hfunc_contents:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "*hfunc"
+      - hmod:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - name:
+          type: ctf_string
+          type_args:
+            expr: name
+      - *retval_field
+  cuModuleGetGlobal_v2_post:
+    fields:
+      - dptr_contents:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "dptr != NULL ? *dptr: 0"
+      - bytes_contents:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+            expr: "bytes != NULL ? *bytes: 0"
+      - hmod:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - name:
+          type: ctf_string
+          type_args:
+            expr: "name"
+      - *retval_field
+  cuModuleUnload_post:
+    fields:
+      - hmod:
+          type: ctf_integer_hex
+          type_args: 
+            int_type: intptr_t
+      - *retval_field      
+  cuStreamCreate_post:
+    fields:
+      - phStream:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - Flags:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - *retval_field
+  cuTexObjectCreate_post:
+    fields:
+      - pTexObject_contents:
+          type: ctf_integer
+          type_args:
+            int_type: CUtexObject
+            expr: "*pTexObject"
+      # - pResDesc:  # TODO: unwrap these structures
+      #     type: const CUDA_RESOURCE_DESC *
+      # - pTexDesc:
+      #     type: const CUDA_TEXTURE_DESC *
+      # - pResViewDesc:
+      #     type: const CUDA_RESOURCE_VIEW_DESC *
+      - *retval_field
+  cuCtxSetCurrent_post:
+    fields:
+      - ctx:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t            
+      - *retval_field
