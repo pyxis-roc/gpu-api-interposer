@@ -1,5 +1,7 @@
 #include "libcuda_record_pre_instr.h"
 #include "libcuda_record_post_instr.h"
+#include <blobstore.h>
+static blobstore _bs = NULL;
 #include "libcuda_record_tp.h"
 int cuDriverGetVersion_pre(int *driverVersion, CUresult *_retval, void *_ctx)
 {
@@ -16,6 +18,11 @@ int cuMemAlloc_v2_pre(CUdeviceptr *dptr, size_t bytesize, CUresult *_retval, voi
 int cuMemcpyHtoD_v2_pre(CUdeviceptr dstDevice, const void *srcHost, size_t ByteCount, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuMemcpyHtoD_v2_pre, dstDevice, srcHost, ByteCount, _ctx);
+  if (_bs)
+  {
+    bs_store(_bs, *((int *) _ctx), "srcHost", srcHost, ByteCount);
+  }
+
   return 0;
 }
 
@@ -159,3 +166,21 @@ void cuGetExportTable_post(const void **ppExportTable, const CUuuid *pExportTabl
   tracepoint(libcuda_interposer, cuGetExportTable_post, ppExportTable, pExportTableId, _retval, _ctx);
 }
 
+
+static  __attribute__((constructor)) void init_blobstore() {
+   char *blobstore_path = getenv("BLOBSTORE_PATH");
+
+    if(blobstore_path == NULL) {
+        fprintf(stderr, "ERROR: Environment variable BLOBSTORE_PATH must contain path to blobstore file\n");
+        exit(1);
+    }
+
+    if(!bs_create(blobstore_path, &_bs)) {
+        fprintf(stderr, "ERROR: Failed to create blobstore '%s'\n", blobstore_path);
+        exit(1);
+    }
+}
+
+static __attribute__((destructor)) void deinit_blobstore() {
+   if(_bs) bs_close(_bs);
+}

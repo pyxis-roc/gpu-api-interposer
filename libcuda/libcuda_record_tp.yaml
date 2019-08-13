@@ -316,6 +316,9 @@ tracepoint_events:
           type_args:
             int_type: size_t
       - *ctx_field
+    blobstore:
+      - srcHost:
+          length: ByteCount
   cuModuleGetFunction_post:
     fields:
       - hfunc_contents:
