@@ -24,7 +24,7 @@ def merge_tpargs(recipe, tpargs):
     for f in tpargs:
         if f not in tpe:
             continue
-        
+
         tpfn = tpe[f]
         for k in tpargs[f]:
             if k not in tpfn:
@@ -41,21 +41,21 @@ def merge_tpargs(recipe, tpargs):
         if "remove_args" in tpe[f]:
             remove_args = set(tpe[f]["remove_args"])
             tpe[f]['args'] = [x for x in tpe[f]['args'] if list(x.keys())[0] not in remove_args]
-            
-    
+
+
 def generate_tracepoint_template(recipe, output, ig):
     provider = recipe['main']['provider']
 
-    tracepoint_probes = {"output": output,
-                         "events": {}
-    }
+    tracepoint_info = {"output": output,
+                       "events": {},
+                   }
     dn = dict([(x['origname'], x) for x in ig.get_decl_nodes()])
     ALIGN=13
-    
+
     with open(output, "w") as outf:
         outf.write("/* automatically generated, do not edit */\n")
 
-        if 'includes' in recipe:            
+        if 'includes' in recipe:
             for i in recipe['includes'].get('system', []):
                 outf.write(f"#include <{i}>\n")
 
@@ -74,14 +74,14 @@ def generate_tracepoint_template(recipe, output, ig):
             for a in tpe['args']:
                 if isinstance(a, dict):
                     assert len(a) == 1, f'Arg dictionary must contain only argname {a}'
-                    argname = list(a.keys())[0] 
+                    argname = list(a.keys())[0]
 
                     args.append(TP_Arg(type=a[argname]['type'], name=argname))
                 else:
                     # string type, get arg type from function defn
                     pass
 
-            assert 'fields' in tpe, f"No 'fields' for {e}" 
+            assert 'fields' in tpe, f"No 'fields' for {e}"
 
             fields = []
             for f in tpe['fields']:
@@ -95,12 +95,12 @@ def generate_tracepoint_template(recipe, output, ig):
                     if 'expr' not in f[fieldname]['type_args']:
                         # and field type expects expr?
                         f[fieldname]['type_args']['expr'] = fieldname
-                    
-                    fields.append(TP_Field(type=f[fieldname]['type'], 
-                                           fieldname=name, 
+
+                    fields.append(TP_Field(type=f[fieldname]['type'],
+                                           fieldname=name,
                                            type_args=f[fieldname]['type_args']))
 
-                    
+
                 else:
                     # TODO: get field types from arg names
                     pass
@@ -138,9 +138,20 @@ TRACEPOINT_EVENT(
 """
             outf.write(out)
 
-            tracepoint_probes['events'][e] = {'args': [provider, e] + [a.name for a in args]}
+            tracepoint_info['events'][e] = {'args': [provider, e] + [a.name for a in args]}
 
-        return tracepoint_probes
+            if 'blobstore' in tpe:
+                bs_specs = []
+                for bs_spec in tpe['blobstore']:
+                    name = list(bs_spec.keys())[0]
+                    expr = name if 'expr' not in bs_spec[name] else bs_spec[name]['expr']
+                    length = bs_spec[name]['length']
+
+                    bs_specs.append({name: ["_ctx", expr, length]})
+
+                tracepoint_info['events'][e]['blobstore'] = bs_specs
+
+        return tracepoint_info
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Generate a tracepoint template for a header file")
