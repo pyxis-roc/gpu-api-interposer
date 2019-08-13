@@ -11,7 +11,7 @@ struct blobstore {
 
 typedef struct blobstore * blobstore;
 
-int bs_initialize(const char *filename, blobstore *pbs) {
+int bs_create(const char *filename, blobstore *pbs) {
   int err;
   char *errmsg = NULL;
   blobstore bs;
@@ -65,7 +65,7 @@ int bs_initialize(const char *filename, blobstore *pbs) {
   return 1;
 }
 
-int bs_store(blobstore bs, int ctx, const char *name, void *blob, size_t blobsize) {
+int bs_store(blobstore bs, int ctx, const char *name, const void *blob, size_t blobsize) {
   int err;
   int retval = 1;
 
@@ -142,13 +142,13 @@ int bs_close(blobstore bs) {
   return 1;
 }
 
-#if 1
+#ifdef IS_MAIN
 int main(void) {
   blobstore bs;
   int *x;
   int i;
 
-  if(bs_initialize("test.db", &bs)) {
+  if(bs_create("test.db", &bs)) {
     bs_store(bs, 1, "test", NULL, 0);
 
     x = (int *) malloc(1024*sizeof(int));
