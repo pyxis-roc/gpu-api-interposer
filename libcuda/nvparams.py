@@ -7,15 +7,15 @@ import sys
 import io
 import struct
 from collections import namedtuple
+import os
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
-GLOBALINFO = namedtuple('GLOBALINFO', 'info size value')
+GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
 
-class NVFatBinary(object):
-    def __init__(self, elf):
-        self.elf = elf
-        self.felf = open(elf, "rb")
-
+class NVCubin(object):
+    def __init__(self, cubin_data):
+        self.cubin_data = cubin_data
+        # possibly this is multiple files ELF + ELF, or ELF + PTX, etc.
 
     def parse_symtab(self, elf):
         # TODO: note that fatbin checks for sh_type == SHT_SYMTAB
@@ -25,55 +25,20 @@ class NVFatBinary(object):
             for sym in symtab.iter_symbols():
                 n = sym.name
                 if sym.entry['st_info']['bind'] == 'STB_GLOBAL':
-                    gi = GLOBALINFO(info=sym.entry['st_info'],
+                    gi = GLOBALINFO(name=n,
+                                    info=sym.entry['st_info'],
                                     size=sym.entry['st_size'],
                                     value=sym.entry['st_value'])
 
                     global_syms.append(gi)
 
-        return gi
-
-    def parse_fatbin(self):
-        # TODO: some cubins apparently start with PTX, skip, see fatbin.cc
-
-        self.elffile = ELFFile(self.felf)
-
-        if self.elffile.elfclass != 64:
-            #print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
-            return 0
-
-        nv_fatbin = self.elffile.get_section_by_name('.nv_fatbin')
-
-        if nv_fatbin:
-            print(nv_fatbin.data_size)
-
-            off = 0x50
-            #off += 0x2b8
-
-            with open("/tmp/fatbin_complete", "wb") as f:
-                f.write(nv_fatbin.data())
-
-            self.fatbin_data = io.BytesIO(nv_fatbin.data()[(off):])
-            with open("/tmp/fatbin", "wb") as f:
-                f.write(self.fatbin_data.getvalue())
-
-            self.fatbin_elf = ELFFile(self.fatbin_data)
-
-            assert self.fatbin_elf.elfclass == 64, self.fatbin_elf.elfclass
-
-            gs = self.parse_symtab(self.fatbin_elf)
-            #strtab = self.fatbin_elf.get_section_by_name('.strtab')
-
-            for s in self.fatbin_elf.iter_sections():
-                #print(s.name)
-                if s.name[:8] == ".nv.info":
-                    self.parse_nv_param_info_section(s, s.data())
+        return global_syms
 
     def parse_nv_param_info_section(self, s, data):
         ndx = 0
         section_size = len(data)
         args = []
-        print(s.name)
+        #print(s.name)
         while(ndx < section_size):
             attr_fmt = struct.unpack_from('H', data, ndx)[0]
             attr_size = struct.unpack_from('H', data, ndx + 2)[0]
@@ -123,11 +88,82 @@ class NVFatBinary(object):
                 ndx += attr_size
             elif attr_fmt == 0x401 : # EIATTR_CTAIDZ_USED
                 ndx += attr_size
+            elif attr_fmt == 0x2a01: #EIATTR_SW1850030_WAR
+                ndx += attr_size
             else:
                 print(f"unrecognized {attr_fmt:x} {attr_size}")
                 ndx += attr_size
 
         return args
+
+    def parse_cubin(self):
+        self.cubin_elf = ELFFile(io.BytesIO(self.cubin_data))
+        # # see Nervana's maxas cubin file for more details on properties
+        arch = self.cubin_elf.header['e_flags'] & 0xFF
+        print(f'elf: arch={arch}')
+
+        gs = self.parse_symtab(self.cubin_elf)
+
+        for s in self.cubin_elf.iter_sections():
+            #print(s.name)
+            if s.name[:8] == ".nv.info":
+                args = self.parse_nv_param_info_section(s, s.data())
+                print(s.name)
+                print(args)
+
+        print(gs)
+
+class NVFatBinary(object):
+    def __init__(self, elf):
+        self.elf = elf
+        self.felf = open(elf, "rb")
+
+    def parse_fatbin(self):
+        # TODO: some cubins apparently start with PTX, skip, see fatbin.cc
+
+        self.elffile = ELFFile(self.felf)
+
+        if self.elffile.elfclass != 64:
+            #print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
+            return 0
+
+        nv_fatbin = self.elffile.get_section_by_name('.nv_fatbin')
+
+        elfname = os.path.basename(self.elf)
+
+        if nv_fatbin:
+            self.fatbin_data = nv_fatbin.data()
+
+            with open(f"/tmp/fatbin_complete_{elfname}", "wb") as f:
+                f.write(self.fatbin_data)
+
+            cubins = []
+            ndx = 0
+            while ndx < len(self.fatbin_data):
+                header = self.fatbin_data[ndx:ndx+0x50]
+
+                next_offset = struct.unpack_from('Q', header, 8)[0]
+                arch = struct.unpack_from('H', header, 0x2c)[0]
+                code_version_1 = struct.unpack_from('H', header, 0x28)[0]
+                code_version_2 = struct.unpack_from('H', header, 0x2a)[0]
+
+                # producer, platform, 64bit?
+
+                print(f"arch: sm_{arch}")
+                print(f"version: [{code_version_1, code_version_2}]")
+                print(f"offset: {next_offset}")
+                print("")
+
+                cubin_data = self.fatbin_data[ndx+0x50:(ndx + 16 + next_offset)]
+                cubins.append(NVCubin(cubin_data))
+
+                with open(f"/tmp/fatbin_cubin_{len(cubins):02d}_{elfname}", "wb") as f:
+                    f.write(cubin_data)
+
+                ndx += ndx + 16 + next_offset # 16: 8 bytes for header, 8 bytes for offset
+
+            for c in cubins:
+                c.parse_cubin()
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Describe argument parameter formats for kernel arguments in a ELF file")
