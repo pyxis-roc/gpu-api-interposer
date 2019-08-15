@@ -157,6 +157,11 @@ class NVFatBinary(object):
                 cubin_data = self.fatbin_data[ndx+0x50:(ndx + 16 + next_offset)]
                 cubins.append(NVCubin(cubin_data))
 
+                with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
+                    print(f"WRITING /tmp/fatbin_part_{len(cubins):02d}_{elfname}")
+                    f.write(header)
+                    f.write(cubin_data)
+
                 with open(f"/tmp/fatbin_cubin_{len(cubins):02d}_{elfname}", "wb") as f:
                     print(f"WRITING /tmp/fatbin_cubin_{len(cubins):02d}_{elfname}")
                     f.write(cubin_data)
