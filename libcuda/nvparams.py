@@ -8,6 +8,7 @@ import io
 import struct
 from collections import namedtuple
 import os
+import zlib
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
 GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
@@ -74,7 +75,9 @@ class NVCubinPart(object):
         raise NotImplementedError
 
 class NVCubinPartPTX(NVCubinPart):
-    pass
+    def parse(self):
+        print(self.data[:16])
+        #zlib.decompress(self.data)
 
 class NVCubinPartELF(NVCubinPart):
     def parse_symtab(self, elf):
@@ -157,6 +160,11 @@ class NVCubinPartELF(NVCubinPart):
         return args
 
     def parse(self):
+        if self.compressed:
+            print("elf_parse: Don't know how to handle compressed ELFs")
+            #zlib.decompress(self.data)
+            return
+
         self.cubin_elf = ELFFile(io.BytesIO(self.data))
         # # see Nervana's maxas cubin file for more details on properties
         arch = self.cubin_elf.header['e_flags'] & 0xFF
@@ -205,6 +213,8 @@ class NVCubin(object):
                 assert False, f"Unknown part_type: {part_type}"
 
             self.parts[-1].parse_header()
+            self.parts[-1].parse()
+
 
 class NVFatBinary(object):
     def __init__(self, elf):
@@ -220,7 +230,12 @@ class NVFatBinary(object):
             #print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
             return 0
 
-        nv_fatbin = self.elffile.get_section_by_name('.nv_fatbin')
+        if False:
+            nv_fatbin_name = "__nv_relfatbin" # in .o files
+        else:
+            nv_fatbin_name = ".nv_fatbin" # in executables
+
+        nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_name)
         if nv_fatbin:
             fatbin_header = struct.Struct('QQ')
             assert fatbin_header.size == 16, fatbin_header.size
