@@ -241,8 +241,9 @@ class NVFatBinary(object):
             elfname = os.path.basename(self.elf)
             self.fatbin_data = nv_fatbin.data()
 
-            with open(f"/tmp/fatbin_complete_{elfname}", "wb") as f:
-                f.write(self.fatbin_data)
+            if DEBUG_MODE:
+                with open(f"/tmp/fatbin_complete_{elfname}", "wb") as f:
+                    f.write(self.fatbin_data)
 
             # there are multiple cubins, one per object
             cubins = []
@@ -276,8 +277,11 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Describe argument parameter formats for kernel arguments in a ELF file")
 
     p.add_argument("elffile")
+    p.add_argument("-d", dest="debug", action="store_true")
 
     args = p.parse_args()
+
+    DEBUG_MODE = args.debug
 
     fatbin = NVFatBinary(args.elffile)
     fatbin.parse_fatbin()
