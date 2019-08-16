@@ -12,11 +12,71 @@ import os
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
 GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
 
-class NVCubin(object):
-    def __init__(self, cubin_data):
-        self.cubin_data = cubin_data
-        # possibly this is multiple files ELF + ELF, or ELF + PTX, etc.
+CUBIN_PTX = 1
+CUBIN_ELF = 2
 
+HOSTS = {1: "linux",
+         2: "mac",
+         3: "windows"}
+
+class NVCubinPart(object):
+    def __init__(self, part_type, header, data):
+        self.type = part_type
+        self.header = header
+        self.data = data
+
+    def parse_header(self):
+        if self.header:
+            #print([hex(a) for a in self.header])
+            self.arch = struct.unpack_from('H', self.header, 0x1c)[0]
+            self.cv = struct.unpack_from('I', self.header, 0x18)[0]
+
+            self.cv = (self.cv >> 16, self.cv & 0xffff)
+
+            # platform, host, compressed
+            phc = struct.unpack_from('I', self.header, 0x28)[0] # unknown if it is 32-
+
+            self.compressed = (phc & 0x2000) == 0x2000
+            self.compile_size = 64 if (phc & 1) else 32
+
+            # unknown number of bits ...
+            self.producer_id = (phc >> 2) & 1
+            self.host_id = ((phc >> 4) & 7)
+
+            # essentially ffs
+            for b in range(3):
+                if self.host_id & 1:
+                    self.host_id = b + 1
+                    break
+
+                self.host_id >>= 1
+
+            self.producer = "cuda" if self.producer_id == 1 else "unknown"
+            self.host = HOSTS[self.host_id] if self.host_id in HOSTS else "unknown"
+
+            if self.type == CUBIN_PTX:
+                print("ptx\n===")
+            elif self.type == CUBIN_ELF:
+                print("elf\n===")
+            else:
+                print("unknown\n===")
+
+            print(f"arch: sm_{self.arch}")
+            print(f"version: [{self.cv}]")
+            print(f"phc: 0x{phc:x}")
+            print(f"producer: {self.producer} [0x{self.producer_id:x}]")
+            print(f"host: {self.host} [0x{self.host_id:x}]")
+            print(f"compile_size: {self.compile_size}-bit")
+            print(f"compressed: {self.compressed}")
+            print("\n")
+
+    def parse(self):
+        raise NotImplementedError
+
+class NVCubinPartPTX(NVCubinPart):
+    pass
+
+class NVCubinPartELF(NVCubinPart):
     def parse_symtab(self, elf):
         # TODO: note that fatbin checks for sh_type == SHT_SYMTAB
         symtab = elf.get_section_by_name(".symtab")
@@ -96,8 +156,8 @@ class NVCubin(object):
 
         return args
 
-    def parse_cubin(self):
-        self.cubin_elf = ELFFile(io.BytesIO(self.cubin_data))
+    def parse(self):
+        self.cubin_elf = ELFFile(io.BytesIO(self.data))
         # # see Nervana's maxas cubin file for more details on properties
         arch = self.cubin_elf.header['e_flags'] & 0xFF
         print(f'elf: arch={arch}')
@@ -112,6 +172,39 @@ class NVCubin(object):
                 print(args)
 
         print(gs)
+
+class NVCubin(object):
+    def __init__(self, cubin_data):
+        self.cubin_data = cubin_data
+
+    def parse_cubin(self):
+        cubin_part_header = struct.Struct('IIQ')
+        assert cubin_part_header.size == 16, len(cubin_part_header.size)
+
+        #TODO: verify endian-ness assumptions from Power-generated cubins
+
+        self.parts = []
+        ndx = 0
+        while ndx < len(self.cubin_data):
+            magic, header_size, part_size = cubin_part_header.unpack_from(self.cubin_data,
+                                                                          ndx)
+            #print(f"header size: 0x{header_size:x}")
+
+            header = self.cubin_data[ndx:ndx+header_size]
+            ndx += header_size
+
+            part_data = self.cubin_data[ndx:ndx+part_size]
+            ndx += part_size
+
+            part_type = magic & 0xff
+            if part_type == CUBIN_PTX:
+                self.parts.append(NVCubinPartPTX(part_type, header, part_data))
+            elif part_type == CUBIN_ELF:
+                self.parts.append(NVCubinPartELF(part_type, header, part_data))
+            else:
+                assert False, f"Unknown part_type: {part_type}"
+
+            self.parts[-1].parse_header()
 
 class NVFatBinary(object):
     def __init__(self, elf):
@@ -128,46 +221,39 @@ class NVFatBinary(object):
             return 0
 
         nv_fatbin = self.elffile.get_section_by_name('.nv_fatbin')
-
-        elfname = os.path.basename(self.elf)
-
         if nv_fatbin:
+            fatbin_header = struct.Struct('QQ')
+            assert fatbin_header.size == 16, fatbin_header.size
+
+            elfname = os.path.basename(self.elf)
             self.fatbin_data = nv_fatbin.data()
 
             with open(f"/tmp/fatbin_complete_{elfname}", "wb") as f:
                 f.write(self.fatbin_data)
 
+            # there are multiple cubins, one per object
             cubins = []
             ndx = 0
             while ndx < len(self.fatbin_data):
-                header = self.fatbin_data[ndx:ndx+0x50]
+                magic, next_offset = fatbin_header.unpack_from(self.fatbin_data, ndx)
+                ndx += fatbin_header.size
 
-                next_offset = struct.unpack_from('Q', header, 8)[0]
-                arch = struct.unpack_from('H', header, 0x2c)[0]
-                code_version_1 = struct.unpack_from('H', header, 0x28)[0]
-                code_version_2 = struct.unpack_from('H', header, 0x2a)[0]
+                #if next_offset == 0:
+                #    continue
 
-                # producer, platform, 64bit?
-
-                print(f"arch: sm_{arch}")
-                print(f"version: [{code_version_1, code_version_2}]")
-                print(f"offset: {next_offset}")
-                print("")
-
-                cubin_data = self.fatbin_data[ndx+0x50:(ndx + 16 + next_offset)]
+                cubin_data = self.fatbin_data[ndx:(ndx + next_offset)]
                 cubins.append(NVCubin(cubin_data))
 
                 with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
                     print(f"WRITING /tmp/fatbin_part_{len(cubins):02d}_{elfname}")
-                    f.write(header)
+                    f.write(fatbin_header.pack(magic, next_offset))
                     f.write(cubin_data)
 
                 with open(f"/tmp/fatbin_cubin_{len(cubins):02d}_{elfname}", "wb") as f:
                     print(f"WRITING /tmp/fatbin_cubin_{len(cubins):02d}_{elfname}")
                     f.write(cubin_data)
 
-                ndx += 16 + next_offset # 16: 8 bytes for header, 8 bytes for offset
-                #print("***", ndx)
+                ndx += next_offset
 
             for c in cubins:
                 c.parse_cubin()
