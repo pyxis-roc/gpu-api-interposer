@@ -57,6 +57,10 @@ class NVCubinPart(object):
             self.producer = "cuda" if self.producer_id == 1 else "unknown"
             self.host = HOSTS[self.host_id] if self.host_id in HOSTS else "unknown"
 
+            if self.compressed:
+                self.compressed_size = struct.unpack_from('I', self.header, 0x10)[0]
+                self.uncompressed_size = struct.unpack_from('I', self.header, 0x38)[0]
+
             if self.type == CUBIN_PTX:
                 print("ptx\n===")
             elif self.type == CUBIN_ELF:
@@ -71,6 +75,10 @@ class NVCubinPart(object):
             print(f"host: {self.host} [0x{self.host_id:x}]")
             print(f"compile_size: {self.compile_size}-bit")
             print(f"compressed: {self.compressed}")
+            if self.compressed:
+                print(f" \t compressed size: {self.compressed_size}")
+                print(f" \t uncompressed size: {self.uncompressed_size}")
+
             print("\n")
 
     def parse(self):
@@ -228,12 +236,10 @@ class NVFatBinary(object):
             print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
             return 0
 
-        if False:
-            nv_fatbin_name = "__nv_relfatbin" # in .o files
-        else:
-            nv_fatbin_name = ".nv_fatbin" # in executables
+        for nv_fatbin_name in ["__nv_relfatbin", ".nv_fatbin"]: # .o, executables
+            nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_name)
+            if nv_fatbin: break
 
-        nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_name)
         if nv_fatbin:
             fatbin_header = struct.Struct('QQ')
             assert fatbin_header.size == 16, fatbin_header.size
