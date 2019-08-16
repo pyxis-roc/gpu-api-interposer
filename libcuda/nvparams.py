@@ -20,6 +20,8 @@ HOSTS = {1: "linux",
          2: "mac",
          3: "windows"}
 
+DEBUG_MODE = 0
+
 class NVCubinPart(object):
     def __init__(self, part_type, header, data):
         self.type = part_type
@@ -167,19 +169,17 @@ class NVCubinPartELF(NVCubinPart):
 
         self.cubin_elf = ELFFile(io.BytesIO(self.data))
         # # see Nervana's maxas cubin file for more details on properties
-        arch = self.cubin_elf.header['e_flags'] & 0xFF
-        print(f'elf: arch={arch}')
+        self.elf_arch = self.cubin_elf.header['e_flags'] & 0xFF
+        print(f'elf: arch={self.elf_arch}')
 
         gs = self.parse_symtab(self.cubin_elf)
-
+        self.nvglobals = gs
+        self.args = {}
         for s in self.cubin_elf.iter_sections():
             #print(s.name)
             if s.name[:8] == ".nv.info":
                 args = self.parse_nv_param_info_section(s, s.data())
-                print(s.name)
-                print(args)
-
-        print(gs)
+                self.args[s.name[9:]] = args
 
 class NVCubin(object):
     def __init__(self, cubin_data):
@@ -222,12 +222,10 @@ class NVFatBinary(object):
         self.felf = open(elf, "rb")
 
     def parse_fatbin(self):
-        # TODO: some cubins apparently start with PTX, skip, see fatbin.cc
-
         self.elffile = ELFFile(self.felf)
 
         if self.elffile.elfclass != 64:
-            #print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
+            print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
             return 0
 
         if False:
@@ -259,14 +257,15 @@ class NVFatBinary(object):
                 cubin_data = self.fatbin_data[ndx:(ndx + next_offset)]
                 cubins.append(NVCubin(cubin_data))
 
-                with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
-                    print(f"WRITING /tmp/fatbin_part_{len(cubins):02d}_{elfname}")
-                    f.write(fatbin_header.pack(magic, next_offset))
-                    f.write(cubin_data)
+                if DEBUG_MODE:
+                    with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
+                        print(f"WRITING /tmp/fatbin_part_{len(cubins):02d}_{elfname}")
+                        f.write(fatbin_header.pack(magic, next_offset))
+                        f.write(cubin_data)
 
-                with open(f"/tmp/fatbin_cubin_{len(cubins):02d}_{elfname}", "wb") as f:
-                    print(f"WRITING /tmp/fatbin_cubin_{len(cubins):02d}_{elfname}")
-                    f.write(cubin_data)
+                    with open(f"/tmp/fatbin_cubin_{len(cubins):02d}_{elfname}", "wb") as f:
+                        print(f"WRITING /tmp/fatbin_cubin_{len(cubins):02d}_{elfname}")
+                        f.write(cubin_data)
 
                 ndx += next_offset
 
