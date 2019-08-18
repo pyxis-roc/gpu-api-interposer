@@ -157,6 +157,10 @@ void cuFuncGetAttribute_post(int *pi, CUfunction_attribute attrib, CUfunction hf
 
 void cuLaunchKernel_post(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void **kernelParams, void **extra, CUresult *_retval, void *_ctx)
 {
+  static unsigned char argblob[256];
+unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
+unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
+
   tracepoint(libcuda_interposer, cuLaunchKernel_post, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, _retval);
 }
 

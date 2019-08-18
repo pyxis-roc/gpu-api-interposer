@@ -151,8 +151,13 @@ TRACEPOINT_EVENT(
 
                 tracepoint_info['events'][e]['blobstore'] = bs_specs
 
+            # TODO: consolidate all code before and after into "pre" and "post" so genrecorder
+            # doesn't have to do much.
+            if 'arg_constructors' in tpe:
+                tracepoint_info['events'][e]['pre_tp_code'] = tpe['arg_constructors']
+
             if 'post_code' in tpe:
-                tracepoint_info['events'][e]['post_code'] = tpe['post_code']
+                tracepoint_info['events'][e]['post_tp_code'] = tpe['post_code']
 
         return tracepoint_info
 

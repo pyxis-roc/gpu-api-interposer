@@ -209,6 +209,10 @@ tracepoint_events:
       - *retval_field
       - *ctx_field
   cuLaunchKernel_post:
+    arg_constructors: |
+      static unsigned char argblob[256];
+      unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
+      unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
     remove_args:
       - kernelParams
       - extra
@@ -219,7 +223,7 @@ tracepoint_events:
             int_type: intptr_t
       - gridDimX:
           type: ctf_integer
-          type_args: 
+          type_args:
             int_type: unsigned int
       - gridDimY:
           type: ctf_integer

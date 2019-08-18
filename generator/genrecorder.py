@@ -87,6 +87,9 @@ def generate_shells(fdvs, probes, blobstore):
         code = []
         args = [c_ast.ID(a) for a in ev['args']]
 
+        if 'pre_tp_code' in ev:
+            code.append(PassthruStmt(ev['pre_tp_code']))
+
         code.append(c_ast.FuncCall(c_ast.ID("tracepoint"), c_ast.ExprList(args)))
 
         if 'blobstore' in ev:
@@ -98,10 +101,9 @@ def generate_shells(fdvs, probes, blobstore):
         if f['origname'][-4:] == "_pre":
             code.append(c_ast.Return(c_ast.Constant("int", "0")))
         else:
-            if 'post_code' in ev:
-                print("HERE")
-                code.append(PassthruStmt(ev['post_code']))
-                            
+            if 'post_tp_code' in ev:
+                code.append(PassthruStmt(ev['post_tp_code']))
+
         return code
 
     fnd = dict([(fn['origname'], fn) for fn in fdvs])
