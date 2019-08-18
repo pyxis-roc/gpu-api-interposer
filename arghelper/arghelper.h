@@ -33,3 +33,4 @@ int ah_deinit_param_table(struct param_table *pt);
 int ah_construct_arg_blob(struct param_table *pt, int symbol, int arch,
 						  void **args, unsigned char *argblob);
 int ah_find_symbol_index_by_handle(struct param_table *pt, const void *handle);
+int ah_register_handle_for_symbol(struct param_table *pt, const void *handle, const char *symbol);
