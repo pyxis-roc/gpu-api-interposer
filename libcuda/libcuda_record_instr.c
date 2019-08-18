@@ -109,6 +109,10 @@ void cuModuleUnload_post(CUmodule hmod, CUresult *_retval, void *_ctx)
 void cuModuleGetFunction_post(CUfunction *hfunc, CUmodule hmod, const char *name, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuModuleGetFunction_post, hfunc, hmod, name, _retval, _ctx);
+  if(_retval == 0) {
+   printf("CUDA function: %s registered with handle %p\n", name, *hfunc);
+}
+
 }
 
 void cuModuleGetGlobal_v2_post(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, const char *name, CUresult *_retval, void *_ctx)

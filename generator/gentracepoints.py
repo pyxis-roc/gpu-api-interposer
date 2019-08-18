@@ -151,6 +151,9 @@ TRACEPOINT_EVENT(
 
                 tracepoint_info['events'][e]['blobstore'] = bs_specs
 
+            if 'post_code' in tpe:
+                tracepoint_info['events'][e]['post_code'] = tpe['post_code']
+
         return tracepoint_info
 
 if __name__ == "__main__":

@@ -309,10 +309,18 @@ class CommonInstrumentMixin(object):
         with open(self.hfile, "w") as f:
             f.write("/* automatically generated, do not edit */\n")
             f.write(f"#include <{self.generator.hinclude}>\n")
-        
+
+            f.write("#ifdef __cplusplus\n")
+            f.write('extern "C" {\n')
+            f.write("#endif\n")                    
+            
             cgen = c_generator.CGenerator()
             f.write(cgen.visit(self.ast))
 
+            f.write("#ifdef __cplusplus\n")
+            f.write('}\n')
+            f.write("#endif\n")                    
+            
         return []
 
     def _add_to_context(self, context, section, hookfn, origname, instr_decl):

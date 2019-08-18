@@ -27,6 +27,17 @@ static __attribute__((destructor)) void deinit_blobstore() {
 }
 """
 
+class PassthruStmt(c_ast.Node):
+    __slots__ = ('code', 'coord')
+
+    def __init__(self, code, coord=None):
+        self.code = code
+        self.coord = coord
+
+class MyCGenerator(c_generator.CGenerator):
+    def visit_PassthruStmt(self, n):
+        return n.code
+
 def load_yaml(f):
     with open(f, "r") as yf:
         return yaml.safe_load(yf)
@@ -86,7 +97,11 @@ def generate_shells(fdvs, probes, blobstore):
 
         if f['origname'][-4:] == "_pre":
             code.append(c_ast.Return(c_ast.Constant("int", "0")))
-
+        else:
+            if 'post_code' in ev:
+                print("HERE")
+                code.append(PassthruStmt(ev['post_code']))
+                            
         return code
 
     fnd = dict([(fn['origname'], fn) for fn in fdvs])
@@ -116,7 +131,7 @@ def generate_output(fdvs, probes, outputfile, instr_headers, blobstore):
             tpheader = tpheader + ".h"
 
         ofile.write(f'#include "{tpheader}"\n')
-        cgen = c_generator.CGenerator()
+        cgen = MyCGenerator()
 
         for f in fdvs:
             if 'shell' not in f:
