@@ -211,40 +211,33 @@ tracepoint_events:
   cuLaunchKernel_post:
     arg_constructors: |
       static unsigned char argblob[256];
+      int argblobsize = 0;
       unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
       unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
+    subst_args:
+      gridDimX: gridDim
+      blockDimX: blockDim
     remove_args:
+      - gridDimY
+      - gridDimZ
+      - blockDimY
+      - blockDimZ
       - kernelParams
-      - extra
     fields:
       - f:
           type: ctf_integer_hex
           type_args:
             int_type: intptr_t
-      - gridDimX:
-          type: ctf_integer
+      - gridDim:
+          type: ctf_array
           type_args:
             int_type: unsigned int
-      - gridDimY:
-          type: ctf_integer
+            count: 3
+      - blockDim:
+          type: ctf_array
           type_args:
             int_type: unsigned int
-      - gridDimZ:
-          type: ctf_integer
-          type_args:
-            int_type: unsigned int
-      - blockDimX:
-          type: ctf_integer
-          type_args:
-            int_type: unsigned int
-      - blockDimY:
-          type: ctf_integer
-          type_args:
-            int_type: unsigned int
-      - blockDimZ:
-          type: ctf_integer
-          type_args:
-            int_type: unsigned int
+            count: 3
       - sharedMemBytes:
           type: ctf_integer
           type_args:
@@ -253,17 +246,16 @@ tracepoint_events:
           type: ctf_integer_hex
           type_args:
             int_type: intptr_t
-      # - kernelParams:             #TODO: this will require parsing the binary to determine size...
-      #     type: ctf_integer_hex
-      #     type_args:
-      #       int_type: intptr_t
-      #       expr: "((intptr_t) kernelParams"
-      # - extra:
-      #     type: ctf_integer_hex
-      #     type_args:
-      #       int_type: intptr_t
+      - extra:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
       - *retval_field
       - *ctx_field
+    blobstore:
+      - kernelParams:
+          expr: argblob
+          length: argblobsize
   cuMemFree_v2_post:
     fields:
       - dptr:

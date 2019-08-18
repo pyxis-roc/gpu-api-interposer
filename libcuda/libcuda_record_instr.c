@@ -158,10 +158,16 @@ void cuFuncGetAttribute_post(int *pi, CUfunction_attribute attrib, CUfunction hf
 void cuLaunchKernel_post(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void **kernelParams, void **extra, CUresult *_retval, void *_ctx)
 {
   static unsigned char argblob[256];
+int argblobsize = 0;
 unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
 unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
 
-  tracepoint(libcuda_interposer, cuLaunchKernel_post, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, _retval);
+  tracepoint(libcuda_interposer, cuLaunchKernel_post, f, gridDim, blockDim, sharedMemBytes, hStream, extra, _retval, _ctx);
+  if (_bs)
+  {
+    bs_store(_bs, *((int *) _ctx), "kernelParams", argblob, argblobsize);
+  }
+
 }
 
 void cuTexObjectCreate_post(CUtexObject *pTexObject, const CUDA_RESOURCE_DESC *pResDesc, const CUDA_TEXTURE_DESC *pTexDesc, const CUDA_RESOURCE_VIEW_DESC *pResViewDesc, CUresult *_retval, void *_ctx)

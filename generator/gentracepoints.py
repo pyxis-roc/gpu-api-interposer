@@ -42,6 +42,19 @@ def merge_tpargs(recipe, tpargs):
             remove_args = set(tpe[f]["remove_args"])
             tpe[f]['args'] = [x for x in tpe[f]['args'] if list(x.keys())[0] not in remove_args]
 
+        if "subst_args" in tpe[f]:
+            subst_args = tpe[f]['subst_args']
+            print(subst_args, tpe[f]['args'])
+
+            out = []
+            for a in tpe[f]['args']:
+                aname = list(a.keys())[0]
+                if aname in subst_args:
+                    out.append({subst_args[aname] : a[aname]})
+                else:
+                    out.append(a)
+
+            tpe[f]['args'] = out
 
 def generate_tracepoint_template(recipe, output, ig):
     provider = recipe['main']['provider']
