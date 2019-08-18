@@ -24,16 +24,21 @@ static __attribute__((constructor)) void arghelper_init() {
   char *argsfile = getenv("ARGHELPER_FILE");
 
   if(argsfile == NULL) {
-	fprintf(stderr, "WARNING: ARGHELPER_FILE is not set, arguments will not be saved.\n");
+    fprintf(stderr, "WARNING: ARGHELPER_FILE is not set, arguments will not be saved.\n");
+    return;
   }
 
   if(!ah_init_oob_param_table(argsfile, &pt)) {
 	fprintf(stderr, "ERROR: ARGHELPER_FILE '%s' could not be read, arguments will not be saved.\n", argsfile);
+	return;
   }
+
+  /* ah_dump_param_table(pt); */
 }
 
-static __attribute__((constructor)) void arghelper_deinit() {
+static __attribute__((destructor)) void arghelper_deinit() {
   if(pt) {
 	ah_deinit_param_table(pt);
+	pt = NULL;
   }
 }

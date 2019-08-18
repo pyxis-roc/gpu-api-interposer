@@ -110,8 +110,9 @@ void cuModuleUnload_post(CUmodule hmod, CUresult *_retval, void *_ctx)
 void cuModuleGetFunction_post(CUfunction *hfunc, CUmodule hmod, const char *name, CUresult *_retval, void *_ctx)
 {
   tracepoint(libcuda_interposer, cuModuleGetFunction_post, hfunc, hmod, name, _retval, _ctx);
-  if(_retval == 0) {
-   printf("CUDA function: %s registered with handle %p\n", name, *hfunc);
+  if(*_retval == 0) {
+   /* printf("CUDA function: %s registered with handle %p\n", name, *hfunc); */
+   if(pt) ah_register_handle_for_symbol(pt, *hfunc, name);
 }
 
 }
@@ -188,8 +189,8 @@ static  __attribute__((constructor)) void init_blobstore() {
    char *blobstore_path = getenv("BLOBSTORE_PATH");
 
     if(blobstore_path == NULL) {
-        fprintf(stderr, "ERROR: Environment variable BLOBSTORE_PATH must contain path to blobstore file\n");
-        exit(1);
+        fprintf(stderr, "ERROR: Environment variable BLOBSTORE_PATH must be set to point to blobstore file to store blobs.\n");
+        return; // not exiting because trace will still succeed
     }
 
     if(!bs_create(blobstore_path, &_bs)) {

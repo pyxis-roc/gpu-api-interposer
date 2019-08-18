@@ -339,8 +339,9 @@ tracepoint_events:
       - *retval_field
       - *ctx_field
     post_code: |
-      if(_retval == 0) {
-         printf("CUDA function: %s registered with handle %p\n", name, *hfunc);
+      if(*_retval == 0) {
+         /* printf("CUDA function: %s registered with handle %p\n", name, *hfunc); */
+         if(pt) ah_register_handle_for_symbol(pt, *hfunc, name);
       }
   cuModuleGetGlobal_v2_post:
     fields:

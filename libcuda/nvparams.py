@@ -42,7 +42,7 @@ def get_kernel_arguments(elffile):
     return all_out
 
 # this creates a helper file -- ultimately we want this to read the section file in memory?
-def create_arg_recorder_helper(param_data, outputfile):
+def create_arg_recorder_helper(param_data, outputfile, consolidate):
     # arches
     arch = []
 
@@ -73,7 +73,7 @@ def create_arg_recorder_helper(param_data, outputfile):
         assert all([len(out[f][0]['param_offsets']) == len(x['param_offsets']) for x in out[f]]), out[f]
         assert len(out[f][0]['param_sizes']) == len(out[f][0]['param_offsets'])
         
-        if ps and po and False:
+        if ps and po and consolidate:
             # consolidate into a universal arch
             out[f] = [{'arch': 0,
                       'param_sizes': out[f][0]['param_sizes'],
@@ -116,13 +116,13 @@ def create_arg_recorder_helper(param_data, outputfile):
             f.write(output)
 
     return output
-    
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Obtain parameter offset and size information for kernels")
     p.add_argument("executable", help="ELF executable")
     p.add_argument("output", help="Output file")
-    
+    p.add_argument("--no-consolidate", help="Do not consolidate arguments for different arches into a single universal arch", action="store_true")
     args = p.parse_args()
 
     ka = get_kernel_arguments(args.executable)
-    create_arg_recorder_helper(ka, args.output)
+    create_arg_recorder_helper(ka, args.output, not args.no_consolidate)

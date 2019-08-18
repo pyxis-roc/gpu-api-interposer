@@ -12,8 +12,8 @@ static  __attribute__((constructor)) void init_blobstore() {
    char *blobstore_path = getenv("BLOBSTORE_PATH");
 
     if(blobstore_path == NULL) {
-        fprintf(stderr, "ERROR: Environment variable BLOBSTORE_PATH must contain path to blobstore file\\n");
-        exit(1);
+        fprintf(stderr, "ERROR: Environment variable BLOBSTORE_PATH must be set to point to blobstore file to store blobs.\\n");
+        return; // not exiting because trace will still succeed
     }
 
     if(!bs_create(blobstore_path, &_bs)) {

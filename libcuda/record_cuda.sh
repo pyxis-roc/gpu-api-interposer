@@ -15,7 +15,8 @@ if [ -f "${1}.arg" ]; then
 	ARGHELPER_FILE="${1}.arg"
 fi;
 
-echo "BLOBSTORE_PATH=$BLOBSTORE_PATH" 
+echo "BLOBSTORE_PATH=$BLOBSTORE_PATH"
+echo "ARGHELPER_FILE=$ARGHELPER_FILE"
 lttng create cuda-record || exit 1;
 lttng enable-event --userspace "libcuda_interposer:*" || exit 1;
 lttng start || exit 1;
