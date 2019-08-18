@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 struct param_table {
   int fd;
@@ -9,6 +10,7 @@ struct param_table {
   unsigned char **symbolnames;
   unsigned int *offsets;
   unsigned char *params;
+  intptr_t *handles;
 };
 
 struct param_data {

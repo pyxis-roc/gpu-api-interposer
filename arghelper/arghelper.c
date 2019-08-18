@@ -50,6 +50,13 @@ int ah_init_oob_param_table(const char *filename, struct param_table **ppt) {
 	goto err_post_mmap;
   }
 
+
+  pt->handles = (intptr_t *) calloc(pt->nsymbols, sizeof(intptr_t *));
+  if(!pt->handles) {
+	fprintf(stderr, "ERROR: Unable to allocate memory for handles (%d: %s)\n", errno, strerror(errno));
+	goto err_post_alloc;
+  }
+  
   unsigned int strtablen = ((unsigned int *) pt->oob)[2];
   unsigned char *name = pt->oob + 12;
   
@@ -145,6 +152,26 @@ int ah_find_symbol_index(struct param_table *pt, const char *symbol) {
   }
 
   return -1;
+}
+
+int ah_find_symbol_index_by_handle(struct param_table *pt, const void *handle) {
+  /* unfortunately, this is linear search :(, possibly switch to a hash table */
+  for(int i = 0; i < pt->nsymbols; i++) {
+	if(pt->handles[i] == (intptr_t) handle) return i;
+  }
+  
+  return -1;
+}
+
+
+int ah_register_handle_for_symbol(struct param_table *pt, const void *handle, const char *symbol) {
+  int sndx;
+  
+  if((sndx = ah_find_symbol_index(pt, symbol)) != -1) {
+	pt->handles[sndx] = (intptr_t) handle;
+  } else {
+	fprintf(stderr, "WARNING:arghelper: Unable to find symbol '%s' to register handle\n", symbol);
+  }
 }
 
 int ah_deinit_param_table(struct param_table *pt) {
