@@ -21,6 +21,7 @@ HOSTS = {1: "linux",
          3: "windows"}
 
 DEBUG_MODE = 0
+LIBRARY_MODE = 1
 
 class NVCubinPart(object):
     def __init__(self, part_type, header, data):
@@ -61,35 +62,48 @@ class NVCubinPart(object):
                 self.compressed_size = struct.unpack_from('I', self.header, 0x10)[0]
                 self.uncompressed_size = struct.unpack_from('I', self.header, 0x38)[0]
 
-            if self.type == CUBIN_PTX:
-                print("ptx\n===")
-            elif self.type == CUBIN_ELF:
-                print("elf\n===")
-            else:
-                print("unknown\n===")
+            if not LIBRARY_MODE:
+                if self.type == CUBIN_PTX:
+                    print("ptx\n===")
+                elif self.type == CUBIN_ELF:
+                    print("elf\n===")
+                else:
+                    print("unknown\n===")
 
-            print(f"arch: sm_{self.arch}")
-            print(f"version: [{self.cv}]")
-            print(f"phc: 0x{phc:x}")
-            print(f"producer: {self.producer} [0x{self.producer_id:x}]")
-            print(f"host: {self.host} [0x{self.host_id:x}]")
-            print(f"compile_size: {self.compile_size}-bit")
-            print(f"compressed: {self.compressed}")
-            if self.compressed:
-                print(f" \t compressed size: {self.compressed_size}")
-                print(f" \t uncompressed size: {self.uncompressed_size}")
+                print(f"arch: sm_{self.arch}")
+                print(f"version: [{self.cv}]")
+                print(f"phc: 0x{phc:x}")
+                print(f"producer: {self.producer} [0x{self.producer_id:x}]")
+                print(f"host: {self.host} [0x{self.host_id:x}]")
+                print(f"compile_size: {self.compile_size}-bit")
+                print(f"compressed: {self.compressed}")
+                if self.compressed:
+                    print(f" \t compressed size: {self.compressed_size}")
+                    print(f" \t uncompressed size: {self.uncompressed_size}")
 
-            print("\n")
+                print("\n")
 
     def parse(self):
         raise NotImplementedError
 
 class NVCubinPartPTX(NVCubinPart):
     def parse(self):
+        if self.compressed:
+            if DEBUG_MODE:
+                #TODO: need elf-specific name
+                with open("/tmp/fatbin_compressed", "wb") as f:
+                    f.write(self.data)
+                
         print(self.data[:16])
         #zlib.decompress(self.data)
 
 class NVCubinPartELF(NVCubinPart):
+    def get_globals(self):
+        return self.nvglobals
+
+    def get_args(self):
+        return self.args
+    
     def parse_symtab(self, elf):
         # TODO: note that fatbin checks for sh_type == SHT_SYMTAB
         symtab = elf.get_section_by_name(".symtab")
@@ -172,13 +186,16 @@ class NVCubinPartELF(NVCubinPart):
     def parse(self):
         if self.compressed:
             print("elf_parse: Don't know how to handle compressed ELFs")
+            print(self.data[:16])
             #zlib.decompress(self.data)
             return
 
         self.cubin_elf = ELFFile(io.BytesIO(self.data))
         # # see Nervana's maxas cubin file for more details on properties
         self.elf_arch = self.cubin_elf.header['e_flags'] & 0xFF
-        print(f'elf: arch={self.elf_arch}')
+
+        if not LIBRARY_MODE:
+            print(f'elf: arch={self.elf_arch}')
 
         gs = self.parse_symtab(self.cubin_elf)
         self.nvglobals = gs
@@ -188,6 +205,10 @@ class NVCubinPartELF(NVCubinPart):
             if s.name[:8] == ".nv.info":
                 args = self.parse_nv_param_info_section(s, s.data())
                 self.args[s.name[9:]] = args
+
+        if not LIBRARY_MODE:
+            print(self.nvglobals)
+            print(self.args)
 
 class NVCubin(object):
     def __init__(self, cubin_data):
@@ -223,6 +244,8 @@ class NVCubin(object):
             self.parts[-1].parse_header()
             self.parts[-1].parse()
 
+        if not  LIBRARY_MODE:
+            print(f"Cubin contains {len(self.parts)} parts")
 
 class NVFatBinary(object):
     def __init__(self, elf):
@@ -236,9 +259,11 @@ class NVFatBinary(object):
             print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
             return 0
 
-        for nv_fatbin_name in ["__nv_relfatbin", ".nv_fatbin"]: # .o, executables
+        for nv_fatbin_name in [".nv_fatbin", "__nv_relfatbin"]: # executables, .o: though the latter also exists in executables and contains ptx data (for example).
             nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_name)
-            if nv_fatbin: break
+            if nv_fatbin:
+                if DEBUG_MODE: print(f"Using section: {nv_fatbin_name}")
+                break
 
         if nv_fatbin:
             fatbin_header = struct.Struct('QQ')
@@ -279,6 +304,8 @@ class NVFatBinary(object):
             for c in cubins:
                 c.parse_cubin()
 
+            self.cubins = cubins
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Describe argument parameter formats for kernel arguments in a ELF file")
 
@@ -288,6 +315,7 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     DEBUG_MODE = args.debug
-
+    LIBRARY_MODE = 0
+    
     fatbin = NVFatBinary(args.elffile)
     fatbin.parse_fatbin()
