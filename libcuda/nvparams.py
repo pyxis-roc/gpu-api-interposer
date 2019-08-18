@@ -73,7 +73,7 @@ def create_arg_recorder_helper(param_data, outputfile):
         assert all([len(out[f][0]['param_offsets']) == len(x['param_offsets']) for x in out[f]]), out[f]
         assert len(out[f][0]['param_sizes']) == len(out[f][0]['param_offsets'])
         
-        if ps and po:
+        if ps and po and False:
             # consolidate into a universal arch
             out[f] = [{'arch': 0,
                       'param_sizes': out[f][0]['param_sizes'],
@@ -87,6 +87,9 @@ def create_arg_recorder_helper(param_data, outputfile):
         bstrtab += bytes(f.encode('ascii'))
         bstrtab += b'\0'
 
+    # align to 4
+    bstrtab += b'\0' * (4 - len(bstrtab) % 4)
+        
     bparams = array.array('B')
     offsets = array.array('I') # overkill, but 64K might be too small
         
