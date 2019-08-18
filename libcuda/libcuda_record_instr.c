@@ -1,5 +1,6 @@
 #include "libcuda_record_pre_instr.h"
 #include "libcuda_record_post_instr.h"
+#include "kernelparams.h"
 #include <blobstore.h>
 static blobstore _bs = NULL;
 #include "libcuda_record_tp.h"
@@ -161,6 +162,8 @@ void cuLaunchKernel_post(CUfunction f, unsigned int gridDimX, unsigned int gridD
 int argblobsize = 0;
 unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
 unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
+
+argblobsize = get_arg_blob(f, kernelParams, argblob);
 
   tracepoint(libcuda_interposer, cuLaunchKernel_post, f, gridDim, blockDim, sharedMemBytes, hStream, extra, _retval, _ctx);
   if (_bs)

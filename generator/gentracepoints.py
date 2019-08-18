@@ -44,13 +44,12 @@ def merge_tpargs(recipe, tpargs):
 
         if "subst_args" in tpe[f]:
             subst_args = tpe[f]['subst_args']
-            print(subst_args, tpe[f]['args'])
 
             out = []
             for a in tpe[f]['args']:
                 aname = list(a.keys())[0]
                 if aname in subst_args:
-                    out.append({subst_args[aname] : a[aname]})
+                    out.append({subst_args[aname]['with'] : subst_args[aname]})
                 else:
                     out.append(a)
 

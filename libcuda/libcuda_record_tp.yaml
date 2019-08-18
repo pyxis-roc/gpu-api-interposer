@@ -214,9 +214,15 @@ tracepoint_events:
       int argblobsize = 0;
       unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
       unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
+
+      argblobsize = get_arg_blob(f, kernelParams, argblob);
     subst_args:
-      gridDimX: gridDim
-      blockDimX: blockDim
+      gridDimX:
+        with: gridDim
+        type: unsigned int *
+      blockDimX:
+        with: blockDim
+        type: unsigned int *
     remove_args:
       - gridDimY
       - gridDimZ
