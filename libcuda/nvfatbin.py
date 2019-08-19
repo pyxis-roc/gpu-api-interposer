@@ -62,6 +62,13 @@ class NVCubinPart(object):
                 self.compressed_size = struct.unpack_from('I', self.header, 0x10)[0]
                 self.uncompressed_size = struct.unpack_from('I', self.header, 0x38)[0]
 
+            if self.type == CUBIN_PTX and len(self.header) > 0x40:
+                ptxasOptionsOffset = struct.unpack_from('H', self.header, 0x40)[0]
+                ptxasOptionsLen = struct.unpack_from('H', self.header, 0x44)[0]
+                self.ptxasOptions = self.header[ptxasOptionsOffset:ptxasOptionsOffset+ptxasOptionsLen]
+            else:
+                self.ptxasOptions = None
+
             if not LIBRARY_MODE:
                 if self.type == CUBIN_PTX:
                     print("ptx\n===")
@@ -80,6 +87,9 @@ class NVCubinPart(object):
                 if self.compressed:
                     print(f" \t compressed size: {self.compressed_size}")
                     print(f" \t uncompressed size: {self.uncompressed_size}")
+
+                if self.ptxasOptions:
+                    print(f" \t ptxasOptions: {self.ptxasOptions}")
 
                 print("\n")
 
