@@ -95,7 +95,7 @@ You can use `babeltrace` to see the trace:
 
 You can also use `libcuda-replay.py` to rerun the trace:
 
-   /path/to/libcuda-replay/libcuda_replay.py /path/to/lttng-trace /path/to/bs.db /path/to/argfiles.yaml
+    /path/to/libcuda-replay/libcuda_replay.py /path/to/lttng-trace /path/to/bs.db /path/to/argfiles.yaml
 
 ## Advanced Usage
 
