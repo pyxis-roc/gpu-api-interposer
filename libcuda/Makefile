@@ -1,7 +1,8 @@
 GENINTERPOSER=../generator/geninterposer.py
 GENTRACEPOINTS=../generator/gentracepoints.py
 GENRECORDER=../generator/genrecorder.py
-FAKE_C_HEADERS=~/extsrc/pycparser/utils/fake_libc_include/
+FAKE_C_HEADERS=/usr/share/python3-pycparser/fake_libc_include
+#~/extsrc/pycparser/utils/fake_libc_include/
 CUDA_INC=$(CUDA_LIB)/../include
 CUDA_H=$(CUDA_INC)/cuda.h
 BLOBSTORE=../blobstore

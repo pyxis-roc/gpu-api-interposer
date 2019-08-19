@@ -28,7 +28,7 @@ class NVArgHandler(object):
         with open(self.argfile, "r") as f:
             self.args = yaml.load(f)
 
-    def unpack(self, fn, argdata, arch = 0):
+    def unpack(self, fn, argdata, arch = 0, is_extra = False):
         out = []
         if fn in self.args:
             fna = self.args[fn]
@@ -36,9 +36,13 @@ class NVArgHandler(object):
             for d in fna:
                 if d['arch'] == arch:
                     off = 0
-                    for sz in d['param_sizes']:
-                        out.append(argdata[off:off+sz])
-                        off += sz
+                    if is_extra:
+                        for off, sz in zip(d['param_offsets'], d['param_sizes']):
+                            out.append(argdata[off:off+sz])
+                    else:
+                        for sz in d['param_sizes']:
+                            out.append(argdata[off:off+sz])
+                            off += sz
 
                     return out
             else:
@@ -67,9 +71,12 @@ class NVTraceHandler(object):
                     kernelParams = bsd['contents']
                     args = self.arghandler.unpack(fn, kernelParams)
                     print(args)
+                elif bsd['name'] == 'extra':
+                    extra = bsd['contents']
+                    args = self.arghandler.unpack(fn, extra, is_extra = True)
+                    print(args)
                 else:
                     raise NotImplementedError
-
 
 class Replay(object):
     prefix = "libcuda_interposer:"
