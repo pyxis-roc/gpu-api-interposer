@@ -31,7 +31,7 @@ int bs_create(const char *filename, blobstore *pbs) {
   }
 
   if(sqlite3_exec(bs->db, 
-		  "CREATE TABLE blobstore (ctx INTEGER, content_part INTEGER, name TEXT NOT NULL, contents BLOB, PRIMARY KEY (ctx, content_part));",
+		  "CREATE TABLE blobstore (ctx INTEGER, content_part INTEGER, name TEXT NOT NULL, contents BLOB, PRIMARY KEY (ctx, name, content_part));",
 		  NULL,
 		  NULL,
 		  &errmsg) != SQLITE_OK) {
