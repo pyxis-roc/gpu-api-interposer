@@ -6,11 +6,15 @@
 
 static struct param_table *pt;
 
+static int get_arg_blob_extra(CUfunction f, void **extra, unsigned char *argblob) {
+  return ah_construct_arg_blob_extra(pt, extra, argblob);
+}
+
 static int get_arg_blob(CUfunction f, void **kernelParams, unsigned char *argblob) {
   int symbol;
 
   if(!pt) return 0;
-
+  
   symbol = ah_find_symbol_index_by_handle(pt, f);
   if(symbol == -1) {
 	fprintf(stderr, "ERROR: Couldn't find symbol index for handle %p\n", f);

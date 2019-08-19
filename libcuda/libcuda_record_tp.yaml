@@ -215,7 +215,13 @@ tracepoint_events:
       unsigned int gridDim[3] = {gridDimX, gridDimY, gridDimZ};
       unsigned int blockDim[3] = {blockDimX, blockDimY, blockDimZ};
 
-      argblobsize = get_arg_blob(f, kernelParams, argblob);
+      if(*_retval == 0) {
+         if(kernelParams) {
+             argblobsize = get_arg_blob(f, kernelParams, argblob);
+         } else if(extra) {
+             argblobsize = get_arg_blob_extra(f, extra, argblob);
+         }
+      }
     subst_args:
       gridDimX:
         with: gridDim
@@ -262,6 +268,12 @@ tracepoint_events:
       - kernelParams:
           expr: argblob
           length: argblobsize
+          guard_expr: kernelParams
+      - extra:
+          expr: argblob
+          length: argblobsize
+          guard_expr: extra
+      
   cuMemFree_v2_post:
     fields:
       - dptr:
