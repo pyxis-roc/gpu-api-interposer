@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+#
+# nvparams.py
+#
+# libcuda_record parameter helper.
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, The University of Rochester
+
 import nvfatbin
 import argparse
 import yaml

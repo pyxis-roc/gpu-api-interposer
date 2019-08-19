@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+#
+# nvfatbin.py
+#
+# Parser for NVIDIA fatbin sections in ELF files
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, The University of Rochester
+# Copyright (C) 2013, Sreepathi Pai
 
 import argparse
 from elftools.elf.elffile import ELFFile
