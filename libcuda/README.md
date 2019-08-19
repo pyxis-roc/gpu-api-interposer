@@ -78,7 +78,7 @@ CUDA Device API trace, so it is accompanied by a runner script.
 
 The command:
 
-   /path/to/libcuda/record_cuda.sh cuda_binary arg1 arg2 ...
+    /path/to/libcuda/record_cuda.sh cuda_binary arg1 arg2 ...
 
 will setup the correct environment variables and run the `cuda_binary`
 executable with the specified arguments.
