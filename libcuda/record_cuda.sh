@@ -7,16 +7,36 @@ if [ $# -lt 1 ]; then
     exit 1;
 fi;
 
-DLOPEN_LIBRARY=${DLOPEN_LIBRARY:-/usr/lib64/libcuda.so.1}
-LD_PRELOAD=${LD_PRELOAD:-$P/libcuda_record.so}
-BLOBSTORE_PATH=`mktemp cuda-record-bs-XXXXXX.db`
+# attempt to locate libcuda.so.1
+for x in "$DLOPEN_LIBRARY" /usr/lib64/libcuda.so.1 /usr/lib/x86_64-linux-gnu/libcuda.so.1; do
+    if [ -f "$x" ]; then
+	DLOPEN_LIBRARY=$x
+	break;
+    fi;
+done;
 
-if [ -f "${1}.arg" ]; then
-	ARGHELPER_FILE="${1}.arg"
+if [ ! -f "$DLOPEN_LIBRARY" ]; then
+    echo "Could not locate libcuda.so.1 in the usual places, set DLOPEN_LIBRARY to point to libcuda.so.1"
+    exit 1;
 fi;
 
+TS=`date +%Y%m%d-%H%M%S` # use lttng-like format
+LD_PRELOAD=${LD_PRELOAD:-$P/libcuda_record.so}
+BLOBSTORE_PATH=`mktemp cuda-record-bs-$TS-XXXXXX.db`
+ARGHELPER_FILE=${ARGHELPER_FILE:-${1}.arg}
+
+if [ ! -f "$ARGHELPER_FILE" ]; then
+    # attempt to create argfile if one does not exist
+    if ! "$P/nvparams.py" "$1" "$ARGHELPER_FILE"; then
+	echo "Couldn't create/access '$ARGHELPER_FILE'"
+	exit 1;
+    fi;
+fi;
+
+echo "DLOPEN_LIBRARY=$DLOPEN_LIBRARY"
 echo "BLOBSTORE_PATH=$BLOBSTORE_PATH"
 echo "ARGHELPER_FILE=$ARGHELPER_FILE"
+
 lttng create cuda-record || exit 1;
 lttng enable-event --userspace "libcuda_interposer:*" || exit 1;
 lttng start || exit 1;

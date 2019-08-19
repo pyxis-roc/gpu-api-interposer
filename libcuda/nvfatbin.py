@@ -93,8 +93,8 @@ class NVCubinPartPTX(NVCubinPart):
                 #TODO: need elf-specific name
                 with open("/tmp/fatbin_compressed", "wb") as f:
                     f.write(self.data)
-                
-        print(self.data[:16])
+
+        #print(self.data[:16])
         #zlib.decompress(self.data)
 
 class NVCubinPartELF(NVCubinPart):
@@ -103,7 +103,7 @@ class NVCubinPartELF(NVCubinPart):
 
     def get_args(self):
         return self.args
-    
+
     def parse_symtab(self, elf):
         # TODO: note that fatbin checks for sh_type == SHT_SYMTAB
         symtab = elf.get_section_by_name(".symtab")
@@ -316,6 +316,6 @@ if __name__ == "__main__":
 
     DEBUG_MODE = args.debug
     LIBRARY_MODE = 0
-    
+
     fatbin = NVFatBinary(args.elffile)
     fatbin.parse_fatbin()
