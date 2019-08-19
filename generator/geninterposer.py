@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+#
+# geninterposer.py
+#
+# Generate a C file suitable for LD_PRELOAD for a given header file.
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, The University of Rochester
+#
 
 import sys
 import argparse

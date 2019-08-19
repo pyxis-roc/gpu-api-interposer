@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+#
+# gentracepoints.py
+#
+# Generate LTTNG-UST based _pre and _post tracepoints for API calls.
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, The University of Rochester
 
 import argparse
 import sys

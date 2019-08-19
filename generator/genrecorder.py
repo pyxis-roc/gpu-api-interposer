@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+#
+# genrecorder.py
+#
+# Generate _pre and _post instrumentation routines that record API
+# calls using LTTNG-UST tracepoints.
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, The University of Rochester
+#
 
 import argparse
 import yaml
