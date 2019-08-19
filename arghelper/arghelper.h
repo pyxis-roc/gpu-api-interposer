@@ -31,6 +31,8 @@ void ah_dump_param_table(struct param_table *pt);
 int ah_find_symbol_index(struct param_table *pt, const char *symbol);
 int ah_deinit_param_table(struct param_table *pt);
 int ah_construct_arg_blob(struct param_table *pt, int symbol, int arch,
-						  void **args, unsigned char *argblob);
+						  void **kernelParams, unsigned char *argblob);
 int ah_find_symbol_index_by_handle(struct param_table *pt, const void *handle);
 int ah_register_handle_for_symbol(struct param_table *pt, const void *handle, const char *symbol);
+size_t ah_construct_arg_blob_extra(struct param_table *pt, void **extra, unsigned char *argblob);
+

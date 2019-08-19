@@ -86,8 +86,37 @@ int ah_init_oob_param_table(const char *filename, struct param_table **ppt) {
 }
 
 /* only call this after a successful call to cuLaunchKernel */
+size_t ah_construct_arg_blob_extra(struct param_table *pt,
+				   void **extra,
+				   unsigned char *argblob) {
+
+  struct param_data pd;
+  size_t blobsize = 0;
+  void *argBuffer = NULL;
+    
+  /* CU_LAUNCH_PARAM_END == NULL */
+  
+  for(int i = 0; extra[i] != ((void *)0x0); i++) {
+    if(extra[i] == ((void *) 0x1)) {
+      argBuffer = extra[++i];
+    } else if(extra[i] == ((void *) 0x2)) {
+      blobsize = *((size_t *) extra[++i]);
+    }
+  }
+
+  if(argBuffer != NULL) {
+    assert(blobsize <= 256);
+    memcpy(argblob, argBuffer, blobsize);
+    return blobsize;
+  }
+
+  return 0;
+}
+
+/* only call this after a successful call to cuLaunchKernel */
 int ah_construct_arg_blob(struct param_table *pt, int symbol, int arch,
-						   void **args, unsigned char *argblob) {
+			  void **kernelParams,
+			  unsigned char *argblob) {
 
   struct param_data pd;
   int blobsize = 0;
@@ -104,7 +133,7 @@ int ah_construct_arg_blob(struct param_table *pt, int symbol, int arch,
 	  for(int j = 0; j < pd.nparams; j++) {
 		assert(blobsize + pd.param_sz[j] < 256); // max cuda arg buffer size is 256
 
-		memcpy(argblob + blobsize, args[j], pd.param_sz[j]);
+		memcpy(argblob + blobsize, kernelParams[j], pd.param_sz[j]);
 		blobsize += pd.param_sz[j];
 	  }
 	  break;
