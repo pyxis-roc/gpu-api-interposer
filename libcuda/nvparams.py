@@ -26,7 +26,7 @@ def get_kernel_arguments(elffile):
                 for f in params:
                     if f == '':
                         continue
-                    
+
                     out = []
                     for p in params[f]:
                         out.append(dict(p._asdict()))
@@ -59,7 +59,7 @@ def create_arg_recorder_helper(param_data, outputfile, consolidate):
             fp = module['params'][f]
 
             if fp: assert [i == x['ordinal'] for i, x in enumerate(fp)]
-                    
+
             out[f].append({'arch': arch,
                            'param_sizes': tuple([x['size'] for x in fp]),
                            'param_offsets': tuple([x['offset'] for x in fp])
@@ -72,7 +72,7 @@ def create_arg_recorder_helper(param_data, outputfile, consolidate):
         assert all([len(out[f][0]['param_sizes']) == len(x['param_sizes']) for x in out[f]]), out[f]
         assert all([len(out[f][0]['param_offsets']) == len(x['param_offsets']) for x in out[f]]), out[f]
         assert len(out[f][0]['param_sizes']) == len(out[f][0]['param_offsets'])
-        
+
         if ps and po and consolidate:
             # consolidate into a universal arch
             out[f] = [{'arch': 0,
@@ -89,15 +89,15 @@ def create_arg_recorder_helper(param_data, outputfile, consolidate):
 
     # align to 4
     bstrtab += b'\0' * (4 - len(bstrtab) % 4)
-        
+
     bparams = array.array('B')
     offsets = array.array('I') # overkill, but 64K might be too small
-        
+
     for f in strtab:
         offsets.append(len(bparams))
 
         bparams.append(len(out[f])) # number of archs
-        
+
         for apd in out[f]:
             bparams.append(apd['arch']) # arch
             bparams.append(len(apd['param_sizes'])) # size of params
@@ -115,7 +115,7 @@ def create_arg_recorder_helper(param_data, outputfile, consolidate):
         with open(outputfile, "wb") as f:
             f.write(output)
 
-    return output
+    return (out, output)
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Obtain parameter offset and size information for kernels")
@@ -125,4 +125,7 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     ka = get_kernel_arguments(args.executable)
-    create_arg_recorder_helper(ka, args.output, not args.no_consolidate)
+    d, b = create_arg_recorder_helper(ka, args.output, not args.no_consolidate)
+
+    with open(args.output + ".yaml", "w") as f:
+        f.write(yaml.dump(d))
