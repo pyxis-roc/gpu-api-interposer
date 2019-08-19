@@ -23,7 +23,14 @@ fi;
 TS=`date +%Y%m%d-%H%M%S` # use lttng-like format
 LD_PRELOAD=${LD_PRELOAD:-$P/libcuda_record.so}
 BLOBSTORE_PATH=`mktemp cuda-record-bs-$TS-XXXXXX.db`
-ARGHELPER_FILE=${ARGHELPER_FILE:-${1}.arg}
+
+if [ -z "$DEBUG" ]; then
+    ARGHELPER_FILE=${ARGHELPER_FILE:-${1}.arg}
+else
+    # assume $1 is gdb
+    ARGHELPER_FILE=${ARGHELPER_FILE:-${2}.arg}
+    unset BLOBSTORE_PATH
+fi;
 
 if [ ! -f "$ARGHELPER_FILE" ]; then
     # attempt to create argfile if one does not exist
@@ -43,7 +50,7 @@ lttng start || exit 1;
 
 export DLOPEN_LIBRARY
 export LD_PRELOAD
-export BLOBSTORE_PATH
+[ -z "$DEBUG" ] && export BLOBSTORE_PATH
 export ARGHELPER_FILE
 "$@"
 unset ARGHELPER_FILE
