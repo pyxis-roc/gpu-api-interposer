@@ -27,6 +27,13 @@ static __attribute__((destructor)) void deinit_blobstore() {
 }
 """
 
+class PassthruExpr(c_ast.Node):
+    __slots__ = ('code', 'coord')
+
+    def __init__(self, code, coord=None):
+        self.code = code
+        self.coord = coord
+
 class PassthruStmt(c_ast.Node):
     __slots__ = ('code', 'coord')
 
@@ -36,6 +43,9 @@ class PassthruStmt(c_ast.Node):
 
 class MyCGenerator(c_generator.CGenerator):
     def visit_PassthruStmt(self, n):
+        return n.code
+
+    def visit_PassthruExpr(self, n):
         return n.code
 
 def load_yaml(f):
@@ -76,10 +86,15 @@ def generate_shells(fdvs, probes, blobstore):
 
             callargs.append(c_ast.UnaryOp("*", c_ast.Cast(ty, c_ast.ID(bsargs[0]))))
             callargs.append(c_ast.Constant("string", '"' + bsvar + '"'))
-            callargs.append(c_ast.ID(bsargs[1])) #TODO: this is an expr ....
-            callargs.append(c_ast.ID(bsargs[2])) #TODO: this is also an expr ...
+            callargs.append(PassthruExpr(bsargs[1]))
+            callargs.append(PassthruExpr(bsargs[2]))
 
-            bscalls.append(c_ast.FuncCall(c_ast.ID("bs_store"), c_ast.ExprList(callargs)))
+            fncall = c_ast.FuncCall(c_ast.ID("bs_store"), c_ast.ExprList(callargs))
+            
+            if bsargs[3] != "":
+                bscalls.append(c_ast.If(PassthruExpr(bsargs[3]), fncall, None))
+            else:
+                bscalls.append(fncall)
 
         return [c_ast.If(c_ast.ID("_bs"), c_ast.Compound(bscalls), None)]
 

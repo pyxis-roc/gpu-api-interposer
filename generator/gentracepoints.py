@@ -78,6 +78,11 @@ def generate_tracepoint_template(recipe, output, ig):
             tpe = recipe['tracepoint_events'][e]
             args = []
 
+            if 'fn' not in tpe:
+                # no function in tpevents -- indicates that merge with tpargs missed function, likely because it was missing
+                print(f"WARNING: Event {e} does not have fn set, usually means it is missing in header, ignoring.", file=sys.stderr)
+                continue
+                
             if tpe['fn'] not in dn:
                 print(f"WARNING: Function {tpe['fn']} does not exist in header, ignoring.", file=sys.stderr)
                 continue
@@ -158,8 +163,9 @@ TRACEPOINT_EVENT(
                     name = list(bs_spec.keys())[0]
                     expr = name if 'expr' not in bs_spec[name] else bs_spec[name]['expr']
                     length = bs_spec[name]['length']
-
-                    bs_specs.append({name: ["_ctx", expr, length]})
+                    guard_expr = bs_spec[name].get('guard_expr', '')
+                    
+                    bs_specs.append({name: ["_ctx", expr, length, guard_expr]})
 
                 tracepoint_info['events'][e]['blobstore'] = bs_specs
 

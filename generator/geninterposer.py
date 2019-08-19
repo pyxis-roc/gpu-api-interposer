@@ -91,7 +91,7 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
 
         # strip names from paramlist
         params = []
-        for a in func_decl_node.args:
+        for a in func_decl_node.args.params:
             ent = FuncDeclVisitor.erase_name(a.type)
             params.append(ent)
 
@@ -114,7 +114,7 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         # warning: func_decl_nodes do not need to have names!
         # typename indicates void
         # TODO: varargs?
-        args = [x.name for x in func_decl_node.args if not (type(x) is c_ast.Typename)]
+        args = [x.name for x in func_decl_node.args.params if not (type(x) is c_ast.Typename)]
 
         #assert all(args), args
 
@@ -263,7 +263,8 @@ class TracePlugin(InterposerPlugin):
     def generate_includes(self, context):
         return ["#include <stdio.h>",
                 "#include <stdlib.h>",
-                "#include <errno.h>"]
+                "#include <errno.h>",
+                "#include <string.h>"]
 
     def generate_pre_code(self, context):
         """Generate code before all API functions generated, must be list of strings"""
@@ -512,6 +513,11 @@ class InterposerGenerator(object):
 
             header_functions = set([x['origname'] for x in self.fdv.func_decl_nodes])
 
+            if 'optional_functions' in self.filter_data:
+                optional_functions = set(self.filter_data['optional_functions'])
+            else:
+                optional_functions = set()
+                
             # make it 
             for x in ['pre', 'post', 'pre_and_post']:
                 if x not in self.filter_data: 
@@ -521,7 +527,7 @@ class InterposerGenerator(object):
                                       
                 # TODO: add support for "*"/wildcards
                 for fn in self.filter_data[x]:
-                    if fn not in header_functions:
+                    if fn not in header_functions and fn not in optional_functions:
                         closest = " ".join(difflib.get_close_matches(fn, header_functions))
 
                         print(f"ERROR: Function '{fn}' in {x} filter list does not exist in header [closest: {closest}]", file=sys.stderr)
@@ -632,6 +638,7 @@ def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None, addl_he
     args = [infile, "-o", fn]
 
     if fake_c_headers_path is not None:
+        args.insert(0, "-nostdinc")
         args.insert(0, "-I")
         args.insert(1, fake_c_headers_path)
 
