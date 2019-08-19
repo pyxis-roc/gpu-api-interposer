@@ -1,3 +1,13 @@
+/*
+   blobstore.c
+
+   Instrumentation helper to store blobs too large for traces in sqlite3 databases.
+
+   Author: Sreepathi Pai
+
+   Copyright (C) 2019, The University of Rochester
+*/
+
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
