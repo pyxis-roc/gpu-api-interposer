@@ -1,3 +1,13 @@
+/*
+   arghelper.h
+
+   libcuda_record helper for converting parameters in cuLaunchKernel to blobs.
+
+   Author: Sreepathi Pai
+
+   Copyright (C) 2019, The University of Rochester
+*/
+
 #pragma once
 #include <stdint.h>
 

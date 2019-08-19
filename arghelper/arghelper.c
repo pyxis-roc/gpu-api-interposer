@@ -1,3 +1,13 @@
+/*
+   arghelper.c
+
+   libcuda_record helper for converting parameters in cuLaunchKernel to blobs.
+
+   Author: Sreepathi Pai
+
+   Copyright (C) 2019, The University of Rochester
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -93,9 +103,9 @@ size_t ah_construct_arg_blob_extra(struct param_table *pt,
   struct param_data pd;
   size_t blobsize = 0;
   void *argBuffer = NULL;
-    
+
   /* CU_LAUNCH_PARAM_END == NULL */
-  
+
   for(int i = 0; extra[i] != ((void *)0x0); i++) {
     if(extra[i] == ((void *) 0x1)) {
       argBuffer = extra[++i];
