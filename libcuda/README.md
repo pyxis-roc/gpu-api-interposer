@@ -22,7 +22,8 @@ In addition to the `lttng-tools` and `liblttng-ust` packages.
 
 To compile, make sure you have the correct CUDA version loaded (if you
 have multiple CUDA versions). Set the environment variable `CUDA_LIB`
-to point to the correct CUDA library location.
+to point to the correct CUDA library location (this is usually
+`/usr/local/cuda/lib64`).
 
 NOTE: If your fake C headers (from pycparser) are not in
 `/usr/share/python3-pycparser/fake_libc_include`, you should pass the
@@ -52,9 +53,10 @@ underlying CUDA Device API.
 
 To use this:
 
-    DLOPEN_LIBRARY=/path/to/actual/libcuda.so.1 LD_PRELOAD=/path/to/libcuda_passthru.so cmd
+    DLOPEN_LIBRARY=/path/to/actual/libcuda.so.1 LD_PRELOAD=/path/to/libcuda_passthru.so gpu-program-and-its-arguments...
 
-If your command executed successfully, everything worked.
+The `gpu-program-and-its-args` is any program that uses CUDA and its
+arguments. If it executed successfully, everything worked.
 
 # libcuda_trace.so
 
@@ -64,7 +66,7 @@ called.
 
 To use this:
 
-    TRACE_OUTPUT=trace.txt DLOPEN_LIBRARY=/path/to/actual/libcuda.so.1 LD_PRELOAD=/path/to/libcuda_trace.so cmd
+    TRACE_OUTPUT=trace.txt DLOPEN_LIBRARY=/path/to/actual/libcuda.so.1 LD_PRELOAD=/path/to/libcuda_trace.so gpu-program-and-its-arguments...
 
 You should get a list of all CUDA device API functions called, using
 this command:
