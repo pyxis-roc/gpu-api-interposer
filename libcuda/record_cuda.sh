@@ -32,8 +32,9 @@ else
     unset BLOBSTORE_PATH
 fi;
 
-if [ ! -f "$ARGHELPER_FILE" ]; then
-    # attempt to create argfile if one does not exist
+if [ "$1" -nt "$ARGHELPER_FILE" ]; then
+    # attempt to create argfile if one does not exist or is older than binary
+    # fixes confusion when arg file is older than binary
     if ! "$P/nvparams.py" "$1" "$ARGHELPER_FILE"; then
 	echo "Couldn't create/access '$ARGHELPER_FILE'"
 	exit 1;
