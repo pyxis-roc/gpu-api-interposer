@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+#
+# libcuda_replay.py
+#
+# Decodes the trace produced by libcuda instrumentation, connecting to
+# CUDA Device API implementations.
+#
+# Author: Sreepathi Pai
+#
+# Copyright (c) 2019, University of Rochester
 
 import sqlite3
 import yaml
