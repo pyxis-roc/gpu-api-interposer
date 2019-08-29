@@ -46,6 +46,7 @@ echo "ARGHELPER_FILE=$ARGHELPER_FILE"
 
 lttng create cuda-record || exit 1;
 lttng enable-event --userspace "libcuda_interposer:*" || exit 1;
+lttng add-context --userspace -t vtid || exit 1;
 lttng start || exit 1;
 
 export DLOPEN_LIBRARY
