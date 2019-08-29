@@ -8,39 +8,50 @@ CUDA_H=$(CUDA_INC)/cuda.h
 BLOBSTORE=../blobstore
 ARGHELPER=../arghelper
 SONAME=libcuda.so.1
-OBJS=libcuda_passthru.so libcuda_trace.so libcuda_record.so
+# do not include trailing / in BUILD_DIR
+BUILD_DIR=build
+OBJS=$(BUILD_DIR)/libcuda_passthru.so $(BUILD_DIR)/libcuda_trace.so $(BUILD_DIR)/libcuda_record.so $(BUILD_DIR)/record_cuda.sh
+
 
 all: $(OBJS)
 
-%.so: %.c
+$(BUILD_DIR)/%.so: %.c
 	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC)
 
-libcuda_record.so: libcuda_record.c libcuda_record_instr.c libcuda_record_tp.o $(BLOBSTORE)/blobstore.o $(ARGHELPER)/arghelper.o
+$(BUILD_DIR)/libcuda_record.so: $(BUILD_DIR)/libcuda_record.c $(BUILD_DIR)/libcuda_record_instr.c $(BUILD_DIR)/libcuda_record_tp.o $(BLOBSTORE)/blobstore.o $(ARGHELPER)/arghelper.o
 	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $^ -o $@ -llttng-ust -ldl -lsqlite3 -I$(CUDA_INC) -I$(BLOBSTORE) -I$(ARGHELPER)
 
-libcuda_passthru.c:
+$(BUILD_DIR)/libcuda_passthru.c:
 	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) -o $@
 
-libcuda_trace.c:
+$(BUILD_DIR)/libcuda_trace.c:
 	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --trace -o $@
 
-libcuda_record.c: libcuda_record_filter.yaml
-	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --ctx --pre-instrument --post-instrument --tpargs --filter $< --oprefix libcuda_record -o $@
+$(BUILD_DIR)/libcuda_record.c: libcuda_record_filter.yaml
+	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --ctx --pre-instrument --post-instrument --tpargs --filter $< --oprefix $(BUILD_DIR)/libcuda_record -o $@
 
-libcuda_record_tp.o: libcuda_record_tp.yaml libcuda_record_tpargs.yaml
-	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $(@:.o=.tp) --tpargs libcuda_record_tpargs.yaml --tpinfo libcuda_record_tpinfo.yaml
+$(BUILD_DIR)/libcuda_record_tp.o: libcuda_record_tp.yaml $(BUILD_DIR)/libcuda_record.c
+	$(GENTRACEPOINTS) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) $< -o $(@:.o=.tp) --tpargs $(BUILD_DIR)/libcuda_record_tpargs.yaml --tpinfo $(BUILD_DIR)/libcuda_record_tpinfo.yaml
 	CFLAGS="-fPIC -I$(CUDA_INC)" lttng-gen-tp -v $(@:.o=.tp)
 
-libcuda_record_instr.c: libcuda_record_tp.o libcuda_record_tpinfo.yaml libcuda_record.c libcuda_record_pre_instr.h libcuda_record_post_instr.h kernelparams.h
-	$(GENRECORDER) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args --blobstore libcuda_record_tpinfo.yaml libcuda_record_pre_instr.h libcuda_record_post_instr.h -I$(CUDA_INC) --include-local 'kernelparams.h' -o $@
+ifneq ($(BUILD_DIR), .)
+$(BUILD_DIR)/kernelparams.h: kernelparams.h
+	cp $< $@
 
-$(BLOBSTORE)/blobstore.o: 
+$(BUILD_DIR)/record_cuda.sh: record_cuda.sh
+	cp $< $@
+endif
+
+$(BUILD_DIR)/libcuda_record_instr.c: $(BUILD_DIR)/libcuda_record_tp.o $(BUILD_DIR)/libcuda_record_tpinfo.yaml $(BUILD_DIR)/libcuda_record.c $(BUILD_DIR)/libcuda_record_pre_instr.h $(BUILD_DIR)/libcuda_record_post_instr.h $(BUILD_DIR)/kernelparams.h
+	$(GENRECORDER) --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args --blobstore $(BUILD_DIR)/libcuda_record_tpinfo.yaml $(BUILD_DIR)/libcuda_record_pre_instr.h $(BUILD_DIR)/libcuda_record_post_instr.h -I$(CUDA_INC) -I$(BUILD_DIR) --include-local 'kernelparams.h' -o $@
+
+$(BLOBSTORE)/blobstore.o:
 	$(MAKE) -C $(BLOBSTORE)
 
-$(ARGHELPER)/arghelper.o: 
+$(ARGHELPER)/arghelper.o:
 	$(MAKE) -C $(ARGHELPER)
 
 .phony: clean
 
-clean:	
-	rm -f $(OBJS) 
+clean:
+	rm -f $(OBJS)

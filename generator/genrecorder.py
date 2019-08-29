@@ -100,7 +100,7 @@ def generate_shells(fdvs, probes, blobstore):
             callargs.append(PassthruExpr(bsargs[2]))
 
             fncall = c_ast.FuncCall(c_ast.ID("bs_store"), c_ast.ExprList(callargs))
-            
+
             if bsargs[3] != "":
                 bscalls.append(c_ast.If(PassthruExpr(bsargs[3]), fncall, None))
             else:
@@ -144,6 +144,7 @@ def generate_output(fdvs, probes, outputfile, instr_headers, blobstore, local_he
         # write headers
 
         for ih in instr_headers:
+            ih = os.path.basename(ih) # strip path since these headers should be in the same directory
             ofile.write(f'#include "{ih}"\n')
 
         for h in system_headers:
@@ -162,6 +163,10 @@ def generate_output(fdvs, probes, outputfile, instr_headers, blobstore, local_he
             tpheader = tpheader[:p] + ".h"
         except ValueError:
             tpheader = tpheader + ".h"
+
+        commonprefix = os.path.commonprefix([os.path.dirname(outputfile), os.path.dirname(tpheader)])
+        if commonprefix != '': commonprefix += '/'
+        tpheader = tpheader[len(commonprefix):]
 
         ofile.write(f'#include "{tpheader}"\n')
         cgen = MyCGenerator()

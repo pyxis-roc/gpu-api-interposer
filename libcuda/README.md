@@ -31,6 +31,15 @@ correct directory as:
 
     make FAKE_C_HEADERS=/path/to/fake_libc_include ...
 
+Create the default build directory:
+
+    mkdir build
+
+You can change the build directory by editing the Makefile or passing
+the `BUILD_DIR` variable to make:
+
+    make BUILD_DIR=/path/to/some/other/directory ...
+
 First try to compile `libcuda_passthru.so`:
 
     make libcuda_passthru.so

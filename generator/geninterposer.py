@@ -146,17 +146,17 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         else:
             return ty.declname
 
-    def get_retval(self, fnptr): 
+    def get_retval(self, fnptr):
         retval_type = copy.deepcopy(fnptr.type.type.type)
 
         if is_void_type(retval_type):
             return None
-        
+
         retval_decl = c_ast.Decl("_retval", [], [], [], retval_type, None, None)
         self.set_declname(retval_decl.type, fnptr.name, "_retval")
 
         return retval_decl
-        
+
     def visit_FuncDecl(self, node):
         #print(f'{node.type.declname} at {node.coord}')
 
@@ -168,7 +168,7 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         out['fncall'] = self.decl_to_fncall(node)
 
         out['retval_decl'] = self.get_retval(out['fnptr'])
-        
+
         self.func_decl_nodes.append(out)
 
     def visit_Typedef(self, node):
@@ -190,7 +190,7 @@ class InterposerPlugin(object):
     def generate_post_code(self, context):
         """Generate code after all API functions generated, must be list of strings"""
         return []
-        
+
     def generate(self, decl_node, context):
         raise NotImplementedError
 
@@ -241,7 +241,7 @@ class StdDLPlugin(InterposerPlugin):
     def generate_includes(self, context):
         return ["#define _GNU_SOURCE", # for RTLD_NEXT
                 "#include <dlfcn.h>"]
-    
+
 class DLOpenPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         # this doesn't generate anything.
@@ -251,7 +251,7 @@ class DLOpenPlugin(InterposerPlugin):
         return ["#include <dlfcn.h>",
                 "#include <stdio.h>",
                 "#include <stdlib.h>"]
-    
+
     def generate_pre_code(self, context):
         """Generate code before all API functions generated, must be list of strings"""
         return ["static void * orig_handle;\n"]
@@ -259,12 +259,12 @@ class DLOpenPlugin(InterposerPlugin):
     def generate_post_code(self, context):
         """Generate code before all API functions generated, must be list of strings"""
         return [TEMPLATE_INIT_ORIG_HANDLE.format(env_variable = 'DLOPEN_LIBRARY')]
-    
-    
+
+
 class TracePlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         return [c_ast.FuncCall(c_ast.ID("fprintf"),
-                               c_ast.ExprList([c_ast.ID("trace_handle"), 
+                               c_ast.ExprList([c_ast.ID("trace_handle"),
                                                c_ast.Constant("string",
                                                               '"%s\\n"' % (decl_node['origname'],))]
                                ))]
@@ -308,12 +308,12 @@ class CommonInstrumentMixin(object):
 
             new_decl_node.args.params.append(retval_arg_type)
 
-        
+
         new_decl_node.args.params.append(self.get_ctx_arg_type())
         return new_decl_node
 
     def generate_includes(self, context):
-        return ['#include "%s"' % (self.hfile,)]
+        return ['#include "%s"' % (os.path.basename(self.hfile),)]
 
     def generate_post_code(self, context):
         with open(self.hfile, "w") as f:
@@ -322,15 +322,15 @@ class CommonInstrumentMixin(object):
 
             f.write("#ifdef __cplusplus\n")
             f.write('extern "C" {\n')
-            f.write("#endif\n")                    
-            
+            f.write("#endif\n")
+
             cgen = c_generator.CGenerator()
             f.write(cgen.visit(self.ast))
 
             f.write("#ifdef __cplusplus\n")
             f.write('}\n')
-            f.write("#endif\n")                    
-            
+            f.write("#endif\n")
+
         return []
 
     def _add_to_context(self, context, section, hookfn, origname, instr_decl):
@@ -351,8 +351,8 @@ class CtxPlugin(InterposerPlugin):
 
     def generate(self, decl_node, context):
         ctx_init = c_ast.FuncCall(c_ast.ID("__sync_fetch_and_add"),
-                                  c_ast.ExprList([c_ast.UnaryOp("&", 
-                                                                c_ast.ID(self.ctx_global_variable)), 
+                                  c_ast.ExprList([c_ast.UnaryOp("&",
+                                                                c_ast.ID(self.ctx_global_variable)),
                                                   c_ast.Constant("int", "1")]))
 
         ctx_type = c_ast.TypeDecl(self.ctx_local_variable,
@@ -361,13 +361,13 @@ class CtxPlugin(InterposerPlugin):
         x = c_ast.Decl(self.ctx_local_variable, [], [], [], ctx_type, ctx_init, None)
         context['ctx_expr'] = c_ast.UnaryOp("&", c_ast.ID(self.ctx_local_variable))
 
-        #print(c_generator.CGenerator().visit(x))        
+        #print(c_generator.CGenerator().visit(x))
         return [x]
-    
+
 class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     fn_suffix = "_pre"
     filter_section_name = ["pre", "pre_and_post"]
-    
+
     def __init__(self, *args, **kwargs):
         super(PreInstrumentPlugin, self).__init__(*args, **kwargs)
 
@@ -393,12 +393,12 @@ class PreInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
         self.ast.ext.append(idecl)
         self._add_to_context(self.generator.global_ctx, "pre", prehookfn,
                              decl_node['origname'], idecl)
-                             
+
         # TODO: post- and pre- context variable
         return [c_ast.If(c_ast.FuncCall(c_ast.ID(prehookfn), args),
                          c_ast.Compound([return_stmt]),
                          None)]
-    
+
 
 class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
     fn_suffix = "_post"
@@ -409,7 +409,7 @@ class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
 
         self.hfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_post_instr.h"
         self.ast = c_ast.FileAST([])
-        
+
     def generate(self, decl_node, context):
         posthookfn = decl_node['origname'] + self.fn_suffix
         args = copy.deepcopy(decl_node['fncall'].args)
@@ -421,13 +421,13 @@ class PostInstrumentPlugin(CommonInstrumentMixin, InterposerPlugin):
         args.exprs.append(context['ctx_expr'])
         #args.exprs.append(c_ast.ID("NULL")) # TODO: add support for context type
 
-        idecl = self._generate_instr_decl(decl_node, 'void')        
+        idecl = self._generate_instr_decl(decl_node, 'void')
         self.ast.ext.append(idecl)
         self._add_to_context(self.generator.global_ctx, "post",
                              posthookfn, decl_node['origname'], idecl)
-        
+
         # TODO: post- and pre- context variable
-        return [c_ast.FuncCall(c_ast.ID(posthookfn), 
+        return [c_ast.FuncCall(c_ast.ID(posthookfn),
                              args)]
 
 class TpEventArgGeneratorPlugin(InterposerPlugin):
@@ -442,7 +442,7 @@ class TpEventArgGeneratorPlugin(InterposerPlugin):
     def generate_post_code(self, context):
         fns = itertools.chain(self.generator.global_ctx['pre'].keys(),
                               self.generator.global_ctx['post'].keys())
-        
+
         decls = dict([(d['origname'], d) for d in self.generator.get_decl_nodes()])
 
         out = {}
@@ -478,10 +478,10 @@ class TpEventArgGeneratorPlugin(InterposerPlugin):
                 argname = FuncDeclVisitor.get_declname(arg.type)
                 x = {argname: {'type': argtype}}
                 out[f]['args'].append(x)
-            
+
         with open(self.tpargfile, "w") as f:
             yaml.dump(out, f)
-        
+
         return []
 
 class InterposerGenerator(object):
@@ -498,7 +498,7 @@ class InterposerGenerator(object):
         self.add_plugin(DefaultHeadersPlugin)
         self.filter_data = None
         self.global_ctx = {}
-        
+
     def get_decl_nodes(self):
         return self.fdv.func_decl_nodes
 
@@ -526,14 +526,14 @@ class InterposerGenerator(object):
                 optional_functions = set(self.filter_data['optional_functions'])
             else:
                 optional_functions = set()
-                
-            # make it 
+
+            # make it
             for x in ['pre', 'post', 'pre_and_post']:
-                if x not in self.filter_data: 
+                if x not in self.filter_data:
                     self.filter_data[x] = []
                 else:
                     assert isinstance(self.filter_data[x], list), f"Data for {x} is not a list"
-                                      
+
                 # TODO: add support for "*"/wildcards
                 for fn in self.filter_data[x]:
                     if fn not in header_functions and fn not in optional_functions:
@@ -547,7 +547,7 @@ class InterposerGenerator(object):
     def add_plugin(self, plugin):
         # TODO: automate ordering later...
         self.plugins.append(plugin(self))
-        
+
     def generate_shells(self):
         def next_func_code(node_data):
             varname = c_ast.ID(node_data['fnptr'].name)
@@ -557,23 +557,23 @@ class InterposerGenerator(object):
             else:
                 handle = c_ast.ID("RTLD_NEXT")
 
-            a = c_ast.Assignment("=", varname, 
-                             c_ast.FuncCall(c_ast.ID("dlsym"), 
+            a = c_ast.Assignment("=", varname,
+                             c_ast.FuncCall(c_ast.ID("dlsym"),
                                             c_ast.ExprList([
                                                 handle,
-                                                c_ast.Constant("string", 
+                                                c_ast.Constant("string",
                                                                '"' +f"{node_data['origname']}" + '"')]))
                          )
 
             return [node_data['fnptr'],
-                    c_ast.If(c_ast.UnaryOp('!', varname), 
+                    c_ast.If(c_ast.UnaryOp('!', varname),
                              c_ast.Compound([a]),
                              None),
                     node_data['retval_decl']]
 
         for nn in self.fdv.func_decl_nodes:
             n = nn['decl']
-            nn['shell'] = pycparser.c_ast.FuncDef(n, None, 
+            nn['shell'] = pycparser.c_ast.FuncDef(n, None,
                                                   c_ast.Compound(next_func_code(nn))
                                               )
 
@@ -591,28 +591,28 @@ class InterposerGenerator(object):
     def generate_plugin_includes(self):
         already_generated = set()
         context = {}
-        
+
         for p in self.plugins:
             l = p.generate_includes(context)
             for ll in l:
                 if ll not in already_generated:
                     already_generated.add(ll)
                     yield ll + '\n'
-                
+
     def generate_plugin_pre_code(self):
         context = {}
         for p in self.plugins:
             l = p.generate_pre_code(context)
             for ll in l:
                 yield ll
-                
+
     def generate_plugin_post_code(self):
         context = {}
         for p in self.plugins:
             l = p.generate_post_code(context)
             for ll in l:
                 yield ll
-                
+
     def generate_passthru(self, outputfile):
         with open(outputfile, "w") as f:
             f.write("/* automatically generated */\n")
@@ -627,7 +627,7 @@ class InterposerGenerator(object):
                 f.write(l)
 
             f.write("\n")
-            
+
             generator = c_generator.CGenerator()
 
             for n in self.fdv.func_decl_nodes:
@@ -635,15 +635,15 @@ class InterposerGenerator(object):
 
                 for l in self.generate_plugins(n):
                     passthru.body.block_items.append(l)
-                    
+
                 f.write(generator.visit(passthru) + "\n")
 
             for l in self.generate_plugin_post_code():
                 f.write(l)
-    
+
 def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None, addl_headers_path = None):
     h, fn = tempfile.mkstemp(suffix = ".h")
-    
+
     args = [infile, "-o", fn]
 
     if fake_c_headers_path is not None:
@@ -655,7 +655,7 @@ def preprocess(infile, cpp_args_file = None, fake_c_headers_path = None, addl_he
         for x in addl_headers_path:
             args.insert(0, "-I")
             args.insert(1, x)
-        
+
     if cpp_args_file is not None:
         with open(cpp_args_file, "r") as f:
             args = [s.strip() for s in f.readlines() if s[0] != "#"] + args
@@ -699,7 +699,7 @@ if __name__ == "__main__":
     p.add_argument("--post-instrument", action="store_true",
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--trace", action="store_true", help="Generate tracer")
-    p.add_argument("--tpargs", action="store_true", help="Generate tracepoint arguments for pre/post functions")    
+    p.add_argument("--tpargs", action="store_true", help="Generate tracepoint arguments for pre/post functions")
     p.add_argument("--oprefix", dest="output_prefix", help="Output prefix for supplementary output files")
     p.add_argument("-o", dest="output", help="Output file")
 
@@ -709,8 +709,8 @@ if __name__ == "__main__":
     if args.filter:
         if not ig.add_filter(args.filter):
             sys.exit(1)
-        
-    ig.dlopen = args.dlopen    
+
+    ig.dlopen = args.dlopen
     if args.dlopen:
         ig.add_plugin(DLOpenPlugin)
     else:
@@ -726,7 +726,7 @@ if __name__ == "__main__":
         ig.add_plugin(PreInstrumentPlugin)
 
     ig.add_plugin(ReturnValuePlugin)
-    
+
     if args.post_instrument:
         ig.add_plugin(PostInstrumentPlugin)
 
@@ -736,7 +736,7 @@ if __name__ == "__main__":
         else:
             print("ERROR: --tpargs requires --pre and/or --post, ignoring", file=sys.stderr)
             sys.exit(1)
-        
+
     ig.add_plugin(ReturnPlugin)
 
     ig.generate_shells()
