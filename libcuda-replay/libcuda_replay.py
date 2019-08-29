@@ -7,7 +7,10 @@ import argparse
 import glob
 import os
 import yaml
+import logging
+from cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory
 
+_logger = logging.getLogger(__name__)
 
 def get_actual_tracedir(tracedir):
     if os.path.exists(os.path.join(tracedir, "metadata")):
@@ -50,33 +53,147 @@ class NVArgHandler(object):
         else:
             print(f"Unable to unpack for {fn}")
 
+class PrePostLinker(object):
+    def __init__(self):
+        self.pre = dict()
+
+    def register_pre(self, evname, pre_ev, pre_bsdata, fields = None):
+        assert (evname, pre_ev['_ctx']) not in self.pre
+
+        # data from one event must be consumed before the next ...
+        # so make copies for post
+
+        if fields is None:
+            fields = pre_ev.field_list_with_scope(babeltrace.CTFScope.EVENT_FIELDS)
+
+        evdata = {'.name': pre_ev.name}
+        for f in fields:
+            evdata[f] = pre_ev[f]
+
+        self.pre[(evname, pre_ev['_ctx'])] = (evdata, pre_bsdata)
+
+    def get_pre(self, evname, post_ev):
+        k = (evname, post_ev['_ctx'])
+        assert k in self.pre
+
+        x = self.pre[k]
+        del self.pre[k]
+
+        return x
+
 class NVTraceHandler(object):
     function_handles = None
-    def __init__(self, arghandler):
+    def __init__(self, arghandler, apihandler):
         self.arghandler = arghandler
-        self.function_handles = {}
+        self.apihandler = apihandler
+        self.pre_post = PrePostLinker()
+
+    def cuInit_post(self, ev, bsdata):
+        self.apihandler.cuInit(ev['Flags'])
+
+    def cuGetExportTable_post(self, ev, bsdata):
+        pass
+
+    def cuDeviceGetCount_post(self, ev, bsdata):
+        self.apihandler.cuDeviceGetCount(ev['count'])
+
+    def cuDeviceGet_post(self, ev, bsdata):
+        self.apihandler.cuDeviceGet(ev['device_contents'], ev['ordinal'])
+
+    def cuDeviceGetName_post(self, ev, bsdata):
+        self.apihandler.cuDeviceGetName(ev['name'], ev['dev'])
+
+    def cuDeviceTotalMem_v2_post(self, ev, bsdata):
+        self.apihandler.cuDeviceTotalMem(ev['bytes_contents'], ev['dev'])
+
+    def cuDeviceTotalMem_post(self, ev, bsdata):
+        self.apihandler.cuDeviceTotalMem(ev['bytes_contents'], ev['dev'])
+
+    def cuDeviceGetAttribute_post(self, ev, bsdata):
+        self.apihandler.cuDeviceGetAttribute(ev['pi_contents'], ev['attrib'], ev['dev'])
+
+    def cuDeviceGetUuid_post(self, ev, bsdata):
+        self.apihandler.cuDeviceGetUuid(ev['uuid'], ev['dev'])
+
+    def cuCtxGetCurrent_post(self, ev, bsdata):
+        self.apihandler.cuCtxGetCurrent(ev['pctx_contents'], 0)
+
+    def cuCtxSetCurrent_post(self, ev, bsdata):
+        self.apihandler.cuCtxSetCurrent(ev['ctx'], 0)
+
+    def cuDriverGetVersion_pre(self, ev, bsdata):
+        self.pre_post.register_pre('cuDriverGetVersion', ev, bsdata)
+
+    def cuDevicePrimaryCtxRetain_post(self, ev, bsdata):
+        self.apihandler.cuDevicePrimaryCtxRetain(ev['pctx_contents'], ev['dev'])
+
+    def cuDevicePrimaryCtxRelease_post(self, ev, bsdata):
+        self.apihandler.cuDevicePrimaryCtxRelease(ev['dev'])
+
+    def cuCtxGetDevice_post(self, ev, bsdata):
+        self.apihandler.cuCtxGetDevice(ev['device_contents'])
 
     def cuModuleGetFunction_post(self, ev, bsdata):
-        self.function_handles[ev['hfunc_contents']] = ev['name']
+        self.apihandler.cuCtxGetDevice(ev['hfunc_contents'], ev['hmod'], ev['name'])
+
+    def cuMemAlloc_v2_pre(self, ev, bsdata):
+        self.pre_post.register_pre('cuMemAlloc_v2', ev, bsdata)
+
+    def cuMemAlloc_v2_post(self, ev, bsdata):
+        pre_ev, pre_bsdata = self.pre_post.get_pre('cuMemAlloc_v2', ev)
+        self.apihandler.cuMemAlloc(ev['dptr_contents'], pre_ev['bytesize'])
+
+    def cuMemFree_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemFree(ev['dptr'])
+
+    def cuModuleUnload_post(self, ev, bsdata):
+        self.apihandler.cuModuleUnload(ev['hmod'])
+
+    def cuMemcpyHtoD_v2_pre(self, ev, bsdata):
+        # this has no post
+        data = None
+        for r in bsdata:
+            if r['name'] == 'srcHost':
+                data = r['contents']
+                break
+        else:
+            assert False, "No 'srcHost' found in blobstore for cuMemcpyHtoD"
+
+        self.apihandler.cuMemcpyHtoD(ev['dstDevice'], ev['srcHost'],
+                                     ev['ByteCount'], data, 0)
+
+    def cuMemcpyDtoH_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemcpyDtoH(ev['dstHost'], ev['srcDevice'], ev['ByteCount'])
+
+    def cuDriverGetVersion_post(self, ev, bsdata):
+        pre_ev, pre_bsdata = self.pre_post.get_pre('cuDriverGetVersion', ev)
+
+    def cuModuleGetFunction_post(self, ev, bsdata):
+        self.apihandler.cuModuleGetFunction(ev['hfunc_contents'], ev['hmod'], ev['name'])
 
     def cuLaunchKernel_post(self, ev, bsdata):
-        if ev['f'] in self.function_handles:
-            fn = self.function_handles[ev['f']]
-            print(f"in cuLaunchKernel_post for {fn}")
-            print(ev['gridDim'])
-            print(ev['blockDim'])
+        fn = self.apihandler.function_handles[ev['f']].name
 
-            for bsd in bsdata:
-                if bsd['name'] == "kernelParams":
-                    kernelParams = bsd['contents']
-                    args = self.arghandler.unpack(fn, kernelParams)
-                    print(args)
-                elif bsd['name'] == 'extra':
-                    extra = bsd['contents']
-                    args = self.arghandler.unpack(fn, extra, is_extra = True)
-                    print(args)
-                else:
-                    raise NotImplementedError
+        args = []
+        for bsd in bsdata:
+            if bsd['name'] == "kernelParams":
+                kernelParams = bsd['contents']
+                args = self.arghandler.unpack(fn, kernelParams)
+                break
+            elif bsd['name'] == 'extra':
+                extra = bsd['contents']
+                args = self.arghandler.unpack(fn, extra, is_extra = True)
+                break
+            else:
+                raise NotImplementedError
+        else:
+            # TODO: check if this could happen for empty kernelParams and extra?
+            assert False, "Unable to find kernelParams or extra in bsdata" 
+
+        self.apihandler.cuLaunchKernel(ev['f'],
+                                       ev['gridDim'][0], ev['gridDim'][1], ev['gridDim'][2],
+                                       ev['blockDim'][0], ev['blockDim'][1], ev['blockDim'][2],
+                                       ev['sharedMemBytes'], ev['hStream'], args)
 
 class Replay(object):
     prefix = "libcuda_interposer:"
@@ -123,19 +240,30 @@ class Replay(object):
                 evname = event.name[lprefix:]
                 if hasattr(handler, evname):
                     hf = getattr(handler, evname)
+                    _logger.debug(f'Invoking handler for {evname}')
                     hf(event, blobstore_data)
+                else:
+                    _logger.warning(f'WARNING: No handler for {evname} found')
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="")
     p.add_argument("trace", help="Directory containing trace")
     p.add_argument("blobstore", help="Blobstore file")
     p.add_argument("argfile", help="Argument format description (YAML)")
+    p.add_argument("-d", dest="debug", action="store_true", help="Debug")
 
     args = p.parse_args()
+
+    _logger.addHandler(logging.StreamHandler())
+
+    if args.debug:
+        _logger.setLevel(logging.DEBUG)
+    else:
+        _logger.setLevel(logging.WARNING)
 
     td = get_actual_tracedir(args.trace)
     assert len(td) == 1, td # do not support more than one tracedir yet ...
 
     ah = NVArgHandler(args.argfile)
     r = Replay(td[0], args.blobstore)
-    r.replay(NVTraceHandler(ah))
+    r.replay(NVTraceHandler(ah, CUDADeviceAPIHandler(CUDADefaultFactory())))
