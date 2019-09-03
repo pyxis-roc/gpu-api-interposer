@@ -95,7 +95,12 @@ class NVTraceHandler(object):
     def __init__(self, arghandler, apihandler):
         self.arghandler = arghandler
         self.apihandler = apihandler
+
         self.pre_post = PrePostLinker()
+
+    def set_callee_context(self, ctx):
+        self.callee_ctx = ctx
+        self.apihandler.set_callee_context(ctx)
 
     def cuInit_post(self, ev, bsdata):
         self.apihandler.cuInit(ev['Flags'])
@@ -125,10 +130,10 @@ class NVTraceHandler(object):
         self.apihandler.cuDeviceGetUuid(ev['uuid'], ev['dev'])
 
     def cuCtxGetCurrent_post(self, ev, bsdata):
-        self.apihandler.cuCtxGetCurrent(ev['pctx_contents'], 0)
+        self.apihandler.cuCtxGetCurrent(ev['pctx_contents'])
 
     def cuCtxSetCurrent_post(self, ev, bsdata):
-        self.apihandler.cuCtxSetCurrent(ev['ctx'], 0)
+        self.apihandler.cuCtxSetCurrent(ev['ctx'])
 
     def cuDriverGetVersion_pre(self, ev, bsdata):
         self.pre_post.register_pre('cuDriverGetVersion', ev, bsdata)
@@ -169,13 +174,14 @@ class NVTraceHandler(object):
             assert False, "No 'srcHost' found in blobstore for cuMemcpyHtoD"
 
         self.apihandler.cuMemcpyHtoD(ev['dstDevice'], ev['srcHost'],
-                                     ev['ByteCount'], data, 0)
+                                     ev['ByteCount'], data)
 
     def cuMemcpyDtoH_v2_post(self, ev, bsdata):
         self.apihandler.cuMemcpyDtoH(ev['dstHost'], ev['srcDevice'], ev['ByteCount'])
 
     def cuDriverGetVersion_post(self, ev, bsdata):
         pre_ev, pre_bsdata = self.pre_post.get_pre('cuDriverGetVersion', ev)
+        self.apihandler.cuDriverGetVersion(ev['driverVersion'])
 
     def cuModuleGetFunction_post(self, ev, bsdata):
         self.apihandler.cuModuleGetFunction(ev['hfunc_contents'], ev['hmod'], ev['name'])
@@ -204,6 +210,14 @@ class NVTraceHandler(object):
                                        ev['blockDim'][0], ev['blockDim'][1], ev['blockDim'][2],
                                        ev['sharedMemBytes'], ev['hStream'], args)
 
+class TraceContext(object):
+    cpu_id = None
+    vtid = None
+    thread_id = None   # portable
+
+    # API-specific
+    retval = None
+
 class Replay(object):
     prefix = "libcuda_interposer:"
 
@@ -220,7 +234,27 @@ class Replay(object):
         self.bs = sqlite3.connect(blobstore)
         self.bs.row_factory = sqlite3.Row
 
+        self.tctx = TraceContext()
+
+    def set_trace_context(self, ev):
+        self.tctx.cpu_id = ev['cpu_id']
+        self.tctx.vtid = ev['vtid']
+        self.tctx.thread_id = self.tctx.vtid
+
+        if '_retval' in ev:
+            self.tctx.retval = ev['_retval']
+        else:
+            # can happen for -pre
+            self.tctx.retval = None
+
+    @property
+    def trace_context(self):
+        return self.tctx
+
     def replay(self, handler):
+
+        handler.set_callee_context(self.trace_context)
+
         conn = self.bs.cursor()
         rows = conn.execute("SELECT * FROM blobstore ORDER BY ctx, content_part")
         last_row = None
@@ -247,12 +281,14 @@ class Replay(object):
                         break
 
                 evname = event.name[lprefix:]
+                self.set_trace_context(event)
+
                 if hasattr(handler, evname):
                     hf = getattr(handler, evname)
-                    _logger.debug(f'Invoking handler for {evname}')
+                    _logger.debug(f'Invoking handler for {evname} from thread {self.trace_context.thread_id}')
                     hf(event, blobstore_data)
                 else:
-                    _logger.warning(f'WARNING: No handler for {evname} found')
+                    _logger.warning(f'No handler for {evname} found')
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="")
@@ -263,12 +299,16 @@ if __name__ == "__main__":
 
     args = p.parse_args()
 
-    _logger.addHandler(logging.StreamHandler())
+    rootLogger = logging.getLogger('')
+
+    ch = logging.StreamHandler()
+    ch.setFormatter(logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
+    rootLogger.addHandler(ch)
 
     if args.debug:
-        _logger.setLevel(logging.DEBUG)
+        rootLogger.setLevel(logging.DEBUG)
     else:
-        _logger.setLevel(logging.WARNING)
+        rootLogger.setLevel(logging.WARNING)
 
     td = get_actual_tracedir(args.trace)
     assert len(td) == 1, td # do not support more than one tracedir yet ...
