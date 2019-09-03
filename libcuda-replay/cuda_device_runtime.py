@@ -9,6 +9,7 @@
 # Copyright (C) 2019, University of Rochester
 
 import logging
+import memregions
 
 _logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ class CUDAGPU(object):
         self.attributes = {}
         self.uuid = None
         self.primary_ctx = None
+        self.memory_regions = memregions.MemoryRegions()
 
     def primary_ctx_retain(self, ctx):
 
@@ -76,6 +78,38 @@ class CUDAGPU(object):
         if self.primary_ctx.usage_count == 0:
             self.primary_ctx = None
 
+
+    def has_dptr(self, dptr, dsize = 1):
+        r = self.memory_regions.at(dptr)
+        if r is not None:
+            if (dptr + dsize - 1) > r.end:
+                _logger.error(f'Region {dptr:x} to {(dptr+dsize-1):x} is out of bounds [0x{r.start:x},0x{r.end:x}]')
+
+            return True
+
+        return False
+
+    def alloc_memory_region(self, cumemregion):
+        assert cumemregion.dev == self.gpu_ordinal
+
+        if not self.memory_regions.add(memregions.MemoryRegion(cumemregion.dptr,
+                                                               cumemregion.dptr + cumemregion.bytesize - 1)):
+            _logger.error(f'alloc_memory_region: Failed to alloc memory region {cumemregion.dptr}')
+            return False
+
+        return True
+
+    def dealloc_memory_region(self, cumemregion):
+        assert cumemregion.dev == self.gpu_ordinal
+
+        self.memory_regions.remove(memregions.MemoryRegion(cumemregion.dptr,
+                                                           cumemregion.dptr + cumemregion.bytesize - 1))
+
+        return True
+
+    def set_memory(self, dptr, data):
+        # TODO: set memory region to data
+        pass
 
 class CUDAFunction(object):
     """Represents a CUDA Function"""
@@ -145,7 +179,7 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuInit(self, Flags):
-        print(f"cuInit called from {self.callee_ctx.thread_id}")
+        _logger.info(f"cuInit called from thread {self.callee_ctx.thread_id}")
 
     @check_retval
     def cuDeviceGetCount(self, count):
@@ -208,6 +242,18 @@ class CUDADeviceAPIHandler(object):
 
         self.thread_contexts[tid].top.dev = dev
 
+    def _get_thread_ctx(self):
+        # errors here indicate inconsistent state ...
+        # not handling right now
+
+        tid = self.callee_ctx.thread_id
+        assert tid in self.thread_contexts
+
+        assert not self.thread_contexts[tid].is_empty()
+        ctx = self.thread_contexts[tid].top
+
+        return ctx
+
     @check_retval
     def cuModuleGetFunction(self, hfunc, hmod, name):
         if hmod not in self.module_handles:
@@ -217,20 +263,18 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuMemAlloc(self, dptr, bytesize):
-        # errors here indicate inconsistent state ...
-        # not handling right now
+        ctx = self._get_thread_ctx()
 
-        tid = self.callee_ctx.thread_id
-        assert tid in self.thread_contexts
-
-        assert not self.thread_contexts[tid].is_empty()
-        ctx = self.thread_contexts[tid].top
         _logger.info(f'cuMemAlloc on device {ctx.dev}: {bytesize} bytes at 0x{dptr:x}')
 
         # TODO: actually convey to GPU that memory has been allocated
         gpu = self.gpu_handles[ctx.dev]
 
-        self.memory_handles.register(dptr, self._factory.memory_region(ctx.dev, dptr, bytesize))
+        mr = self._factory.memory_region(ctx.dev, dptr, bytesize)
+
+        assert gpu.alloc_memory_region(mr) is not None
+
+        self.memory_handles.register(dptr, mr)
 
     @check_retval
     def cuMemFree(self, dptr):
@@ -238,16 +282,22 @@ class CUDADeviceAPIHandler(object):
 
         # TODO: convey to GPU that memory has been freed
         gpu = self.gpu_handles[mr.dev]
+        assert gpu.dealloc_memory_region(mr) is not None
+
         _logger.info(f'cuMemFree on device {mr.dev}: {mr.bytesize} bytes at 0x{mr.dptr:x}')
         self.memory_handles.unregister(dptr)
 
     @check_retval
     def cuMemcpyHtoD(self, dstDevice, srcHost, ByteCount, _data):
-        # use _tid to find thread context?
-        # use thread context to find current device
-        # then copy to that device?
-        # can dstDevice pointer identify GPU in multidevice contexts?
-        pass
+        # TODO: handle multi-GPU correctly
+        # i.e. identify gpus from dstDevice pointers
+
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
+        assert gpu.has_dptr(dstDevice, ByteCount)
+        _logger.info(f'cuMemcpyHtoD on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} from 0x{srcHost:x}')
+        gpu.set_memory(dstDevice, _data)
 
     @check_retval
     def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount):
