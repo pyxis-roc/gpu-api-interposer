@@ -18,6 +18,19 @@ In addition to the `lttng-tools` and `liblttng-ust` packages.
 
 [note to pyx users: these are already installed]
 
+# Install the harmonv package
+
+If you haven't already, make sure you install the `harmonv` package.
+
+```
+cd ../harmonv
+python3 setup.py develop
+```
+
+The commands above setup the harmonv package for development, but you
+can also install it.
+
+
 # Compiling
 
 To compile, make sure you have the correct CUDA version loaded (if you

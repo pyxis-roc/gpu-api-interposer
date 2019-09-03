@@ -5,3 +5,4 @@ syntax: glob
 *.orig
 __pycache__
 libcuda/build
+*.egg-info

@@ -9,7 +9,7 @@
 #
 # Copyright (C) 2019, The University of Rochester
 
-import nvfatbin
+from harmonv import nvfatbin
 import argparse
 import yaml
 import array
