@@ -30,8 +30,22 @@ class CUDAHandles(object):
     def __contains__(self, handle):
         return handle in self.handles
 
-class CUDAPrimaryContext(object):
-    usage_count = 0
+class CUDAContextThreadStack(object):
+    def __init__(self):
+        self.stack = []
+
+    def push(self, ctx):
+        self.stack.append(ctx)
+
+    def pop(self):
+        return self.stack.pop()
+
+    def is_empty(self):
+        return len(self.stack) == 0
+
+    @property
+    def top(self):
+        return self.stack[-1]
 
 class CUDAGPU(object):
     """Represents a CUDA GPU"""
@@ -44,8 +58,16 @@ class CUDAGPU(object):
         self.primary_ctx = None
 
     def primary_ctx_retain(self, ctx):
+
+        # The interaction between the Primary Context Management
+        # functions and Context Management is really not well
+        # specified, especially as used by the CUDA runtime API. In
+        # particular, cuCtxSetCurrent comes up with a context without
+        # creating one, that is then returned by PrimaryContextRetain
+        # as the device context. More work needs to be done.
+
         if self.primary_ctx is None:
-            self.primary_ctx = CUDAPrimaryContext()
+            self.primary_ctx = CUDAContext(ctx)
 
         self.primary_ctx.usage_count += 1
 
@@ -67,7 +89,9 @@ class CUDAModule(object):
 
 class CUDAMemoryRegion(object):
     """Represents a CUDA Memory Region"""
-    def __init__(self, bytesize):
+    def __init__(self, dev, dptr, bytesize):
+        self.dev = dev
+        self.dptr = dptr
         self.bytesize = bytesize
 
 class CUDAStream(object):
@@ -75,7 +99,10 @@ class CUDAStream(object):
     pass
 
 class CUDAContext(object):
-    pass
+    usage_count = 0
+
+    def __init__(self, addr = None):
+        self.addr = addr
 
 class CUDADefaultFactory(object):
     gpu = CUDAGPU
@@ -146,11 +173,22 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuCtxGetCurrent(self, pctx):
-        self.thread_contexts.register(self.callee_ctx.thread_id, pctx)
+        tid = self.callee_ctx.thread_id
+        if tid  not in self.thread_contexts:
+            self.thread_contexts.register(tid, CUDAContextThreadStack())
+
+        if pctx == 0:
+            assert self.thread_contexts[tid].is_empty(), "Per-thread context stack is not empty, state inconsistent!"
+        else:
+            assert self.thread_contexts[tid].top.addr == pctx, "State inconsistent"
 
     @check_retval
     def cuCtxSetCurrent(self, ctx):
-        self.thread_contexts.register(self.callee_ctx.thread_id, ctx)
+        tid = self.callee_ctx.thread_id
+        if tid  not in self.thread_contexts:
+            self.thread_contexts.register(tid, CUDAContextThreadStack())
+
+        self.thread_contexts[tid].push(CUDAContext(ctx))
 
     @check_retval
     def cuDevicePrimaryCtxRetain(self, ctx, dev):
@@ -162,7 +200,13 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuCtxGetDevice(self, dev):
-        pass
+        tid = self.callee_ctx.thread_id
+        if tid not in self.thread_contexts:
+            self.thread_contexts.register(tid, CUDAContextThreadStack())
+
+        assert not self.thread_contexts[tid].is_empty(), "Stack is empty, inconsistent state"
+
+        self.thread_contexts[tid].top.dev = dev
 
     @check_retval
     def cuModuleGetFunction(self, hfunc, hmod, name):
@@ -173,10 +217,28 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuMemAlloc(self, dptr, bytesize):
-        self.memory_handles.register(dptr, self._factory.memory_region(bytesize))
+        # errors here indicate inconsistent state ...
+        # not handling right now
+
+        tid = self.callee_ctx.thread_id
+        assert tid in self.thread_contexts
+
+        assert not self.thread_contexts[tid].is_empty()
+        ctx = self.thread_contexts[tid].top
+        _logger.info(f'cuMemAlloc on device {ctx.dev}: {bytesize} bytes at 0x{dptr:x}')
+
+        # TODO: actually convey to GPU that memory has been allocated
+        gpu = self.gpu_handles[ctx.dev]
+
+        self.memory_handles.register(dptr, self._factory.memory_region(ctx.dev, dptr, bytesize))
 
     @check_retval
     def cuMemFree(self, dptr):
+        mr = self.memory_handles[dptr]
+
+        # TODO: convey to GPU that memory has been freed
+        gpu = self.gpu_handles[mr.dev]
+        _logger.info(f'cuMemFree on device {mr.dev}: {mr.bytesize} bytes at 0x{mr.dptr:x}')
         self.memory_handles.unregister(dptr)
 
     @check_retval
@@ -185,7 +247,6 @@ class CUDADeviceAPIHandler(object):
         # use thread context to find current device
         # then copy to that device?
         # can dstDevice pointer identify GPU in multidevice contexts?
-
         pass
 
     @check_retval

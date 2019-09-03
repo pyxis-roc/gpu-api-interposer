@@ -308,7 +308,7 @@ if __name__ == "__main__":
     if args.debug:
         rootLogger.setLevel(logging.DEBUG)
     else:
-        rootLogger.setLevel(logging.WARNING)
+        rootLogger.setLevel(logging.INFO)
 
     td = get_actual_tracedir(args.trace)
     assert len(td) == 1, td # do not support more than one tracedir yet ...
