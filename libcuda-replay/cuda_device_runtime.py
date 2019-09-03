@@ -30,6 +30,9 @@ class CUDAHandles(object):
     def __contains__(self, handle):
         return handle in self.handles
 
+class CUDAPrimaryContext(object):
+    usage_count = 0
+
 class CUDAGPU(object):
     """Represents a CUDA GPU"""
     def __init__(self, ordinal):
@@ -38,12 +41,19 @@ class CUDAGPU(object):
         self.total_memory = None
         self.attributes = {}
         self.uuid = None
+        self.primary_ctx = None
 
     def primary_ctx_retain(self, ctx):
-        pass
+        if self.primary_ctx is None:
+            self.primary_ctx = CUDAPrimaryContext()
+
+        self.primary_ctx.usage_count += 1
 
     def primary_ctx_release(self):
-        pass
+        self.primary_ctx.usage_count -= 1
+        if self.primary_ctx.usage_count == 0:
+            self.primary_ctx = None
+
 
 class CUDAFunction(object):
     """Represents a CUDA Function"""
