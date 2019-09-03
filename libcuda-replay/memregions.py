@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
+#
+# memregions.py
+#
+# Tracks non-overlapping memory regions
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, University of Rochester
+#
 
 from collections import namedtuple
 
 MemoryRegion = namedtuple('MemoryRegion', 'start end')
 
 #TODO: Make this a faster, using binary search
-#Note: memory regions do not overlap
+#Note: memory regions must not overlap
 class MemoryRegions(object):
     def __init__(self):
         self.regions = []
