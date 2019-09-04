@@ -10,6 +10,9 @@
 
 import logging
 import memregions
+from harmonv.cuda.constants import *
+from harmonv.cuda import devspecs
+from harmonv import nvfatbin, ptxextract
 
 _logger = logging.getLogger(__name__)
 
@@ -58,6 +61,35 @@ class CUDAGPU(object):
         self.uuid = None
         self.primary_ctx = None
         self.memory_regions = memregions.MemoryRegions()
+        self.cc = None
+
+    @property
+    def compute_capability(self):
+        if self.cc is not None: return self.cc
+
+        major = None
+        minor = None
+
+        if CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR in self.attributes:
+            major = self.attributes[CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR]
+
+        if CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR in self.attributes:
+            minor = self.attributes[CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR]
+
+        if major is None:
+            if self.name in devspecs.DEV_SPECS_BY_NAME:
+                specs = devspecs.DEV_SPECS_BY_NAME[self.name]
+
+            major = specs.cc_major
+            minor = minor if minor is not None else specs.cc_minor
+
+
+        # add this gpu to devspecs if this assertion fails
+        assert major is not None and minor is not None, "Unrecognized GPU {self.name}"
+
+        self.cc = (major, minor)
+
+        return self.cc
 
     def primary_ctx_retain(self, ctx):
 
@@ -77,7 +109,6 @@ class CUDAGPU(object):
         self.primary_ctx.usage_count -= 1
         if self.primary_ctx.usage_count == 0:
             self.primary_ctx = None
-
 
     def has_dptr(self, dptr, dsize = 1):
         r = self.memory_regions.at(dptr)
@@ -158,7 +189,8 @@ def check_retval(f):
 
 class CUDADeviceAPIHandler(object):
     """Tracks state across CUDA Device API calls. Called by the TraceHandler."""
-    def __init__(self, factory):
+    def __init__(self, binary, factory):
+        self.binary = binary
         self._factory = factory
         self.gpu_handles = CUDAHandles("CUDevice")
         self.thread_contexts = CUDAHandles("CUcontext")
@@ -168,6 +200,16 @@ class CUDADeviceAPIHandler(object):
         self.stream_handles = CUDAHandles("CUstream")
 
         self.gpus = []
+        self.main_module = self.load_binary(self.binary)
+
+    def load_binary(self, binary):
+        fatbin = nvfatbin.NVFatBinary(binary)
+        fatbin.parse_fatbin()
+        for cc, ptx in ptxextract.extract_ptx(fatbin):
+            cc.uncompressed_data = ptx
+            # TODO: parse the ptx and extract functions
+
+        return fatbin
 
     def set_callee_context(self, ctx):
         self.callee_ctx = ctx
@@ -256,6 +298,14 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuModuleGetFunction(self, hfunc, hmod, name):
+        # I'm assuming the current context determines which variant of a function is loaded ...
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
+        _logger.info(f'cuModuleGetFunction {name} for compute capability {gpu.compute_capability}')
+
+        # this implicit registration is because the CUDA Runtime seems
+        # to register modules for the main executable out-of-band.
         if hmod not in self.module_handles:
             self.module_handles.register(hmod, self._factory.module())
 

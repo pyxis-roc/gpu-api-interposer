@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import nvfatbin
+from . import nvfatbin
 import struct
 import subprocess
 import tempfile

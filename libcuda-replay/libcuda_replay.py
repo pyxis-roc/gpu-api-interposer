@@ -203,7 +203,7 @@ class NVTraceHandler(object):
                 raise NotImplementedError
         else:
             # TODO: check if this could happen for empty kernelParams and extra?
-            assert False, "Unable to find kernelParams or extra in bsdata" 
+            assert False, "Unable to find kernelParams or extra in bsdata"
 
         self.apihandler.cuLaunchKernel(ev['f'],
                                        ev['gridDim'][0], ev['gridDim'][1], ev['gridDim'][2],
@@ -294,6 +294,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description="")
     p.add_argument("trace", help="Directory containing trace")
     p.add_argument("blobstore", help="Blobstore file")
+    p.add_argument("binary", help="Binary file")
     p.add_argument("argfile", help="Argument format description (YAML)")
     p.add_argument("-d", dest="debug", action="store_true", help="Debug")
 
@@ -315,4 +316,4 @@ if __name__ == "__main__":
 
     ah = NVArgHandler(args.argfile)
     r = Replay(td[0], args.blobstore)
-    r.replay(NVTraceHandler(ah, CUDADeviceAPIHandler(CUDADefaultFactory())))
+    r.replay(NVTraceHandler(ah, CUDADeviceAPIHandler(args.binary, CUDADefaultFactory())))

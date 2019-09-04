@@ -113,8 +113,11 @@ class NVCubinPartPTX(NVCubinPart):
                 with open("/tmp/fatbin_compressed", "wb") as f:
                     f.write(self.data)
 
-        #print(self.data[:16])
-        #zlib.decompress(self.data)
+            if hasattr(self, 'uncompressed_data'):
+                return self.uncompressed_data
+        else:
+            return self.data
+
 
 class NVCubinPartELF(NVCubinPart):
     def get_globals(self):
