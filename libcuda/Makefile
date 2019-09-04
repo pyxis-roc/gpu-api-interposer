@@ -15,7 +15,7 @@ OBJS=$(BUILD_DIR)/libcuda_passthru.so $(BUILD_DIR)/libcuda_trace.so $(BUILD_DIR)
 
 all: $(OBJS)
 
-$(BUILD_DIR)/%.so: %.c
+%.so: %.c
 	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC)
 
 $(BUILD_DIR)/libcuda_record.so: $(BUILD_DIR)/libcuda_record.c $(BUILD_DIR)/libcuda_record_instr.c $(BUILD_DIR)/libcuda_record_tp.o $(BLOBSTORE)/blobstore.o $(ARGHELPER)/arghelper.o
