@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     with open(args.filteryaml, "r") as f:
         filtered = yaml.safe_load(f)
-        filtered = set(filtered.get('pre_and_post', [])) | set(filtered.get('post', [])) | set(filtered.get('pre', []))
+        filtered = set(filtered.get('pre_and_post', [])) | set(filtered.get('post', [])) | set(filtered.get('pre', [])) | set(filtered.get('optional_functions', []))
 
         missing = tracefns - filtered
         if missing:
