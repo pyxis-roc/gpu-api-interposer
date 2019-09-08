@@ -13,6 +13,8 @@ import memregions
 from harmonv.cuda.constants import *
 from harmonv.cuda import devspecs
 from harmonv import nvfatbin, ptxextract
+import mmap
+import ctypes
 
 _logger = logging.getLogger(__name__)
 
@@ -120,6 +122,9 @@ class CUDAGPU(object):
 
         return False
 
+    def init_memory(self, memobj):
+        self.mem = memobj
+
     def alloc_memory_region(self, cumemregion):
         assert cumemregion.dev == self.gpu_ordinal
 
@@ -127,6 +132,11 @@ class CUDAGPU(object):
                                                                cumemregion.dptr + cumemregion.bytesize - 1)):
             _logger.error(f'alloc_memory_region: Failed to alloc memory region {cumemregion.dptr}')
             return False
+
+        if self.mem.mem is None:
+            self.mem.alloc_memory()
+
+        self.mem.rebase(cumemregion.dptr)
 
         return True
 
@@ -139,8 +149,7 @@ class CUDAGPU(object):
         return True
 
     def set_memory(self, dptr, data):
-        # TODO: set memory region to data
-        pass
+        self.mem.copy(dptr, data)
 
 class CUDAFunction(object):
     """Represents a CUDA Function"""
@@ -169,6 +178,58 @@ class CUDAContext(object):
     def __init__(self, addr = None):
         self.addr = addr
 
+class RebaseableMemory(object):
+    """A memory object that can be rebased dynamically, and because it is
+       using mmap can also be shared with child processes."""
+
+    def __init__(self, bytesize):
+        self.bytesize = bytesize
+        self.mem = None
+        self.baseaddr = None
+        self._highest_write_addr = None
+
+    def alloc_memory(self):
+        self.mem = mmap.mmap(-1, # anonymous
+                             self.bytesize)
+
+    def rebase(self, new_base):
+        assert self.mem is not None, "Must call alloc_memory before calling rebase"
+
+        if self.baseaddr is None or new_base == self.baseaddr:
+            self.baseaddr = new_base
+            return
+
+        if new_base > self.baseaddr:
+            _logger.debug(f'New base addr 0x{new_base:x} is greater than old: 0x{self.baseaddr:x}, not rebasing.')
+            return
+
+        if self._highest_write_addr is None:
+            # no data has been written yet, so just rebase
+            self.baseaddr = new_base
+            return
+
+        #TODO: prevent execution when we're moving data
+
+        move_to = self.baseaddr - new_base
+        move_size = self._highest_write_addr - self.baseaddr + 1
+
+        _logger.info(f'Rebasing from {self.baseaddr:x} to {new_base:x}, moving {move_size} bytes to {move_to:x}.')
+
+        self.mem.move(move_to, 0, move_size)
+        self.baseaddr = new_base
+        self._highest_write_addr += move_to
+
+    def set_highest_write_addr(self, addr):
+        if addr > self._highest_write_addr:
+            self._highest_write_addr = addr
+
+    def copy(self, addr, data):
+        assert addr >= self.baseaddr
+
+        offset = addr - self.baseaddr
+        self.mem[offset:offset+len(data)] = data
+        self.set_highest_write_addr(addr + len(data) - 1)
+
 class CUDADefaultFactory(object):
     gpu = CUDAGPU
     function = CUDAFunction
@@ -176,6 +237,7 @@ class CUDADefaultFactory(object):
     memory_region = CUDAMemoryRegion
     stream = CUDAStream
     context = CUDAContext
+    memory = RebaseableMemory
 
 def check_retval(f):
     def checker(self, *args, **kwargs):
@@ -238,6 +300,7 @@ class CUDADeviceAPIHandler(object):
     @check_retval
     def cuDeviceTotalMem(self, bytes_, dev):
         self.gpu_handles[dev].total_memory = bytes_
+        self.gpu_handles[dev].init_memory(self._factory.memory(bytes_))
 
     @check_retval
     def cuDeviceGetAttribute(self, pi, attrib, dev):
