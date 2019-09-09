@@ -464,3 +464,18 @@ tracepoint_events:
             count: 16
       - *retval_field
       - *ctx_field
+  cuMemGetInfo_v2_post:
+    fields:
+        - free:
+            type: ctf_integer
+            type_args:
+               int_type: size_t
+               expr: "*free"
+        - total:
+            type: ctf_integer
+            type_args:
+               int_type: size_t
+               expr: "*total"      
+        - *retval_field
+        - *ctx_field
+        
