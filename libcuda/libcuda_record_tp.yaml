@@ -315,6 +315,9 @@ tracepoint_events:
             int_type: size_t
       - *retval_field
       - *ctx_field
+    blobstore:
+      - dstHost:
+           length: ByteCount
   cuMemcpyHtoD_v2_pre:
     fields:
       - dstDevice:
