@@ -40,6 +40,9 @@ $(BUILD_DIR)/kernelparams.h: kernelparams.h
 
 $(BUILD_DIR)/record_cuda.sh: record_cuda.sh
 	cp $< $@
+
+$(BUILD_DIR)/nvparams.py: nvparams.py
+	cp $< $@
 endif
 
 $(BUILD_DIR)/libcuda_record_instr.c: $(BUILD_DIR)/libcuda_record_tp.o $(BUILD_DIR)/libcuda_record_tpinfo.yaml $(BUILD_DIR)/libcuda_record.c $(BUILD_DIR)/libcuda_record_pre_instr.h $(BUILD_DIR)/libcuda_record_post_instr.h $(BUILD_DIR)/kernelparams.h
