@@ -9,14 +9,14 @@
 #
 # Copyright (C) 2019, The University of Rochester
 
-from harmonv import nvfatbin
+from harmonv import nvfatbin, compression
 import argparse
 import yaml
 import array
 import struct
 
 def get_kernel_arguments(elffile):
-    fatbin = nvfatbin.NVFatBinary(elffile)
+    fatbin = nvfatbin.NVFatBinary(elffile, compression.DecompressorCuobjdump)
     fatbin.parse_fatbin()
 
     all_out = []

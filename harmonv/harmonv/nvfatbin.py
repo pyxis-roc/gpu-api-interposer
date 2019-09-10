@@ -33,10 +33,21 @@ DEBUG_MODE = 0
 LIBRARY_MODE = 1
 
 class NVCubinPart(object):
-    def __init__(self, part_type, header, data):
+    def __init__(self, part_type, header, data, decompressor = None):
         self.type = part_type
         self.header = header
         self.data = data
+        self.decompressor = decompressor
+
+    def decompress(self):
+        if hasattr(self, 'uncompressed_data'):
+            return
+
+        if self.decompressor is None:
+            return
+
+        self.uncompressed_data = self.decompressor.decompress(self)
+        assert self.uncompressed_data is not None, "ERROR: Failed to decompress data!"
 
     def get_filename(self):
         # as shown by -lelf and -lptx
@@ -152,6 +163,8 @@ class NVCubinPartPTX(NVCubinPart):
                 with open("/tmp/fatbin_compressed", "wb") as f:
                     f.write(self.data)
 
+            self.decompress()
+
             if hasattr(self, 'uncompressed_data'):
                 return self.uncompressed_data
         else:
@@ -245,13 +258,19 @@ class NVCubinPartELF(NVCubinPart):
         return args
 
     def parse(self):
+        data = self.data
         if self.compressed:
-            print("elf_parse: Don't know how to handle compressed ELFs")
-            print(self.data[:16])
             #zlib.decompress(self.data)
-            return
+            self.decompress()
 
-        self.cubin_elf = ELFFile(io.BytesIO(self.data))
+            if hasattr(self, 'uncompressed_data'):
+                data = self.uncompressed_data
+            else:
+                print("WARNING: elf_parse: Don't know how to parse compressed ELFs")
+                #print(self.data[:16])
+                return
+
+        self.cubin_elf = ELFFile(io.BytesIO(data))
         # # see Nervana's maxas cubin file for more details on properties
         self.elf_arch = self.cubin_elf.header['e_flags'] & 0xFF
 
@@ -272,8 +291,9 @@ class NVCubinPartELF(NVCubinPart):
             print(self.args)
 
 class NVCubin(object):
-    def __init__(self, cubin_data):
+    def __init__(self, cubin_data, decompressor = None):
         self.cubin_data = cubin_data
+        self.decompressor = decompressor
 
     def parse_cubin(self):
         cubin_part_header = struct.Struct('IIQ')
@@ -296,9 +316,9 @@ class NVCubin(object):
 
             part_type = magic & 0xff
             if part_type == CUBIN_PTX:
-                self.parts.append(NVCubinPartPTX(part_type, header, part_data))
+                self.parts.append(NVCubinPartPTX(part_type, header, part_data, self.decompressor))
             elif part_type == CUBIN_ELF:
-                self.parts.append(NVCubinPartELF(part_type, header, part_data))
+                self.parts.append(NVCubinPartELF(part_type, header, part_data, self.decompressor))
             else:
                 assert False, f"Unknown part_type: {part_type}"
 
@@ -309,9 +329,10 @@ class NVCubin(object):
             print(f"Cubin contains {len(self.parts)} parts")
 
 class NVFatBinary(object):
-    def __init__(self, elf):
+    def __init__(self, elf, decompressor = None):
         self.elf = elf
         self.felf = open(elf, "rb")
+        self.decompressor = decompressor
 
     def parse_fatbin(self):
         self.elffile = ELFFile(self.felf)
@@ -348,7 +369,7 @@ class NVFatBinary(object):
                 #    continue
 
                 cubin_data = self.fatbin_data[ndx:(ndx + next_offset)]
-                cubins.append(NVCubin(cubin_data))
+                cubins.append(NVCubin(cubin_data, self.decompressor))
 
                 if DEBUG_MODE:
                     with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
