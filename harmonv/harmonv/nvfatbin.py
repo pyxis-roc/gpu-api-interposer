@@ -51,11 +51,12 @@ class NVCubinPart(object):
 
         if self.identifier is not None:
             identifiers = [prefix(i) for i in self.identifier.split(b' ')]
-            fullname = b"_".join(identifiers).decode('utf-8')
+            fullname = b"-".join(identifiers).decode('utf-8')
+
             if self.type == CUBIN_PTX:
                 ext = "ptx"
             elif self.type == CUBIN_ELF:
-                ext = "elf"
+                ext = "cubin"
             else:
                 assert False, "Unknown type!"
 
