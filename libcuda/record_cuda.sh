@@ -46,6 +46,8 @@ echo "BLOBSTORE_PATH=$BLOBSTORE_PATH"
 echo "ARGHELPER_FILE=$ARGHELPER_FILE"
 
 lttng create cuda-record || exit 1;
+trap "lttng destroy" EXIT;
+
 lttng enable-event --userspace "libcuda_interposer:*" || exit 1;
 lttng add-context --userspace -t vtid || exit 1;
 lttng start || exit 1;
