@@ -38,6 +38,32 @@ class NVCubinPart(object):
         self.header = header
         self.data = data
 
+    def get_filename(self):
+        # as shown by -lelf and -lptx
+
+        def prefix(i):
+            # TODO: assuming cuobjdump truncates from first ".", to check if it truncates from last "."
+            p = i.find(b'.')
+            if p != -1:
+                return i[:p]
+
+            return i
+
+        if self.identifier is not None:
+            identifiers = [prefix(i) for i in self.identifier.split(b' ')]
+            fullname = b"_".join(identifiers).decode('utf-8')
+            if self.type == CUBIN_PTX:
+                ext = "ptx"
+            elif self.type == CUBIN_ELF:
+                ext = "elf"
+            else:
+                assert False, "Unknown type!"
+
+            f = f"{fullname}.sm_{self.arch}.{ext}"
+            return f
+        else:
+            raise NotImplementError
+
     def parse_header(self):
         if self.header:
             #print([hex(a) for a in self.header])
@@ -71,12 +97,21 @@ class NVCubinPart(object):
                 self.compressed_size = struct.unpack_from('I', self.header, 0x10)[0]
                 self.uncompressed_size = struct.unpack_from('I', self.header, 0x38)[0]
 
+            if len(self.header) > 0x40:
+                identifierOffset = struct.unpack_from('H', self.header, 0x20)[0]
+                identifierLen = struct.unpack_from('H', self.header, 0x24)[0]
+                self.raw_identifier = self.header[identifierOffset:identifierOffset+identifierLen]
+                self.identifier = self.raw_identifier[:(self.raw_identifier.find(b'\0'))]
+            else:
+                self.identifier = None
+
             if self.type == CUBIN_PTX and len(self.header) > 0x40:
                 ptxasOptionsOffset = struct.unpack_from('H', self.header, 0x40)[0]
                 ptxasOptionsLen = struct.unpack_from('H', self.header, 0x44)[0]
                 self.ptxasOptions = self.header[ptxasOptionsOffset:ptxasOptionsOffset+ptxasOptionsLen]
             else:
                 self.ptxasOptions = None
+
 
             if not LIBRARY_MODE:
                 if self.type == CUBIN_PTX:
@@ -99,6 +134,9 @@ class NVCubinPart(object):
 
                 if self.ptxasOptions:
                     print(f" \t ptxasOptions: {self.ptxasOptions}")
+
+                if self.identifier:
+                    print(f" \t identifier: {self.identifier}")
 
                 print("\n")
 
