@@ -177,7 +177,17 @@ class NVTraceHandler(object):
                                      ev['ByteCount'], data)
 
     def cuMemcpyDtoH_v2_post(self, ev, bsdata):
-        self.apihandler.cuMemcpyDtoH(ev['dstHost'], ev['srcDevice'], ev['ByteCount'])
+        data = None
+        for r in bsdata:
+            if r['name'] == 'dstHost':
+                data = r['contents']
+                break
+        else:
+            assert False, "No 'dstHost' found in blobstore for cuMemcpyDtoH"
+
+        #WARNING: if DtoH was asynchronous, then dstHost is invalid!
+
+        self.apihandler.cuMemcpyDtoH(ev['dstHost'], ev['srcDevice'], ev['ByteCount'], data)
 
     def cuDriverGetVersion_post(self, ev, bsdata):
         pre_ev, pre_bsdata = self.pre_post.get_pre('cuDriverGetVersion', ev)

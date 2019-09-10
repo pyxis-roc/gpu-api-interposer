@@ -149,7 +149,10 @@ class CUDAGPU(object):
         return True
 
     def set_memory(self, dptr, data):
-        self.mem.copy(dptr, data)
+        self.mem.copy_to(dptr, data)
+
+    def get_memory(self, dptr, bytecount):
+        return self.mem.copy_from(dptr, bytecount)
 
 class CUDAFunction(object):
     """Represents a CUDA Function"""
@@ -223,12 +226,19 @@ class RebaseableMemory(object):
         if addr > self._highest_write_addr:
             self._highest_write_addr = addr
 
-    def copy(self, addr, data):
+    def copy_to(self, addr, data):
         assert addr >= self.baseaddr
 
         offset = addr - self.baseaddr
         self.mem[offset:offset+len(data)] = data
         self.set_highest_write_addr(addr + len(data) - 1)
+
+    def copy_from(self, addr, bytecount):
+        assert addr >= self.baseaddr
+
+        offset = addr - self.baseaddr
+        return self.mem[offset:offset+len(data)]
+
 
 class CUDADefaultFactory(object):
     gpu = CUDAGPU
@@ -413,9 +423,20 @@ class CUDADeviceAPIHandler(object):
         gpu.set_memory(dstDevice, _data)
 
     @check_retval
-    def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount):
-        # there is really nothing to do here in a trace
-        pass
+    def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount, _data):
+        # this function really has no meaning in a trace, however we
+        # simply implement a byte-wise comparison with the _data
+        # recorded at runtime
+
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
+        assert gpu.has_dptr(dstHost, ByteCount)
+        _logger.info(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes from device 0x{dstDevice:x} to host 0x{srcHost:x}')
+
+        if gpu.get_memory(srcDevice, ByteCount) != _data:
+            # legitimate reasons exist for data not to match (e.g. floating point data)
+            _logger.warning(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} did not match!')
 
     @check_retval
     def cuLaunchKernel(self, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams):
