@@ -223,7 +223,7 @@ class RebaseableMemory(object):
         self._highest_write_addr += move_to
 
     def set_highest_write_addr(self, addr):
-        if addr > self._highest_write_addr:
+        if self._highest_write_addr is None or addr > self._highest_write_addr:
             self._highest_write_addr = addr
 
     def copy_to(self, addr, data):
@@ -237,7 +237,7 @@ class RebaseableMemory(object):
         assert addr >= self.baseaddr
 
         offset = addr - self.baseaddr
-        return self.mem[offset:offset+len(data)]
+        return self.mem[offset:offset+bytecount]
 
 
 class CUDADefaultFactory(object):
@@ -431,12 +431,12 @@ class CUDADeviceAPIHandler(object):
         ctx = self._get_thread_ctx()
         gpu = self.gpu_handles[ctx.dev]
 
-        assert gpu.has_dptr(dstHost, ByteCount)
-        _logger.info(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes from device 0x{dstDevice:x} to host 0x{srcHost:x}')
+        assert gpu.has_dptr(srcDevice, ByteCount)
+        _logger.info(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes from device 0x{srcDevice:x} to host 0x{dstHost:x}')
 
         if gpu.get_memory(srcDevice, ByteCount) != _data:
             # legitimate reasons exist for data not to match (e.g. floating point data)
-            _logger.warning(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} did not match!')
+            _logger.warning(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes from 0x{srcDevice:x} did not match original trace!')
 
     @check_retval
     def cuLaunchKernel(self, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams):
