@@ -63,4 +63,3 @@ unset DLOPEN_LIBRARY
 unset LD_PRELOAD
 
 lttng stop || exit 1;
-lttng destroy || exit 1;
