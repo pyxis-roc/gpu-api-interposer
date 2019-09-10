@@ -121,6 +121,107 @@ You can also use `libcuda-replay.py` to rerun the trace:
 
     /path/to/libcuda-replay/libcuda_replay.py /path/to/lttng-trace /path/to/bs.db /path/to/argfiles.yaml
 
+## Adding new APIs to record in the trace
+
+The `libcuda_record` tracing library uses
+[lttng-ust](https://lttng.org/man/3/lttng-ust/v2.7/) to record the
+trace. If you're not familiar with `lttng-ust`, it is highly
+recommended you read the [lttng
+documentation](https://lttng.org/docs/v2.10/), especially the part on
+[tracing user applications with
+lttng-ust](https://lttng.org/docs/v2.10/#doc-tracing-your-own-user-application)
+
+Each API call is given at most two tracepoints: one suffixed `_pre`,
+before the API call is executed, and one suffixed `_post`, that
+captures data after the API call is executed, including the return
+value.
+
+You will need to complete at least 2 steps to add a new API call:
+
+  1. Add the API function name to `libcuda_record_filter.yaml` in the
+    `pre` section (to generate a `_pre` tracepoint), in the `_post`
+    section (to generate a `_post` tracepoint). There is a
+    `pre_and_post` section that will generate both tracepoints.
+
+  2. Add fields and types for the tracepoint to record arguments to
+     the API call in `libcuda_record_tp.yaml`. This specifies how to
+     translate C types (like `CUdevice`) to a [CTF
+     macro](https://lttng.org/docs/v2.10/#doc-lttng-modules-tp-fields)
+     (like `ctf_integer`). It also allows you to record expressions.
+
+Once you've done the two steps above, you will be able to record
+traces with the new API calls.
+
+### Writing a field specific in `libcuda_record_tp.yaml`
+
+The `libcuda_record_tp.yaml` is a specification of a `lttng-ust`
+tracepoint. The `gentracepoints.py` tool converts this to the `.tp`
+file expected by lttng-ust.
+
+The contents of this file specify the `TP_FIELDS` part for each
+tracepoint. The `TP_ARGS` part is automatically generated from the
+headers.
+
+To add fields for a new API, you must add the appropriately-suffixed
+(`_pre`, `_post` or both) to the `tracepoint_events`
+dictionary. Assume we want to add fields for the `post` version of a
+new API `cuExampleAPI(int arg1, int *arg2)`. We would write this as
+the following entry in `tracepoint_events`:
+
+```
+   cuExampleAPI_post:
+      fields:
+         - arg1:
+	     type: ctf_integer
+	     type_args:
+	        int_type: int
+	 - arg2:
+	     type: ctf_integer
+	     type_args:
+                int_type: int
+		expr: "*arg2"
+	 - *retval_field
+         - *ctx_field
+```
+
+The entry is given the name of the tracepoint, here
+`cuExampleAPI_post`. It contains a `fields` list that lists an entry
+for each argument and corresponds to an entry in the `TP_FIELDS`
+macro. Here we have two API arguments `arg1` and `arg2`, and two
+additional fields. These are the standard fields `ctx_field` (which
+assigns identifiers to individual API calls to make correlations
+easier), and the standard `retval_field` which records the return
+value of the API call for a `_post` tracepoint.
+
+For each entry in `fields`, we need to specify the macro type used in
+`TP_FIELDS`. For both arguments here, we use `ctf_integer`. We then
+specify the arguments to `ctf_integer` in the `type_args`
+dictionary. We use the [same
+names](https://lttng.org/man/3/lttng-ust/v2.10/) for arguments to
+`ctf_integer`. For `ctf_integer`, these are `int_type`, `field_name`
+and `expr`. You can omit `field_name` and `expr`, as we have done for
+`arg1` here. They will simply be set to `arg1`.
+
+For `arg2`, we elect not to store the value of the pointer, but rather
+its contents, hence `expr` is `"*int2"`. The quotes are necessary
+because "`*`" is the indirection operator in YAML.
+
+NOTE: Not all type macros are currently supported.
+
+### Recording large amounts of data in the blobstore
+
+TODO.
+
+For now, look at the definition of `cuMemcpyHtoD_v2_pre` to see how
+the blobstore can be used.
+
+### The `optional` section in `libcuda_record_filter.yaml`
+
+The `optional` section in `libcuda_record_filter.yaml` denotes API
+calls that are not present in all versions. It suppresses error
+messages about missing API calls.
+
+
 ## Advanced Usage
 
 ### Different locations for arg files
