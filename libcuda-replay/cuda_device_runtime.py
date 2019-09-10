@@ -12,7 +12,7 @@ import logging
 import memregions
 from harmonv.cuda.constants import *
 from harmonv.cuda import devspecs
-from harmonv import nvfatbin, ptxextract
+from harmonv import nvfatbin, compression
 import mmap
 import ctypes
 
@@ -273,13 +273,10 @@ class CUDADeviceAPIHandler(object):
 
         self.gpus = []
         self.main_module = self.load_binary(self.binary)
-
+        
     def load_binary(self, binary):
-        fatbin = nvfatbin.NVFatBinary(binary)
+        fatbin = nvfatbin.NVFatBinary(binary, compression.DecompressorCuobjdump)
         fatbin.parse_fatbin()
-        for cc, ptx in ptxextract.extract_ptx(fatbin):
-            cc.uncompressed_data = ptx
-            # TODO: parse the ptx and extract functions
 
         return fatbin
 
@@ -381,6 +378,32 @@ class CUDADeviceAPIHandler(object):
         # to register modules for the main executable out-of-band.
         if hmod not in self.module_handles:
             self.module_handles.register(hmod, self._factory.module())
+            module = self.main_module
+        else:
+            _logger.info(f'cuModuleGetFunction {name} on {hmod:x}, but module not found!')
+            assert False
+
+        # need to separate this out to a loader ...
+        arch_exact = []
+        arch_relevant = []
+        arch = gpu.compute_capability[0]*10+gpu.compute_capability[1]
+
+        for c in module.cubins:
+            for cc in c.parts:
+                if cc.arch != arch and cc.type == nvfatbin.CUBIN_ELF:
+                    _logger.info(f'Skipping over ELF for arch {cc.arch} (need {arch})')
+                    continue
+
+                if cc.arch == arch:
+                    _logger.info(f'Found exact match for arch {arch} (type {cc.type})')
+                    arch_exact.append(cc)
+                    continue
+
+                if cc.arch != arch and cc.type == nvfatbin.CUBIN_PTX:
+                    _logger.info(f'Found PTX for arch {cc.type}')
+                    arch_relevant.append(cc)
+
+        assert len(arch_exact) > 0 or len(arch_relevant) > 0, "Unable to ELF suitable for arch {cc}, or any PTX at all"
 
         self.function_handles.register(hfunc, self._factory.function(name))
 
