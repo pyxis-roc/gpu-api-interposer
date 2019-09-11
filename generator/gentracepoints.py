@@ -22,6 +22,7 @@ TP_Field = namedtuple('tp_field', ['type', 'fieldname', 'type_args'])
 FIELD_FMTS = {
     "ctf_integer": "ctf_integer({int_type}, {fieldname}, {expr})",
     "ctf_integer_hex": "ctf_integer_hex({int_type}, {fieldname}, {expr})",
+    "ctf_float": "ctf_integer({float_type}, {fieldname}, {expr})",
     "ctf_string": "ctf_string({fieldname}, {expr})",
     "ctf_array": "ctf_array({int_type}, {fieldname}, {expr}, {count})",
     "ctf_array_hex": "ctf_array_hex({int_type}, {fieldname}, {expr}, {count})"
