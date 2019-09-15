@@ -33,11 +33,12 @@ DEBUG_MODE = 0
 LIBRARY_MODE = 1
 
 class NVCubinPart(object):
-    def __init__(self, part_type, header, data, decompressor = None):
+    def __init__(self, part_type, header, data, cubin):
         self.type = part_type
         self.header = header
         self.data = data
-        self.decompressor = decompressor
+        self.cubin = cubin
+        self.decompressor = cubin.decompressor
 
     def decompress(self):
         if hasattr(self, 'uncompressed_data'):
@@ -60,21 +61,27 @@ class NVCubinPart(object):
 
             return i
 
-        if self.identifier is not None:
+        if self.identifier is not None and len(self.identifier):
             identifiers = [prefix(i) for i in self.identifier.split(b' ')]
             fullname = b"-".join(identifiers).decode('utf-8')
-
-            if self.type == CUBIN_PTX:
-                ext = "ptx"
-            elif self.type == CUBIN_ELF:
-                ext = "cubin"
-            else:
-                assert False, "Unknown type!"
-
-            f = f"{fullname}.sm_{self.arch}.{ext}"
-            return f
         else:
-            raise NotImplementError
+            if self.cubin.filename:
+                #TODO: this is not the same as cuobjdump
+                index = self.cubin.parts.index(self)
+                fullname = prefix(os.path.basename(self.cubin.filename).encode('utf-8')) + b".%d" % (index,)
+                fullname = fullname.decode('utf-8')
+            else:
+                raise NotImplementedError
+
+        if self.type == CUBIN_PTX:
+            ext = "ptx"
+        elif self.type == CUBIN_ELF:
+            ext = "cubin"
+        else:
+            assert False, "Unknown type!"
+
+        f = f"{fullname}.sm_{self.arch}.{ext}"
+        return f
 
     def parse_header(self):
         if self.header:
@@ -291,9 +298,10 @@ class NVCubinPartELF(NVCubinPart):
             print(self.args)
 
 class NVCubin(object):
-    def __init__(self, cubin_data, decompressor = None):
+    def __init__(self, cubin_data, decompressor = None, filename = None):
         self.cubin_data = cubin_data
         self.decompressor = decompressor
+        self.filename = filename
 
     def parse_cubin(self):
         cubin_part_header = struct.Struct('IIQ')
@@ -316,9 +324,9 @@ class NVCubin(object):
 
             part_type = magic & 0xff
             if part_type == CUBIN_PTX:
-                self.parts.append(NVCubinPartPTX(part_type, header, part_data, self.decompressor))
+                self.parts.append(NVCubinPartPTX(part_type, header, part_data, self))
             elif part_type == CUBIN_ELF:
-                self.parts.append(NVCubinPartELF(part_type, header, part_data, self.decompressor))
+                self.parts.append(NVCubinPartELF(part_type, header, part_data, self))
             else:
                 assert False, f"Unknown part_type: {part_type}"
 
@@ -369,7 +377,7 @@ class NVFatBinary(object):
                 #    continue
 
                 cubin_data = self.fatbin_data[ndx:(ndx + next_offset)]
-                cubins.append(NVCubin(cubin_data, self.decompressor))
+                cubins.append(NVCubin(cubin_data, decompressor=self.decompressor, filename=self.elf))
 
                 if DEBUG_MODE:
                     with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
