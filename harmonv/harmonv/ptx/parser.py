@@ -15,12 +15,18 @@
 # Other code from pycparse, by Eli Bendersky (used under BSD license)
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeWalker
+if __name__ == "__main__":
+    from PtxParser import PtxParser
+    from PtxLexer import PtxLexer
+    from PtxListener import PtxListener
 
-from PtxParser import PtxParser
-from PtxLexer import PtxLexer
-from PtxListener import PtxListener
+    import ptx_ast as pa
+else:
+    from .PtxParser import PtxParser
+    from .PtxLexer import PtxLexer
+    from .PtxListener import PtxListener
 
-import ptx_ast as pa
+    from . import ptx_ast as pa
 
 class Stack(object):
     stk = None
