@@ -247,3 +247,47 @@ class Entry(Node):
 
     attr_names = ('linking', 'kernel_name', 'performance_tuning', )
 
+class EntryParam(Node):
+    __slots__ = ('space', 'align', 'param_type', 'name', 'array_spec', 'name2', 'param_type2', 'align2', 'array_spec2', 'coord', '__weakref__')
+    def __init__(self, space, align, param_type, name, array_spec, name2, param_type2, align2, array_spec2, coord=None):
+        self.space = space
+        self.align = align
+        self.param_type = param_type
+        self.name = name
+        self.array_spec = array_spec
+        self.name2 = name2
+        self.param_type2 = param_type2
+        self.align2 = align2
+        self.array_spec2 = array_spec2
+        self.coord = coord
+
+    def children(self):
+        nodelist = []
+        return tuple(nodelist)
+
+    def __iter__(self):
+        return
+        yield
+
+    attr_names = ('space', 'align', 'param_type', 'name', 'array_spec', 'name2', 'param_type2', 'align2', 'array_spec2', )
+
+class IdentifierDecl(Node):
+    __slots__ = ('space', 'align', 'variable_declarator', 'coord', '__weakref__')
+    def __init__(self, space, align, variable_declarator, coord=None):
+        self.space = space
+        self.align = align
+        self.variable_declarator = variable_declarator
+        self.coord = coord
+
+    def children(self):
+        nodelist = []
+        for i, child in enumerate(self.variable_declarator or []):
+            nodelist.append(("variable_declarator[%d]" % i, child))
+        return tuple(nodelist)
+
+    def __iter__(self):
+        for child in (self.variable_declarator or []):
+            yield child
+
+    attr_names = ('space', 'align', )
+

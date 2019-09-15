@@ -2578,6 +2578,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitProg" ):
                 listener.exitProg(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitProg" ):
+                return visitor.visitProg(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2646,6 +2652,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVersion" ):
                 listener.exitVersion(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVersion" ):
+                return visitor.visitVersion(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2691,6 +2703,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitTarget" ):
                 listener.exitTarget(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTarget" ):
+                return visitor.visitTarget(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2735,6 +2753,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitAddress_size" ):
                 listener.exitAddress_size(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAddress_size" ):
+                return visitor.visitAddress_size(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2785,6 +2809,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitTarget_list" ):
                 listener.exitTarget_list(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTarget_list" ):
+                return visitor.visitTarget_list(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2847,6 +2877,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitStatement" ):
                 listener.exitStatement(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitStatement" ):
+                return visitor.visitStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2908,6 +2944,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitLabel_decl" ):
                 listener.exitLabel_decl(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLabel_decl" ):
+                return visitor.visitLabel_decl(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2964,6 +3006,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitSemicolon_terminated_statement" ):
                 listener.exitSemicolon_terminated_statement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSemicolon_terminated_statement" ):
+                return visitor.visitSemicolon_terminated_statement(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3036,6 +3084,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitUnterminated_statement" ):
                 listener.exitUnterminated_statement(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitUnterminated_statement" ):
+                return visitor.visitUnterminated_statement(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3079,6 +3133,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitSemicolon_terminated_directive" ):
                 listener.exitSemicolon_terminated_directive(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSemicolon_terminated_directive" ):
+                return visitor.visitSemicolon_terminated_directive(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3156,6 +3216,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitUnterminated_directive" ):
                 listener.exitUnterminated_directive(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitUnterminated_directive" ):
+                return visitor.visitUnterminated_directive(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3245,6 +3311,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitEntry" ):
                 listener.exitEntry(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry" ):
+                return visitor.visitEntry(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3311,6 +3383,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitEntry_aux" ):
                 listener.exitEntry_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry_aux" ):
+                return visitor.visitEntry_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3395,6 +3473,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitKernel_name" ):
                 listener.exitKernel_name(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitKernel_name" ):
+                return visitor.visitKernel_name(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3443,6 +3527,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitEntry_param_list" ):
                 listener.exitEntry_param_list(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry_param_list" ):
+                return visitor.visitEntry_param_list(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3523,6 +3613,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitEntry_param" ):
                 listener.exitEntry_param(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry_param" ):
+                return visitor.visitEntry_param(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3616,6 +3712,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitEntry_space" ):
                 listener.exitEntry_space(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry_space" ):
+                return visitor.visitEntry_space(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3658,6 +3760,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitAlign" ):
                 listener.exitAlign(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAlign" ):
+                return visitor.visitAlign(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3708,6 +3816,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitByte_count" ):
                 listener.exitByte_count(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitByte_count" ):
+                return visitor.visitByte_count(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3771,6 +3885,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitEntry_param_type" ):
                 listener.exitEntry_param_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry_param_type" ):
+                return visitor.visitEntry_param_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3831,6 +3951,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitEntry_body" ):
                 listener.exitEntry_body(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEntry_body" ):
+                return visitor.visitEntry_body(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3895,6 +4021,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFundamental_type" ):
                 listener.exitFundamental_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFundamental_type" ):
+                return visitor.visitFundamental_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3980,6 +4112,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFundamental_type_aux" ):
                 listener.exitFundamental_type_aux(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFundamental_type_aux" ):
+                return visitor.visitFundamental_type_aux(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4030,6 +4168,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVector_type" ):
                 listener.exitVector_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVector_type" ):
+                return visitor.visitVector_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4073,6 +4217,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitVector_type_aux" ):
                 listener.exitVector_type_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVector_type_aux" ):
+                return visitor.visitVector_type_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4120,6 +4270,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpaque_type" ):
                 listener.exitOpaque_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpaque_type" ):
+                return visitor.visitOpaque_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4164,6 +4320,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpaque_type_aux" ):
                 listener.exitOpaque_type_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpaque_type_aux" ):
+                return visitor.visitOpaque_type_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4210,6 +4372,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc" ):
                 listener.exitFunc(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc" ):
+                return visitor.visitFunc(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4286,6 +4454,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc_aux" ):
                 listener.exitFunc_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_aux" ):
+                return visitor.visitFunc_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4386,6 +4560,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFunc_name" ):
                 listener.exitFunc_name(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_name" ):
+                return visitor.visitFunc_name(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4434,6 +4614,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc_ret_list" ):
                 listener.exitFunc_ret_list(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_ret_list" ):
+                return visitor.visitFunc_ret_list(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4503,6 +4689,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFunc_ret" ):
                 listener.exitFunc_ret(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_ret" ):
+                return visitor.visitFunc_ret(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4566,6 +4758,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFunc_ret_space" ):
                 listener.exitFunc_ret_space(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_ret_space" ):
+                return visitor.visitFunc_ret_space(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4611,6 +4809,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc_ret_type" ):
                 listener.exitFunc_ret_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_ret_type" ):
+                return visitor.visitFunc_ret_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4663,6 +4867,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc_param_list" ):
                 listener.exitFunc_param_list(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_param_list" ):
+                return visitor.visitFunc_param_list(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4740,6 +4950,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFunc_param" ):
                 listener.exitFunc_param(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_param" ):
+                return visitor.visitFunc_param(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4803,6 +5019,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFunc_param_space" ):
                 listener.exitFunc_param_space(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_param_space" ):
+                return visitor.visitFunc_param_space(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -4848,6 +5070,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc_param_type" ):
                 listener.exitFunc_param_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_param_type" ):
+                return visitor.visitFunc_param_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4897,6 +5125,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFunc_body" ):
                 listener.exitFunc_body(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunc_body" ):
+                return visitor.visitFunc_body(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -4958,6 +5192,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitControl_flow_directive" ):
                 listener.exitControl_flow_directive(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitControl_flow_directive" ):
+                return visitor.visitControl_flow_directive(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5028,6 +5268,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitBranch_targets" ):
                 listener.exitBranch_targets(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitBranch_targets" ):
+                return visitor.visitBranch_targets(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5082,6 +5328,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitList_of_labels" ):
                 listener.exitList_of_labels(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitList_of_labels" ):
+                return visitor.visitList_of_labels(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5142,6 +5394,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitCall_targets" ):
                 listener.exitCall_targets(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall_targets" ):
+                return visitor.visitCall_targets(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5211,6 +5469,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitCall_prototype" ):
                 listener.exitCall_prototype(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall_prototype" ):
+                return visitor.visitCall_prototype(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5302,6 +5566,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitCall_param_list" ):
                 listener.exitCall_param_list(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall_param_list" ):
+                return visitor.visitCall_param_list(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5370,6 +5640,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitCall_param" ):
                 listener.exitCall_param(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall_param" ):
+                return visitor.visitCall_param(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5433,6 +5709,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitCall_param_space" ):
                 listener.exitCall_param_space(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall_param_space" ):
+                return visitor.visitCall_param_space(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5479,6 +5761,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitCall_param_type" ):
                 listener.exitCall_param_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCall_param_type" ):
+                return visitor.visitCall_param_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5521,6 +5809,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitPerformance_tuning_directives" ):
                 listener.exitPerformance_tuning_directives(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPerformance_tuning_directives" ):
+                return visitor.visitPerformance_tuning_directives(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5592,6 +5886,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitPerformance_tuning_directive" ):
                 listener.exitPerformance_tuning_directive(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPerformance_tuning_directive" ):
+                return visitor.visitPerformance_tuning_directive(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5673,6 +5973,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitMaxnreg" ):
                 listener.exitMaxnreg(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMaxnreg" ):
+                return visitor.visitMaxnreg(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5726,6 +6032,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMaxntid" ):
                 listener.exitMaxntid(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMaxntid" ):
+                return visitor.visitMaxntid(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5802,6 +6114,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitReqntid" ):
                 listener.exitReqntid(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReqntid" ):
+                return visitor.visitReqntid(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5868,6 +6186,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitMinnctapersm" ):
                 listener.exitMinnctapersm(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMinnctapersm" ):
+                return visitor.visitMinnctapersm(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -5912,6 +6236,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMaxnctapersm" ):
                 listener.exitMaxnctapersm(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMaxnctapersm" ):
+                return visitor.visitMaxnctapersm(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -5961,6 +6291,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitPragma" ):
                 listener.exitPragma(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPragma" ):
+                return visitor.visitPragma(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6003,6 +6339,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitList_of_strings" ):
                 listener.exitList_of_strings(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitList_of_strings" ):
+                return visitor.visitList_of_strings(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6055,6 +6397,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitDebugging_directive" ):
                 listener.exitDebugging_directive(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitDebugging_directive" ):
+                return visitor.visitDebugging_directive(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6118,6 +6466,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitDwarf" ):
                 listener.exitDwarf(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitDwarf" ):
+                return visitor.visitDwarf(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6172,6 +6526,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFilef" ):
                 listener.exitFilef(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFilef" ):
+                return visitor.visitFilef(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6245,6 +6605,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitSection" ):
                 listener.exitSection(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSection" ):
+                return visitor.visitSection(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6326,6 +6692,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitSection_name" ):
                 listener.exitSection_name(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSection_name" ):
+                return visitor.visitSection_name(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6444,6 +6816,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitData_declarator_list" ):
                 listener.exitData_declarator_list(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitData_declarator_list" ):
+                return visitor.visitData_declarator_list(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6539,6 +6917,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitLoc" ):
                 listener.exitLoc(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLoc" ):
+                return visitor.visitLoc(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6588,6 +6972,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitLinking_directive" ):
                 listener.exitLinking_directive(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLinking_directive" ):
+                return visitor.visitLinking_directive(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6645,6 +7035,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitExtern_" ):
                 listener.exitExtern_(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExtern_" ):
+                return visitor.visitExtern_(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6690,6 +7086,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVisible" ):
                 listener.exitVisible(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVisible" ):
+                return visitor.visitVisible(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6731,6 +7133,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitIdentifier_decl" ):
                 listener.exitIdentifier_decl(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitIdentifier_decl" ):
+                return visitor.visitIdentifier_decl(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6791,6 +7199,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitIdentifier_decl_aux" ):
                 listener.exitIdentifier_decl_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitIdentifier_decl_aux" ):
+                return visitor.visitIdentifier_decl_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -6894,6 +7308,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVariable_declarator_list" ):
                 listener.exitVariable_declarator_list(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable_declarator_list" ):
+                return visitor.visitVariable_declarator_list(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -6962,6 +7382,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVariable_declarator_list_with_initializer" ):
                 listener.exitVariable_declarator_list_with_initializer(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable_declarator_list_with_initializer" ):
+                return visitor.visitVariable_declarator_list_with_initializer(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7025,6 +7451,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVariable_declarator" ):
                 listener.exitVariable_declarator(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable_declarator" ):
+                return visitor.visitVariable_declarator(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7080,6 +7512,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitArray_spec" ):
                 listener.exitArray_spec(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArray_spec" ):
+                return visitor.visitArray_spec(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7134,6 +7572,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArray_spec_aux" ):
                 listener.exitArray_spec_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArray_spec_aux" ):
+                return visitor.visitArray_spec_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -7204,6 +7648,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitParameterized_register_spec" ):
                 listener.exitParameterized_register_spec(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitParameterized_register_spec" ):
+                return visitor.visitParameterized_register_spec(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7263,6 +7713,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitId_or_opcode" ):
                 listener.exitId_or_opcode(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitId_or_opcode" ):
+                return visitor.visitId_or_opcode(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -7553,6 +8009,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpcode" ):
                 listener.exitOpcode(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpcode" ):
+                return visitor.visitOpcode(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7616,6 +8078,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitVariable_declarator_with_initializer" ):
                 listener.exitVariable_declarator_with_initializer(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable_declarator_with_initializer" ):
+                return visitor.visitVariable_declarator_with_initializer(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -7682,6 +8150,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitVariable_equal_initializer" ):
                 listener.exitVariable_equal_initializer(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable_equal_initializer" ):
+                return visitor.visitVariable_equal_initializer(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7738,6 +8212,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitVariable_initializer" ):
                 listener.exitVariable_initializer(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariable_initializer" ):
+                return visitor.visitVariable_initializer(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -7810,6 +8290,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitAggregate_initializer" ):
                 listener.exitAggregate_initializer(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAggregate_initializer" ):
+                return visitor.visitAggregate_initializer(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7881,6 +8367,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitTypet" ):
                 listener.exitTypet(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTypet" ):
+                return visitor.visitTypet(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7943,6 +8435,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitIdi" ):
                 listener.exitIdi(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitIdi" ):
+                return visitor.visitIdi(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -7995,6 +8493,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitState_space_specifier" ):
                 listener.exitState_space_specifier(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitState_space_specifier" ):
+                return visitor.visitState_space_specifier(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8059,6 +8563,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitState_space_specifier_aux" ):
                 listener.exitState_space_specifier_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitState_space_specifier_aux" ):
+                return visitor.visitState_space_specifier_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8138,6 +8648,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitGlobal_space_specifier" ):
                 listener.exitGlobal_space_specifier(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitGlobal_space_specifier" ):
+                return visitor.visitGlobal_space_specifier(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -8178,6 +8694,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitConst_space_specifier" ):
                 listener.exitConst_space_specifier(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConst_space_specifier" ):
+                return visitor.visitConst_space_specifier(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -8216,6 +8738,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitConst_" ):
                 listener.exitConst_(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConst_" ):
+                return visitor.visitConst_(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8256,6 +8784,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitGlobalg" ):
                 listener.exitGlobalg(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitGlobalg" ):
+                return visitor.visitGlobalg(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -8294,6 +8828,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitLocal" ):
                 listener.exitLocal(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLocal" ):
+                return visitor.visitLocal(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8334,6 +8874,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitParam" ):
                 listener.exitParam(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitParam" ):
+                return visitor.visitParam(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -8372,6 +8918,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitReg" ):
                 listener.exitReg(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReg" ):
+                return visitor.visitReg(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8412,6 +8964,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitShared" ):
                 listener.exitShared(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitShared" ):
+                return visitor.visitShared(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -8450,6 +9008,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitSreg" ):
                 listener.exitSreg(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSreg" ):
+                return visitor.visitSreg(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8490,6 +9054,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitTex" ):
                 listener.exitTex(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTex" ):
+                return visitor.visitTex(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -8529,6 +9099,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitInstruction" ):
                 listener.exitInstruction(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitInstruction" ):
+                return visitor.visitInstruction(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -8889,6 +9465,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitInstruction_aux" ):
                 listener.exitInstruction_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitInstruction_aux" ):
+                return visitor.visitInstruction_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9268,6 +9850,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitPredicate" ):
                 listener.exitPredicate(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPredicate" ):
+                return visitor.visitPredicate(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -9325,6 +9913,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_abs" ):
                 listener.exitI_abs(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_abs" ):
+                return visitor.visitI_abs(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9384,6 +9978,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_abs_type" ):
                 listener.exitI_abs_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_abs_type" ):
+                return visitor.visitI_abs_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9462,6 +10062,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_abs_opr" ):
                 listener.exitI_abs_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_abs_opr" ):
+                return visitor.visitI_abs_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -9512,6 +10118,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_add" ):
                 listener.exitI_add(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_add" ):
+                return visitor.visitI_add(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9597,6 +10209,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_add_type" ):
                 listener.exitI_add_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_add_type" ):
+                return visitor.visitI_add_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9743,6 +10361,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_add_opr" ):
                 listener.exitI_add_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_add_opr" ):
+                return visitor.visitI_add_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -9793,6 +10417,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_addc" ):
                 listener.exitI_addc(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_addc" ):
+                return visitor.visitI_addc(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9851,6 +10481,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_addc_type" ):
                 listener.exitI_addc_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_addc_type" ):
+                return visitor.visitI_addc_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -9913,6 +10549,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_addc_opr" ):
                 listener.exitI_addc_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_addc_opr" ):
+                return visitor.visitI_addc_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -9963,6 +10605,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_and" ):
                 listener.exitI_and(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_and" ):
+                return visitor.visitI_and(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10017,6 +10665,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_and_type" ):
                 listener.exitI_and_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_and_type" ):
+                return visitor.visitI_and_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10062,6 +10716,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_and_opr" ):
                 listener.exitI_and_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_and_opr" ):
+                return visitor.visitI_and_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10109,6 +10769,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_atom" ):
                 listener.exitI_atom(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_atom" ):
+                return visitor.visitI_atom(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10205,6 +10871,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_atom_type" ):
                 listener.exitI_atom_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_atom_type" ):
+                return visitor.visitI_atom_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10286,6 +10958,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_atom_opr" ):
                 listener.exitI_atom_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_atom_opr" ):
+                return visitor.visitI_atom_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10361,6 +11039,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bar" ):
                 listener.exitI_bar(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar" ):
+                return visitor.visitI_bar(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10433,6 +11117,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bar1" ):
                 listener.exitI_bar1(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar1" ):
+                return visitor.visitI_bar1(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10475,6 +11165,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar1_type" ):
                 listener.exitI_bar1_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar1_type" ):
+                return visitor.visitI_bar1_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10521,6 +11217,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar1_opr" ):
                 listener.exitI_bar1_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar1_opr" ):
+                return visitor.visitI_bar1_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10580,6 +11282,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bar2" ):
                 listener.exitI_bar2(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar2" ):
+                return visitor.visitI_bar2(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10623,6 +11331,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bar2_type" ):
                 listener.exitI_bar2_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar2_type" ):
+                return visitor.visitI_bar2_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10662,6 +11376,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar2_opr" ):
                 listener.exitI_bar2_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar2_opr" ):
+                return visitor.visitI_bar2_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10709,6 +11429,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar3" ):
                 listener.exitI_bar3(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar3" ):
+                return visitor.visitI_bar3(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10758,6 +11484,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar3_type" ):
                 listener.exitI_bar3_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar3_type" ):
+                return visitor.visitI_bar3_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10814,6 +11546,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar3_opr" ):
                 listener.exitI_bar3_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar3_opr" ):
+                return visitor.visitI_bar3_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -10888,6 +11626,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bar4" ):
                 listener.exitI_bar4(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar4" ):
+                return visitor.visitI_bar4(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -10939,6 +11683,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar4_type" ):
                 listener.exitI_bar4_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar4_type" ):
+                return visitor.visitI_bar4_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11001,6 +11751,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bar4_opr" ):
                 listener.exitI_bar4_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bar4_opr" ):
+                return visitor.visitI_bar4_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11075,6 +11831,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bfe" ):
                 listener.exitI_bfe(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfe" ):
+                return visitor.visitI_bfe(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11126,6 +11888,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bfe_type" ):
                 listener.exitI_bfe_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfe_type" ):
+                return visitor.visitI_bfe_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11180,6 +11948,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bfe_opr" ):
                 listener.exitI_bfe_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfe_opr" ):
+                return visitor.visitI_bfe_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11231,6 +12005,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bfi" ):
                 listener.exitI_bfi(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfi" ):
+                return visitor.visitI_bfi(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11276,6 +12056,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bfi_type" ):
                 listener.exitI_bfi_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfi_type" ):
+                return visitor.visitI_bfi_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11330,6 +12116,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bfi_opr" ):
                 listener.exitI_bfi_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfi_opr" ):
+                return visitor.visitI_bfi_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11380,6 +12172,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bfind" ):
                 listener.exitI_bfind(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfind" ):
+                return visitor.visitI_bfind(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11435,6 +12233,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bfind_type" ):
                 listener.exitI_bfind_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfind_type" ):
+                return visitor.visitI_bfind_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11497,6 +12301,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bfind_opr" ):
                 listener.exitI_bfind_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bfind_opr" ):
+                return visitor.visitI_bfind_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11548,6 +12358,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_bra" ):
                 listener.exitI_bra(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bra" ):
+                return visitor.visitI_bra(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11590,6 +12406,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bra_type" ):
                 listener.exitI_bra_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bra_type" ):
+                return visitor.visitI_bra_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11644,6 +12466,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_bra_opr" ):
                 listener.exitI_bra_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_bra_opr" ):
+                return visitor.visitI_bra_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11708,6 +12536,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_brev" ):
                 listener.exitI_brev(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_brev" ):
+                return visitor.visitI_brev(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11753,6 +12587,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_brev_type" ):
                 listener.exitI_brev_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_brev_type" ):
+                return visitor.visitI_brev_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11807,6 +12647,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_brev_opr" ):
                 listener.exitI_brev_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_brev_opr" ):
+                return visitor.visitI_brev_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -11849,6 +12695,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_brkpt" ):
                 listener.exitI_brkpt(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_brkpt" ):
+                return visitor.visitI_brkpt(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -11929,6 +12781,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_call" ):
                 listener.exitI_call(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_call" ):
+                return visitor.visitI_call(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12042,6 +12900,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_call_type" ):
                 listener.exitI_call_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_call_type" ):
+                return visitor.visitI_call_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12093,6 +12957,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFlist" ):
                 listener.exitFlist(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFlist" ):
+                return visitor.visitFlist(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12131,6 +13001,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFproto" ):
                 listener.exitFproto(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFproto" ):
+                return visitor.visitFproto(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12179,6 +13055,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_clz" ):
                 listener.exitI_clz(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_clz" ):
+                return visitor.visitI_clz(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12224,6 +13106,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_clz_type" ):
                 listener.exitI_clz_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_clz_type" ):
+                return visitor.visitI_clz_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12278,6 +13166,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_clz_opr" ):
                 listener.exitI_clz_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_clz_opr" ):
+                return visitor.visitI_clz_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12329,6 +13223,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cnot" ):
                 listener.exitI_cnot(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cnot" ):
+                return visitor.visitI_cnot(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12378,6 +13278,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cnot_type" ):
                 listener.exitI_cnot_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cnot_type" ):
+                return visitor.visitI_cnot_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12423,6 +13329,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cnot_opr" ):
                 listener.exitI_cnot_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cnot_opr" ):
+                return visitor.visitI_cnot_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12471,6 +13383,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_copysign" ):
                 listener.exitI_copysign(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_copysign" ):
+                return visitor.visitI_copysign(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12516,6 +13434,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_copysign_type" ):
                 listener.exitI_copysign_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_copysign_type" ):
+                return visitor.visitI_copysign_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12572,6 +13496,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_copysign_opr" ):
                 listener.exitI_copysign_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_copysign_opr" ):
+                return visitor.visitI_copysign_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12627,6 +13557,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cos" ):
                 listener.exitI_cos(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cos" ):
+                return visitor.visitI_cos(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12675,6 +13611,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cos_type" ):
                 listener.exitI_cos_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cos_type" ):
+                return visitor.visitI_cos_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12727,6 +13669,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cos_opr" ):
                 listener.exitI_cos_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cos_opr" ):
+                return visitor.visitI_cos_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -12773,6 +13721,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cvt" ):
                 listener.exitI_cvt(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt" ):
+                return visitor.visitI_cvt(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -12906,6 +13860,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cvt_type" ):
                 listener.exitI_cvt_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt_type" ):
+                return visitor.visitI_cvt_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13019,6 +13979,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cvt_irnd" ):
                 listener.exitI_cvt_irnd(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt_irnd" ):
+                return visitor.visitI_cvt_irnd(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13079,6 +14045,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cvt_irnd_aux" ):
                 listener.exitI_cvt_irnd_aux(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt_irnd_aux" ):
+                return visitor.visitI_cvt_irnd_aux(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13124,6 +14096,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cvt_frnd" ):
                 listener.exitI_cvt_frnd(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt_frnd" ):
+                return visitor.visitI_cvt_frnd(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13185,6 +14163,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cvt_frnd_aux" ):
                 listener.exitI_cvt_frnd_aux(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt_frnd_aux" ):
+                return visitor.visitI_cvt_frnd_aux(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13230,6 +14214,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cvt_opr" ):
                 listener.exitI_cvt_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvt_opr" ):
+                return visitor.visitI_cvt_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13277,6 +14267,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cvta" ):
                 listener.exitI_cvta(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvta" ):
+                return visitor.visitI_cvta(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13339,6 +14335,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_cvta_type" ):
                 listener.exitI_cvta_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvta_type" ):
+                return visitor.visitI_cvta_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13414,6 +14416,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_cvta_opr" ):
                 listener.exitI_cvta_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_cvta_opr" ):
+                return visitor.visitI_cvta_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13475,6 +14483,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_div" ):
                 listener.exitI_div(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_div" ):
+                return visitor.visitI_div(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13561,6 +14575,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_div_type" ):
                 listener.exitI_div_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_div_type" ):
+                return visitor.visitI_div_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13684,6 +14704,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_div_opr" ):
                 listener.exitI_div_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_div_opr" ):
+                return visitor.visitI_div_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13735,6 +14761,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_ex2" ):
                 listener.exitI_ex2(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ex2" ):
+                return visitor.visitI_ex2(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13783,6 +14815,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_ex2_type" ):
                 listener.exitI_ex2_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ex2_type" ):
+                return visitor.visitI_ex2_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13835,6 +14873,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_ex2_opr" ):
                 listener.exitI_ex2_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ex2_opr" ):
+                return visitor.visitI_ex2_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -13873,6 +14917,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_exit" ):
                 listener.exitI_exit(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_exit" ):
+                return visitor.visitI_exit(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13920,6 +14970,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_fma" ):
                 listener.exitI_fma(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_fma" ):
+                return visitor.visitI_fma(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -13984,6 +15040,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_fma_type" ):
                 listener.exitI_fma_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_fma_type" ):
+                return visitor.visitI_fma_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14061,6 +15123,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_fma_opr" ):
                 listener.exitI_fma_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_fma_opr" ):
+                return visitor.visitI_fma_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -14107,6 +15175,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_isspacep" ):
                 listener.exitI_isspacep(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_isspacep" ):
+                return visitor.visitI_isspacep(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14157,6 +15231,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_isspacep_type" ):
                 listener.exitI_isspacep_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_isspacep_type" ):
+                return visitor.visitI_isspacep_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -14202,6 +15282,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_isspacep_opr" ):
                 listener.exitI_isspacep_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_isspacep_opr" ):
+                return visitor.visitI_isspacep_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14249,6 +15335,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_ld" ):
                 listener.exitI_ld(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ld" ):
+                return visitor.visitI_ld(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14370,6 +15462,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_ld_type" ):
                 listener.exitI_ld_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ld_type" ):
+                return visitor.visitI_ld_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14562,6 +15660,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_ld_opr" ):
                 listener.exitI_ld_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ld_opr" ):
+                return visitor.visitI_ld_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -14616,6 +15720,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_ldu" ):
                 listener.exitI_ldu(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ldu" ):
+                return visitor.visitI_ldu(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14707,6 +15817,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_ldu_type" ):
                 listener.exitI_ldu_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ldu_type" ):
+                return visitor.visitI_ldu_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14806,6 +15922,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_ldu_opr" ):
                 listener.exitI_ldu_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ldu_opr" ):
+                return visitor.visitI_ldu_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -14861,6 +15983,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_lg2" ):
                 listener.exitI_lg2(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_lg2" ):
+                return visitor.visitI_lg2(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -14909,6 +16037,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_lg2_type" ):
                 listener.exitI_lg2_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_lg2_type" ):
+                return visitor.visitI_lg2_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -14961,6 +16095,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_lg2_opr" ):
                 listener.exitI_lg2_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_lg2_opr" ):
+                return visitor.visitI_lg2_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -15007,6 +16147,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mad" ):
                 listener.exitI_mad(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mad" ):
+                return visitor.visitI_mad(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15101,6 +16247,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mad_type" ):
                 listener.exitI_mad_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mad_type" ):
+                return visitor.visitI_mad_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15247,6 +16399,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_mad_opr" ):
                 listener.exitI_mad_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mad_opr" ):
+                return visitor.visitI_mad_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -15297,6 +16455,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_madc" ):
                 listener.exitI_madc(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_madc" ):
+                return visitor.visitI_madc(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15391,6 +16555,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_madc_type" ):
                 listener.exitI_madc_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_madc_type" ):
+                return visitor.visitI_madc_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15537,6 +16707,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_madc_opr" ):
                 listener.exitI_madc_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_madc_opr" ):
+                return visitor.visitI_madc_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -15587,6 +16763,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mad24" ):
                 listener.exitI_mad24(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mad24" ):
+                return visitor.visitI_mad24(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15642,6 +16824,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mad24_type" ):
                 listener.exitI_mad24_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mad24_type" ):
+                return visitor.visitI_mad24_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15719,6 +16907,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_mad24_opr" ):
                 listener.exitI_mad24_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mad24_opr" ):
+                return visitor.visitI_mad24_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -15769,6 +16963,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_max" ):
                 listener.exitI_max(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_max" ):
+                return visitor.visitI_max(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15836,6 +17036,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_max_type" ):
                 listener.exitI_max_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_max_type" ):
+                return visitor.visitI_max_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -15914,6 +17120,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_max_opr" ):
                 listener.exitI_max_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_max_opr" ):
+                return visitor.visitI_max_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -15961,6 +17173,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_membar" ):
                 listener.exitI_membar(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_membar" ):
+                return visitor.visitI_membar(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -16007,6 +17225,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_membar_type" ):
                 listener.exitI_membar_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_membar_type" ):
+                return visitor.visitI_membar_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16060,6 +17284,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_min" ):
                 listener.exitI_min(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_min" ):
+                return visitor.visitI_min(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16127,6 +17357,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_min_type" ):
                 listener.exitI_min_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_min_type" ):
+                return visitor.visitI_min_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16205,6 +17441,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_min_opr" ):
                 listener.exitI_min_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_min_opr" ):
+                return visitor.visitI_min_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -16255,6 +17497,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mov" ):
                 listener.exitI_mov(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mov" ):
+                return visitor.visitI_mov(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16332,6 +17580,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_mov_type" ):
                 listener.exitI_mov_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mov_type" ):
+                return visitor.visitI_mov_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -16377,6 +17631,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mov_opr" ):
                 listener.exitI_mov_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mov_opr" ):
+                return visitor.visitI_mov_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16424,6 +17684,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mul" ):
                 listener.exitI_mul(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mul" ):
+                return visitor.visitI_mul(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16515,6 +17781,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mul_type" ):
                 listener.exitI_mul_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mul_type" ):
+                return visitor.visitI_mul_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16641,6 +17913,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_mul_opr" ):
                 listener.exitI_mul_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mul_opr" ):
+                return visitor.visitI_mul_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -16691,6 +17969,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mul24" ):
                 listener.exitI_mul24(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mul24" ):
+                return visitor.visitI_mul24(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16744,6 +18028,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_mul24_type" ):
                 listener.exitI_mul24_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mul24_type" ):
+                return visitor.visitI_mul24_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16805,6 +18095,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_mul24_opr" ):
                 listener.exitI_mul24_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_mul24_opr" ):
+                return visitor.visitI_mul24_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -16855,6 +18151,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_neg" ):
                 listener.exitI_neg(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_neg" ):
+                return visitor.visitI_neg(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16914,6 +18216,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_neg_type" ):
                 listener.exitI_neg_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_neg_type" ):
+                return visitor.visitI_neg_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -16992,6 +18300,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_neg_opr" ):
                 listener.exitI_neg_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_neg_opr" ):
+                return visitor.visitI_neg_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17042,6 +18356,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_not" ):
                 listener.exitI_not(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_not" ):
+                return visitor.visitI_not(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17096,6 +18416,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_not_type" ):
                 listener.exitI_not_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_not_type" ):
+                return visitor.visitI_not_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17141,6 +18467,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_not_opr" ):
                 listener.exitI_not_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_not_opr" ):
+                return visitor.visitI_not_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17188,6 +18520,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_or" ):
                 listener.exitI_or(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_or" ):
+                return visitor.visitI_or(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17242,6 +18580,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_or_type" ):
                 listener.exitI_or_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_or_type" ):
+                return visitor.visitI_or_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17288,6 +18632,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_or_opr" ):
                 listener.exitI_or_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_or_opr" ):
+                return visitor.visitI_or_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17331,6 +18681,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_pmevent" ):
                 listener.exitI_pmevent(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_pmevent" ):
+                return visitor.visitI_pmevent(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17372,6 +18728,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_pmevent_opr" ):
                 listener.exitI_pmevent_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_pmevent_opr" ):
+                return visitor.visitI_pmevent_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17420,6 +18782,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_popc" ):
                 listener.exitI_popc(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_popc" ):
+                return visitor.visitI_popc(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17466,6 +18834,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_popc_type" ):
                 listener.exitI_popc_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_popc_type" ):
+                return visitor.visitI_popc_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17520,6 +18894,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_popc_opr" ):
                 listener.exitI_popc_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_popc_opr" ):
+                return visitor.visitI_popc_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17570,6 +18950,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prefetch" ):
                 listener.exitI_prefetch(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prefetch" ):
+                return visitor.visitI_prefetch(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17623,6 +19009,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prefetch_type" ):
                 listener.exitI_prefetch_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prefetch_type" ):
+                return visitor.visitI_prefetch_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17689,6 +19081,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_prefetch_opr" ):
                 listener.exitI_prefetch_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prefetch_opr" ):
+                return visitor.visitI_prefetch_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17740,6 +19138,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_prefetchu" ):
                 listener.exitI_prefetchu(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prefetchu" ):
+                return visitor.visitI_prefetchu(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -17783,6 +19187,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prefetchu_type" ):
                 listener.exitI_prefetchu_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prefetchu_type" ):
+                return visitor.visitI_prefetchu_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17829,6 +19239,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prefetchu_opr" ):
                 listener.exitI_prefetchu_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prefetchu_opr" ):
+                return visitor.visitI_prefetchu_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17880,6 +19296,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prmt" ):
                 listener.exitI_prmt(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prmt" ):
+                return visitor.visitI_prmt(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -17941,6 +19363,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prmt_type" ):
                 listener.exitI_prmt_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prmt_type" ):
+                return visitor.visitI_prmt_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18008,6 +19436,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_prmt_opr" ):
                 listener.exitI_prmt_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_prmt_opr" ):
+                return visitor.visitI_prmt_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18080,6 +19514,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_rcp" ):
                 listener.exitI_rcp(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rcp" ):
+                return visitor.visitI_rcp(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18147,6 +19587,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_rcp_type" ):
                 listener.exitI_rcp_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rcp_type" ):
+                return visitor.visitI_rcp_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18255,6 +19701,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_rcp_opr" ):
                 listener.exitI_rcp_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rcp_opr" ):
+                return visitor.visitI_rcp_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18301,6 +19753,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_red" ):
                 listener.exitI_red(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_red" ):
+                return visitor.visitI_red(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18391,6 +19849,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_red_type" ):
                 listener.exitI_red_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_red_type" ):
+                return visitor.visitI_red_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18469,6 +19933,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_red_opr" ):
                 listener.exitI_red_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_red_opr" ):
+                return visitor.visitI_red_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18523,6 +19993,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_rem" ):
                 listener.exitI_rem(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rem" ):
+                return visitor.visitI_rem(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18583,6 +20059,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_rem_type" ):
                 listener.exitI_rem_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rem_type" ):
+                return visitor.visitI_rem_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18636,6 +20118,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_rem_opr" ):
                 listener.exitI_rem_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rem_opr" ):
+                return visitor.visitI_rem_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18679,6 +20167,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_ret" ):
                 listener.exitI_ret(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ret" ):
+                return visitor.visitI_ret(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18717,6 +20211,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_ret_type" ):
                 listener.exitI_ret_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_ret_type" ):
+                return visitor.visitI_ret_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18764,6 +20264,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_rsqrt" ):
                 listener.exitI_rsqrt(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rsqrt" ):
+                return visitor.visitI_rsqrt(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18817,6 +20323,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_rsqrt_type" ):
                 listener.exitI_rsqrt_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rsqrt_type" ):
+                return visitor.visitI_rsqrt_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18883,6 +20395,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_rsqrt_opr" ):
                 listener.exitI_rsqrt_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_rsqrt_opr" ):
+                return visitor.visitI_rsqrt_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -18929,6 +20447,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sad" ):
                 listener.exitI_sad(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sad" ):
+                return visitor.visitI_sad(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -18989,6 +20513,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sad_type" ):
                 listener.exitI_sad_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sad_type" ):
+                return visitor.visitI_sad_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19042,6 +20572,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sad_opr" ):
                 listener.exitI_sad_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sad_opr" ):
+                return visitor.visitI_sad_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19092,6 +20628,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_selp" ):
                 listener.exitI_selp(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_selp" ):
+                return visitor.visitI_selp(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -19167,6 +20709,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_selp_type" ):
                 listener.exitI_selp_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_selp_type" ):
+                return visitor.visitI_selp_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19213,6 +20761,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_selp_opr" ):
                 listener.exitI_selp_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_selp_opr" ):
+                return visitor.visitI_selp_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19256,6 +20810,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_set" ):
                 listener.exitI_set(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set" ):
+                return visitor.visitI_set(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -19316,6 +20876,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_set1" ):
                 listener.exitI_set1(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set1" ):
+                return visitor.visitI_set1(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -19457,6 +21023,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_set1_type" ):
                 listener.exitI_set1_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set1_type" ):
+                return visitor.visitI_set1_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19525,6 +21097,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_set1_opr" ):
                 listener.exitI_set1_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set1_opr" ):
+                return visitor.visitI_set1_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19571,6 +21149,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_set2" ):
                 listener.exitI_set2(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set2" ):
+                return visitor.visitI_set2(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -19721,6 +21305,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_set2_type" ):
                 listener.exitI_set2_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set2_type" ):
+                return visitor.visitI_set2_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19808,6 +21398,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_set2_opr" ):
                 listener.exitI_set2_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_set2_opr" ):
+                return visitor.visitI_set2_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19872,6 +21468,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_setp" ):
                 listener.exitI_setp(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp" ):
+                return visitor.visitI_setp(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -19931,6 +21533,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_setp1" ):
                 listener.exitI_setp1(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp1" ):
+                return visitor.visitI_setp1(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20063,6 +21671,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_setp1_type" ):
                 listener.exitI_setp1_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp1_type" ):
+                return visitor.visitI_setp1_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20124,6 +21738,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_setp1_opr" ):
                 listener.exitI_setp1_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp1_opr" ):
+                return visitor.visitI_setp1_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20170,6 +21790,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_setp2" ):
                 listener.exitI_setp2(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp2" ):
+                return visitor.visitI_setp2(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20311,6 +21937,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_setp2_type" ):
                 listener.exitI_setp2_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp2_type" ):
+                return visitor.visitI_setp2_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20391,6 +22023,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_setp2_opr" ):
                 listener.exitI_setp2_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_setp2_opr" ):
+                return visitor.visitI_setp2_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20458,6 +22096,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_shl" ):
                 listener.exitI_shl(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_shl" ):
+                return visitor.visitI_shl(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20508,6 +22152,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_shl_type" ):
                 listener.exitI_shl_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_shl_type" ):
+                return visitor.visitI_shl_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20553,6 +22203,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_shl_opr" ):
                 listener.exitI_shl_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_shl_opr" ):
+                return visitor.visitI_shl_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20600,6 +22256,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_shr" ):
                 listener.exitI_shr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_shr" ):
+                return visitor.visitI_shr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20668,6 +22330,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_shr_type" ):
                 listener.exitI_shr_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_shr_type" ):
+                return visitor.visitI_shr_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20713,6 +22381,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_shr_opr" ):
                 listener.exitI_shr_opr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_shr_opr" ):
+                return visitor.visitI_shr_opr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20760,6 +22434,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sin" ):
                 listener.exitI_sin(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sin" ):
+                return visitor.visitI_sin(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20810,6 +22490,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sin_type" ):
                 listener.exitI_sin_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sin_type" ):
+                return visitor.visitI_sin_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20862,6 +22548,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sin_opr" ):
                 listener.exitI_sin_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sin_opr" ):
+                return visitor.visitI_sin_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -20908,6 +22600,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_slct" ):
                 listener.exitI_slct(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_slct" ):
+                return visitor.visitI_slct(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -20992,6 +22690,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_slct_type" ):
                 listener.exitI_slct_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_slct_type" ):
+                return visitor.visitI_slct_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -21067,6 +22771,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_slct_opr" ):
                 listener.exitI_slct_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_slct_opr" ):
+                return visitor.visitI_slct_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -21113,6 +22823,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sqrt" ):
                 listener.exitI_sqrt(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sqrt" ):
+                return visitor.visitI_sqrt(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21178,6 +22894,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sqrt_type" ):
                 listener.exitI_sqrt_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sqrt_type" ):
+                return visitor.visitI_sqrt_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21269,6 +22991,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sqrt_opr" ):
                 listener.exitI_sqrt_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sqrt_opr" ):
+                return visitor.visitI_sqrt_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -21315,6 +23043,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_st" ):
                 listener.exitI_st(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_st" ):
+                return visitor.visitI_st(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21434,6 +23168,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_st_type" ):
                 listener.exitI_st_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_st_type" ):
+                return visitor.visitI_st_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21596,6 +23336,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_st_opr" ):
                 listener.exitI_st_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_st_opr" ):
+                return visitor.visitI_st_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -21650,6 +23396,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sub" ):
                 listener.exitI_sub(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sub" ):
+                return visitor.visitI_sub(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21736,6 +23488,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sub_type" ):
                 listener.exitI_sub_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sub_type" ):
+                return visitor.visitI_sub_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21882,6 +23640,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sub_opr" ):
                 listener.exitI_sub_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sub_opr" ):
+                return visitor.visitI_sub_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -21932,6 +23696,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_subc" ):
                 listener.exitI_subc(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_subc" ):
+                return visitor.visitI_subc(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -21997,6 +23767,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_subc_type" ):
                 listener.exitI_subc_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_subc_type" ):
+                return visitor.visitI_subc_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -22084,6 +23860,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_subc_opr" ):
                 listener.exitI_subc_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_subc_opr" ):
+                return visitor.visitI_subc_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -22134,6 +23916,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_suld" ):
                 listener.exitI_suld(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_suld" ):
+                return visitor.visitI_suld(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -22238,6 +24026,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_suld_type" ):
                 listener.exitI_suld_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_suld_type" ):
+                return visitor.visitI_suld_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -22401,6 +24195,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_suld_opr" ):
                 listener.exitI_suld_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_suld_opr" ):
+                return visitor.visitI_suld_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -22459,6 +24259,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sured" ):
                 listener.exitI_sured(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sured" ):
+                return visitor.visitI_sured(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -22563,6 +24369,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sured_type" ):
                 listener.exitI_sured_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sured_type" ):
+                return visitor.visitI_sured_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -22726,6 +24538,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sured_opr" ):
                 listener.exitI_sured_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sured_opr" ):
+                return visitor.visitI_sured_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -22784,6 +24602,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sust" ):
                 listener.exitI_sust(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sust" ):
+                return visitor.visitI_sust(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -22888,6 +24712,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_sust_type" ):
                 listener.exitI_sust_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sust_type" ):
+                return visitor.visitI_sust_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23051,6 +24881,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_sust_opr" ):
                 listener.exitI_sust_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_sust_opr" ):
+                return visitor.visitI_sust_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23110,6 +24946,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_suq" ):
                 listener.exitI_suq(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_suq" ):
+                return visitor.visitI_suq(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23162,6 +25004,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_suq_type" ):
                 listener.exitI_suq_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_suq_type" ):
+                return visitor.visitI_suq_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23223,6 +25071,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_suq_opr" ):
                 listener.exitI_suq_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_suq_opr" ):
+                return visitor.visitI_suq_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23277,6 +25131,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_testp" ):
                 listener.exitI_testp(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_testp" ):
+                return visitor.visitI_testp(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23343,6 +25203,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_testp_type" ):
                 listener.exitI_testp_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_testp_type" ):
+                return visitor.visitI_testp_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23402,6 +25268,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_testp_opr" ):
                 listener.exitI_testp_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_testp_opr" ):
+                return visitor.visitI_testp_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23452,6 +25324,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_tex" ):
                 listener.exitI_tex(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_tex" ):
+                return visitor.visitI_tex(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23520,6 +25398,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_tex_type" ):
                 listener.exitI_tex_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_tex_type" ):
+                return visitor.visitI_tex_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23598,6 +25482,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_tex_opr" ):
                 listener.exitI_tex_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_tex_opr" ):
+                return visitor.visitI_tex_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23667,6 +25557,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_txq" ):
                 listener.exitI_txq(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_txq" ):
+                return visitor.visitI_txq(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23741,6 +25637,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_txq_type" ):
                 listener.exitI_txq_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_txq_type" ):
+                return visitor.visitI_txq_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23819,6 +25721,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_txq_opr" ):
                 listener.exitI_txq_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_txq_opr" ):
+                return visitor.visitI_txq_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23866,6 +25774,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_trap" ):
                 listener.exitI_trap(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_trap" ):
+                return visitor.visitI_trap(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23904,6 +25818,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vabsdiff" ):
                 listener.exitI_vabsdiff(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vabsdiff" ):
+                return visitor.visitI_vabsdiff(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -23944,6 +25864,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_vadd" ):
                 listener.exitI_vadd(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vadd" ):
+                return visitor.visitI_vadd(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -23982,6 +25908,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vmad" ):
                 listener.exitI_vmad(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vmad" ):
+                return visitor.visitI_vmad(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24022,6 +25954,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_vmax" ):
                 listener.exitI_vmax(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vmax" ):
+                return visitor.visitI_vmax(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24060,6 +25998,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vmin" ):
                 listener.exitI_vmin(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vmin" ):
+                return visitor.visitI_vmin(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24100,6 +26044,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_vset" ):
                 listener.exitI_vset(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vset" ):
+                return visitor.visitI_vset(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24138,6 +26088,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vshl" ):
                 listener.exitI_vshl(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vshl" ):
+                return visitor.visitI_vshl(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24178,6 +26134,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_vshr" ):
                 listener.exitI_vshr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vshr" ):
+                return visitor.visitI_vshr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24216,6 +26178,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vsub" ):
                 listener.exitI_vsub(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vsub" ):
+                return visitor.visitI_vsub(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24263,6 +26231,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vote" ):
                 listener.exitI_vote(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vote" ):
+                return visitor.visitI_vote(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24322,6 +26296,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitI_vote_type" ):
                 listener.exitI_vote_type(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vote_type" ):
+                return visitor.visitI_vote_type(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24394,6 +26374,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_vote_opr" ):
                 listener.exitI_vote_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_vote_opr" ):
+                return visitor.visitI_vote_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24453,6 +26439,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_xor" ):
                 listener.exitI_xor(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_xor" ):
+                return visitor.visitI_xor(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24506,6 +26498,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_xor_type" ):
                 listener.exitI_xor_type(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_xor_type" ):
+                return visitor.visitI_xor_type(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24552,6 +26550,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitI_xor_opr" ):
                 listener.exitI_xor_opr(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitI_xor_opr" ):
+                return visitor.visitI_xor_opr(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24591,6 +26595,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr_register" ):
                 listener.exitOpr_register(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_register" ):
+                return visitor.visitOpr_register(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24635,6 +26645,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr_register_or_constant" ):
                 listener.exitOpr_register_or_constant(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_register_or_constant" ):
+                return visitor.visitOpr_register_or_constant(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24695,6 +26711,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpr_register_or_constant2" ):
                 listener.exitOpr_register_or_constant2(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_register_or_constant2" ):
+                return visitor.visitOpr_register_or_constant2(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24747,6 +26769,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr_register_or_constant3" ):
                 listener.exitOpr_register_or_constant3(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_register_or_constant3" ):
+                return visitor.visitOpr_register_or_constant3(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24804,6 +26832,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr_register_or_constant4" ):
                 listener.exitOpr_register_or_constant4(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_register_or_constant4" ):
+                return visitor.visitOpr_register_or_constant4(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -24866,6 +26900,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpr_register_or_constant5" ):
                 listener.exitOpr_register_or_constant5(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_register_or_constant5" ):
+                return visitor.visitOpr_register_or_constant5(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24921,6 +26961,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpr_label" ):
                 listener.exitOpr_label(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_label" ):
+                return visitor.visitOpr_label(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -24960,6 +27006,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr" ):
                 listener.exitOpr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr" ):
+                return visitor.visitOpr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25065,6 +27117,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr_aux" ):
                 listener.exitOpr_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr_aux" ):
+                return visitor.visitOpr_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25216,6 +27274,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpr2" ):
                 listener.exitOpr2(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr2" ):
+                return visitor.visitOpr2(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25268,6 +27332,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr3" ):
                 listener.exitOpr3(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr3" ):
+                return visitor.visitOpr3(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25325,6 +27395,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOpr4" ):
                 listener.exitOpr4(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr4" ):
+                return visitor.visitOpr4(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25387,6 +27463,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitOpr5" ):
                 listener.exitOpr5(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOpr5" ):
+                return visitor.visitOpr5(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25443,6 +27525,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitConstant_expression" ):
                 listener.exitConstant_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConstant_expression" ):
+                return visitor.visitConstant_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25482,6 +27570,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitConstant_expression_aux" ):
                 listener.exitConstant_expression_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConstant_expression_aux" ):
+                return visitor.visitConstant_expression_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25536,6 +27630,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitConditional_expression" ):
                 listener.exitConditional_expression(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConditional_expression" ):
+                return visitor.visitConditional_expression(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25601,6 +27701,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitConditional_or_expression" ):
                 listener.exitConditional_or_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConditional_or_expression" ):
+                return visitor.visitConditional_or_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25662,6 +27768,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitConditional_and_expression" ):
                 listener.exitConditional_and_expression(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConditional_and_expression" ):
+                return visitor.visitConditional_and_expression(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25725,6 +27837,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitInclusive_or_expression" ):
                 listener.exitInclusive_or_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitInclusive_or_expression" ):
+                return visitor.visitInclusive_or_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25787,6 +27905,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitExclusive_or_expression" ):
                 listener.exitExclusive_or_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExclusive_or_expression" ):
+                return visitor.visitExclusive_or_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25848,6 +27972,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitAnd_expression" ):
                 listener.exitAnd_expression(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAnd_expression" ):
+                return visitor.visitAnd_expression(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -25917,6 +28047,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitEquality_expression" ):
                 listener.exitEquality_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEquality_expression" ):
+                return visitor.visitEquality_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -25985,6 +28121,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitRelational_expression" ):
                 listener.exitRelational_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRelational_expression" ):
+                return visitor.visitRelational_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26046,6 +28188,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitRelational_op" ):
                 listener.exitRelational_op(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRelational_op" ):
+                return visitor.visitRelational_op(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26102,6 +28250,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitShift_expression" ):
                 listener.exitShift_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitShift_expression" ):
+                return visitor.visitShift_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26156,6 +28310,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitShift_op" ):
                 listener.exitShift_op(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitShift_op" ):
+                return visitor.visitShift_op(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26217,6 +28377,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitAdditive_expression" ):
                 listener.exitAdditive_expression(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAdditive_expression" ):
+                return visitor.visitAdditive_expression(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26298,6 +28464,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitMultiplicative_expression" ):
                 listener.exitMultiplicative_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMultiplicative_expression" ):
+                return visitor.visitMultiplicative_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26365,6 +28537,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitUnary_expression" ):
                 listener.exitUnary_expression(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitUnary_expression" ):
+                return visitor.visitUnary_expression(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26442,6 +28620,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitUnary_expression_not_plus_minus" ):
                 listener.exitUnary_expression_not_plus_minus(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitUnary_expression_not_plus_minus" ):
+                return visitor.visitUnary_expression_not_plus_minus(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26511,6 +28695,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitCast_expression" ):
                 listener.exitCast_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCast_expression" ):
+                return visitor.visitCast_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26562,6 +28752,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitCast_expression_aux" ):
                 listener.exitCast_expression_aux(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitCast_expression_aux" ):
+                return visitor.visitCast_expression_aux(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26622,6 +28818,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitPrimary" ):
                 listener.exitPrimary(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPrimary" ):
+                return visitor.visitPrimary(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26687,6 +28889,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitPar_expression" ):
                 listener.exitPar_expression(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPar_expression" ):
+                return visitor.visitPar_expression(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26738,6 +28946,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitInteger" ):
                 listener.exitInteger(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitInteger" ):
+                return visitor.visitInteger(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26796,6 +29010,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitFloat_" ):
                 listener.exitFloat_(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFloat_" ):
+                return visitor.visitFloat_(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26834,6 +29054,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitBase_10_integer" ):
                 listener.exitBase_10_integer(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitBase_10_integer" ):
+                return visitor.visitBase_10_integer(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -26874,6 +29100,12 @@ class PtxParser ( Parser ):
             if hasattr( listener, "exitBase_8_integer" ):
                 listener.exitBase_8_integer(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitBase_8_integer" ):
+                return visitor.visitBase_8_integer(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -26912,6 +29144,12 @@ class PtxParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitBase_16_integer" ):
                 listener.exitBase_16_integer(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitBase_16_integer" ):
+                return visitor.visitBase_16_integer(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
