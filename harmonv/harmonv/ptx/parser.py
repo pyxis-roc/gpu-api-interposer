@@ -15,6 +15,8 @@
 # Other code from pycparse, by Eli Bendersky (used under BSD license)
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeWalker
+from collections import namedtuple
+
 if __name__ == "__main__":
     from PtxParser import PtxParser
     from PtxLexer import PtxLexer
@@ -27,6 +29,8 @@ else:
     from .PtxListener import PtxListener
 
     from . import ptx_ast as pa
+
+ObjStmts = namedtuple('ObjStmts', 'obj stmts')
 
 class Stack(object):
     stk = None
@@ -53,16 +57,18 @@ class ASTBuilderListener(PtxListener):
 
     def __init__(self, *args, **kwargs):
         # super init?
-        self.stmt_stack = Stack()
-        pass
+        self.stmts = Stack()
+        self._stmt = Stack()
 
     def enterProg(self, ctx:PtxParser.ProgContext):
         self.ptx = pa.Ptx(None, None, None, None)
-        self.stmt_stack.push(self.ptx)
+        self.stmts.push(ObjStmts(self.ptx, []))
 
     def exitProg(self, ctx:PtxParser.ProgContext):
-        assert self.stmt_stack.top == self.ptx
-        self.stmt_stack.pop()
+        o, stmts = self.stmts.pop()
+        assert o is self.ptx
+
+        self.ptx.statements = stmts
 
     def enterVersion(self, ctx:PtxParser.VersionContext):
         v = ctx.float_().T_FLT_LITERAL() #TODO: this is not really a float
@@ -79,6 +85,45 @@ class ASTBuilderListener(PtxListener):
 
     def enterAddress_size(self, ctx:PtxParser.Address_sizeContext):
         self.ptx.address_size = int(ctx.integer().getText())
+
+    # Enter a parse tree produced by PtxParser#label_decl.
+    def enterLabel_decl(self, ctx:PtxParser.Label_declContext):
+        self._label = ctx.T_WORD().getText()
+
+    def enterStatement(self, ctx:PtxParser.StatementContext):
+        self._label = None
+        self._stmt.push(None)
+
+    def exitStatement(self, ctx:PtxParser.StatementContext):
+        if self._stmt.top:
+            if not self._label.is_empty and self._label.top():
+                n = pa.Label(self._label, self._stmt)
+        else:
+            n = self._stmt
+
+        self.stmts.top.stmts.append(n)
+
+        self._stmt = None
+        self._label = None
+
+    def enterEntry(self, ctx:PtxParser.EntryContext):
+        self._entry = pa.Entry(None, None, None, None, None)
+
+    def enterEntry_aux(self, ctx:PtxParser.Entry_auxContext):
+        ld = ctx.K_VISIBLE() or ctx.K_EXTERN()
+        if ld:
+            self._entry.linking = pa.LinkingDirective(ld.getText())
+
+        self._entry.kernel_name = ctx.kernel_name().getText()
+        self.stmts.push(ObjStmts(self._entry, []))
+
+    def exitEntry_aux(self, ctx:PtxParser.Entry_auxContext):
+        o, s = self.stmts.pop()
+        assert o is self._entry
+        o.kernel_body = s
+
+    def exitEntry(self, ctx:PtxParser.EntryContext):
+        self._stmt = self._entry
 
 def parse_buffer(data):
     input_stream = InputStream(data)
