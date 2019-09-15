@@ -187,3 +187,63 @@ class Ptx(Node):
 
     attr_names = ('version', 'target', 'address_size', )
 
+class Label(Node):
+    __slots__ = ('name', 'stmt', 'coord', '__weakref__')
+    def __init__(self, name, stmt, coord=None):
+        self.name = name
+        self.stmt = stmt
+        self.coord = coord
+
+    def children(self):
+        nodelist = []
+        if self.stmt is not None: nodelist.append(("stmt", self.stmt))
+        return tuple(nodelist)
+
+    def __iter__(self):
+        if self.stmt is not None:
+            yield self.stmt
+
+    attr_names = ('name', )
+
+class LinkingDirective(Node):
+    __slots__ = ('directive', 'coord', '__weakref__')
+    def __init__(self, directive, coord=None):
+        self.directive = directive
+        self.coord = coord
+
+    def children(self):
+        nodelist = []
+        return tuple(nodelist)
+
+    def __iter__(self):
+        return
+        yield
+
+    attr_names = ('directive', )
+
+class Entry(Node):
+    __slots__ = ('linking', 'kernel_name', 'param_list', 'performance_tuning', 'kernel_body', 'coord', '__weakref__')
+    def __init__(self, linking, kernel_name, param_list, performance_tuning, kernel_body, coord=None):
+        self.linking = linking
+        self.kernel_name = kernel_name
+        self.param_list = param_list
+        self.performance_tuning = performance_tuning
+        self.kernel_body = kernel_body
+        self.coord = coord
+
+    def children(self):
+        nodelist = []
+        for i, child in enumerate(self.param_list or []):
+            nodelist.append(("param_list[%d]" % i, child))
+        for i, child in enumerate(self.kernel_body or []):
+            nodelist.append(("kernel_body[%d]" % i, child))
+        return tuple(nodelist)
+
+    def __iter__(self):
+        for child in (self.param_list or []):
+            yield child
+        for child in (self.kernel_body or []):
+            yield child
+
+    attr_names = ('linking', 'kernel_name', 'performance_tuning', )
+
