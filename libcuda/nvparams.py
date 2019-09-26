@@ -134,7 +134,11 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     ka = get_kernel_arguments(args.executable)
-    d, b = create_arg_recorder_helper(ka, args.output, not args.no_consolidate)
+    if len(ka) > 0:
+        d, b = create_arg_recorder_helper(ka, args.output, not args.no_consolidate)
 
-    with open(args.output + ".yaml", "w") as f:
-        f.write(yaml.dump(d))
+        with open(args.output + ".yaml", "w") as f:
+            f.write(yaml.dump(d))
+    else:
+        print("ERROR: No kernel argument information found. Does the binary contain ELF sections?")
+        sys.exit(1)
