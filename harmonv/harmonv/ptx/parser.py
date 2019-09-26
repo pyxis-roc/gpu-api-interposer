@@ -126,6 +126,9 @@ class ASTBuilderVisitor(PtxVisitor):
         print(ctx.id_or_opcode().getText())
         return self.visitChildren(ctx)
 
+    def visit(self, ctx):
+        print(type(ctx))
+        return super(ASTBuilderVisitor, self).visit(ctx)
 
 
 # would've preferred visitor, but using Listener for now.
