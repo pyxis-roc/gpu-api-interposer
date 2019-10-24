@@ -35,7 +35,7 @@ if __name__ == "__main__":
     p.add_argument("-x", "--extract", dest="extract", action="append", choices=["ptx", "elf"],
                    default=[], help="What to extract" )
     p.add_argument("-k", "--keep", dest="keep", action="store_true", help="Keep temporary files")
-    p.add_argument("-d", dest="debug", action="store_true")
+    p.add_argument("-d", dest="debug", help="Debug", action="store_true")
 
     args = p.parse_args()
 

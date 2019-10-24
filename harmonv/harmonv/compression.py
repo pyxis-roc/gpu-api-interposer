@@ -4,7 +4,8 @@
 #
 # Routines for handling NVIDIA's compressed PTX and ELF cubins
 #
-# Currently, uses cuobjdump (which must be in path) for decompression.
+# Uses LZ4 decompression. But also supports using cuobjdump (which
+# must be in path) for decompression.
 #
 # Author: Sreepathi Pai
 #
@@ -15,9 +16,21 @@ import struct
 import subprocess
 import tempfile
 import os
+import logging
+import lz4.block
 
-# if we're using cuobjdump, why not just use -lptx and -xptx?
-# ... because one day we will write a decompressor ...
+logger = logging.getLogger(__name__)
+
+class DecompressorLZ4(object):
+    @staticmethod
+    def decompress(cubin, _keep = False):
+        if not cubin.compressed:
+            return cubin.data
+
+        data = lz4.block.decompress(cubin.data[:cubin.compressed_size],
+                                    uncompressed_size = cubin.uncompressed_size)
+
+        return data
 
 class DecompressorCuobjdump(object):
     @staticmethod
@@ -42,6 +55,8 @@ class DecompressorCuobjdump(object):
         if p.returncode == 0:
             assert len(p.stdout) > ptx.uncompressed_size, f"Data size mismatch: header size {ptx.uncompressed_size} >= output size {len(p.stdout)}"
             return p.stdout[-ptx.uncompressed_size:]
+        else:
+            logger.error(f"cuobjdump failed with error code {p.returncode}, output: {p.stdout}")
 
         return None
 
@@ -66,6 +81,8 @@ class DecompressorCuobjdump(object):
             with open(cuobjdump_output, "rb") as f:
                 data = f.read()
                 assert len(data) == elf.uncompressed_size, f"Data size mismatch: {len(data)} != {elf.uncompressed_size}"
+        else:
+            logger.error(f"cuobjdump failed with error code {p.returncode}, output: {p.stdout}")
 
         if _keep:
             print(cuobjdump_output)
@@ -98,9 +115,11 @@ class DecompressorCuobjdump(object):
 
         return data
 
-def extract_elf_helper(elf, _keep = False):
-    return DecompressorCuobjdump.decompress(elf, _keep)
+DefaultDecompressor = DecompressorLZ4 #DecompressorCuobjdump
 
-def extract_ptx_helper(ptx, _keep=False):
-    return DecompressorCuobjdump.decompress(ptx, _keep)
+def extract_elf_helper(elf, _keep = False, decompressor = DefaultDecompressor):
+    return decompressor.decompress(elf, _keep)
+
+def extract_ptx_helper(ptx, _keep=False, decompressor = DefaultDecompressor):
+    return decompressor.decompress(ptx, _keep)
 

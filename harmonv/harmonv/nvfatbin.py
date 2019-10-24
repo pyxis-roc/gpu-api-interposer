@@ -67,7 +67,12 @@ class NVCubinPart(object):
         else:
             if self.cubin.filename:
                 #TODO: this is not the same as cuobjdump
-                index = self.cubin.parts.index(self)
+
+                # generates unique names, but still not the same as
+                # cuobjdump, which indexes ptx and elf files separately
+
+                part_index = self.cubin.parts.index(self)
+                index = self.cubin.index + part_index + 1
                 fullname = prefix(os.path.basename(self.cubin.filename).encode('utf-8')) + b".%d" % (index,)
                 fullname = fullname.decode('utf-8')
             else:
@@ -267,21 +272,19 @@ class NVCubinPartELF(NVCubinPart):
     def parse(self):
         data = self.data
         if self.compressed:
-            #zlib.decompress(self.data)
             self.decompress()
 
             if hasattr(self, 'uncompressed_data'):
                 data = self.uncompressed_data
             else:
                 print("WARNING: elf_parse: Don't know how to parse compressed ELFs")
-                #print(self.data[:16])
                 return
 
         self.cubin_elf = ELFFile(io.BytesIO(data))
         # # see Nervana's maxas cubin file for more details on properties
         self.elf_arch = self.cubin_elf.header['e_flags'] & 0xFF
 
-        if not LIBRARY_MODE:
+        if (not LIBRARY_MODE) and DEBUG_MODE:
             print(f'elf: arch={self.elf_arch}')
 
         gs = self.parse_symtab(self.cubin_elf)
@@ -293,15 +296,16 @@ class NVCubinPartELF(NVCubinPart):
                 args = self.parse_nv_param_info_section(s, s.data())
                 self.args[s.name[9:]] = args
 
-        if not LIBRARY_MODE:
+        if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)
             print(self.args)
 
 class NVCubin(object):
-    def __init__(self, cubin_data, decompressor = None, filename = None):
+    def __init__(self, cubin_data, decompressor = None, filename = None, index = 0):
         self.cubin_data = cubin_data
         self.decompressor = decompressor
         self.filename = filename
+        self.index = index
 
     def parse_cubin(self):
         cubin_part_header = struct.Struct('IIQ')
@@ -377,7 +381,8 @@ class NVFatBinary(object):
                 #    continue
 
                 cubin_data = self.fatbin_data[ndx:(ndx + next_offset)]
-                cubins.append(NVCubin(cubin_data, decompressor=self.decompressor, filename=self.elf))
+                cubins.append(NVCubin(cubin_data, decompressor=self.decompressor, filename=self.elf,
+                                      index = len(cubins)))
 
                 if DEBUG_MODE:
                     with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
