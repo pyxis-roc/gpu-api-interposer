@@ -186,10 +186,10 @@ class CUDADeviceAPIHandler(object):
                     continue
 
                 if cc.arch != arch and cc.type == nvfatbin.CUBIN_PTX:
-                    _logger.info(f'Found PTX for arch {cc.type}')
+                    _logger.info(f'Found PTX for arch {cc.arch}')
                     arch_relevant.append(cc)
 
-        assert len(arch_exact) > 0 or len(arch_relevant) > 0, "Unable to ELF suitable for arch {cc}, or any PTX at all"
+        assert len(arch_exact) > 0 or len(arch_relevant) > 0, "Unable to find ELF suitable for arch {cc}, or any PTX at all"
 
         self.function_handles.register(hfunc, self._factory.function(name))
 
