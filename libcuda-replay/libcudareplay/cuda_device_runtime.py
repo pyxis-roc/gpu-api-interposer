@@ -13,6 +13,7 @@ import logging
 from harmonv import nvfatbin, compression
 from cuda_api_objects import *
 from cuda_devices import *
+from cuda_remote_devices import *
 
 _logger = logging.getLogger(__name__)
 
@@ -24,6 +25,15 @@ class CUDADefaultFactory(object):
     stream = CUDAStream
     context = CUDAContext
     memory = RebaseableMemory
+
+class CUDARemoteFactory(object):
+    gpu = CUDARemoteGPU
+    function = CUDAFunction
+    module = CUDAModule
+    memory_region = CUDAMemoryRegion
+    stream = CUDAStream
+    context = CUDAContext
+    memory = RemoteRebaseableMemory
 
 def check_retval(f):
     def checker(self, *args, **kwargs):

@@ -17,7 +17,7 @@ import glob
 import os
 import yaml
 import logging
-from cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory
+from cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
 
 _logger = logging.getLogger(__name__)
 
@@ -301,12 +301,13 @@ class Replay(object):
                     _logger.warning(f'No handler for {evname} found')
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="")
+    p = argparse.ArgumentParser(description="Replay a captured CUDA trace.")
     p.add_argument("trace", help="Directory containing trace")
     p.add_argument("blobstore", help="Blobstore file")
     p.add_argument("binary", help="Binary file")
     p.add_argument("argfile", help="Argument format description (YAML)")
     p.add_argument("-d", dest="debug", action="store_true", help="Debug")
+    p.add_argument("--factory", choices=['default', 'remote'], default='default')
 
     args = p.parse_args()
 
@@ -326,4 +327,10 @@ if __name__ == "__main__":
 
     ah = NVArgHandler(args.argfile)
     r = Replay(td[0], args.blobstore)
-    r.replay(NVTraceHandler(ah, CUDADeviceAPIHandler(args.binary, CUDADefaultFactory())))
+
+    if args.factory == 'default':
+        factory = CUDADefaultFactory()
+    elif args.factory == 'remote':
+        factory = CUDARemoteFactory()
+
+    r.replay(NVTraceHandler(ah, CUDADeviceAPIHandler(args.binary, factory)))
