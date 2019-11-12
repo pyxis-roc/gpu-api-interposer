@@ -24,7 +24,6 @@ class CUDADefaultFactory(object):
     memory_region = CUDAMemoryRegion
     stream = CUDAStream
     context = CUDAContext
-    memory = RebaseableMemory
 
 class CUDARemoteFactory(object):
     gpu = CUDARemoteGPU
@@ -33,7 +32,6 @@ class CUDARemoteFactory(object):
     memory_region = CUDAMemoryRegion
     stream = CUDAStream
     context = CUDAContext
-    memory = RemoteRebaseableMemory
 
 def check_retval(f):
     def checker(self, *args, **kwargs):
@@ -93,7 +91,7 @@ class CUDADeviceAPIHandler(object):
     @check_retval
     def cuDeviceTotalMem(self, bytes_, dev):
         self.gpu_handles[dev].total_memory = bytes_
-        self.gpu_handles[dev].init_memory(self._factory.memory(bytes_))
+        self.gpu_handles[dev].init_memory()
 
     @check_retval
     def cuDeviceGetAttribute(self, pi, attrib, dev):

@@ -30,6 +30,7 @@ class CUDAGPU(object):
         self.primary_ctx = None
         self.memory_regions = memregions.MemoryRegions()
         self.cc = None
+        self.mem = None
 
     @property
     def compute_capability(self):
@@ -88,8 +89,10 @@ class CUDAGPU(object):
 
         return False
 
-    def init_memory(self, memobj):
-        self.mem = memobj
+    def init_memory(self):
+        assert self.total_memory is not None
+        assert self.mem is None
+        self.mem = RebaseableMemory(self.total_memory)
 
     def alloc_memory_region(self, cumemregion):
         assert cumemregion.dev == self.gpu_ordinal
@@ -131,6 +134,8 @@ class RebaseableMemory(object):
         self._highest_write_addr = None
 
     def alloc_memory(self):
+        assert self.mem is None
+
         alloc_size = self.bytesize
         while True:
             try:
