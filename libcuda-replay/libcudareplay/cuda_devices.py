@@ -16,21 +16,54 @@ from harmonv.cuda.constants import *
 from harmonv.cuda import devspecs
 from cuda_api_objects import *
 import logging
+from collections import namedtuple
 
 _logger = logging.getLogger(__name__)
+
+dim = namedtuple('dim', 'x y z')
 
 class CUDAGPU(object):
     """Represents a CUDA GPU"""
     def __init__(self, ordinal):
         self.gpu_ordinal = ordinal
-        self.name = None
-        self.total_memory = None
-        self.attributes = {}
-        self.uuid = None
+        self._name = None
+        self._total_memory = None
+        self._attributes = {}
+        self._uuid = None
         self.primary_ctx = None
         self.memory_regions = memregions.MemoryRegions()
         self.cc = None
         self.mem = None
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    @property
+    def total_memory(self):
+        return self._total_memory
+
+    @total_memory.setter
+    def total_memory(self, size_in_bytes):
+        self._total_memory = size_in_bytes
+
+    @property
+    def uuid(self):
+        return self._uuid
+
+    @uuid.setter
+    def uuid(self, uuid):
+        self._uuid = uuid
+
+    def set_attribute(self, attribute, value):
+        self._attributes[attribute] = value
+
+    def get_attribute(self, attribute):
+        return self._attributes[attribute]
 
     @property
     def compute_capability(self):
@@ -39,11 +72,11 @@ class CUDAGPU(object):
         major = None
         minor = None
 
-        if CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR in self.attributes:
-            major = self.attributes[CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR]
+        if CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR in self._attributes:
+            major = self._attributes[CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR]
 
-        if CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR in self.attributes:
-            minor = self.attributes[CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR]
+        if CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR in self._attributes:
+            minor = self._attributes[CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR]
 
         if major is None:
             if self.name in devspecs.DEV_SPECS_BY_NAME:
@@ -122,6 +155,25 @@ class CUDAGPU(object):
 
     def get_memory(self, dptr, bytecount):
         return self.mem.copy_from(dptr, bytecount)
+
+    def launch_kernel(self, f, gridDim, blockDim, sharedMemBytes, stream, kernelParams):
+        def _pp_dim(d):
+            if d.z != 1 or d.y != 1:
+                return f"({d.x}, {d.y}, {d.z})"
+            else:
+                return f"{d.x}"
+
+        # TODO: handle stream
+        paramTxt = ",".join([f"{p}" for p in kernelParams])
+        _logger.info('{self.name}({self.ordinal}): Launching {f.name}<<<{_pp_dim(gridDim)}, {_pp_dim(blockDim)}, {sharedMemBytes}>>>({paramTxt})')
+
+        #TODO dispatch it to gpu device
+
+class NVGPUDevice(object):
+    """Represents an NVIDIA GPU device (more commonly, a simulator)"""
+    def __init__(self, cudagpu, memory):
+        self.cudagpu = cudagpu
+        self.memory = memory
 
 class RebaseableMemory(object):
     """A memory object that can be rebased dynamically, and because it is

@@ -95,7 +95,8 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuDeviceGetAttribute(self, pi, attrib, dev):
-        self.gpu_handles[dev].attributes[attrib] = pi
+        # this is not a typo, we're recording the values returned by the trace
+        self.gpu_handles[dev].set_attribute(attrib, pi)
 
     @check_retval
     def cuDeviceGetUuid(self, uuid, dev):
