@@ -26,7 +26,7 @@ class CUDADefaultFactory(object):
     context = CUDAContext
 
 class CUDARemoteFactory(object):
-    gpu = CUDARemoteGPU
+    gpu = RemoteCUDAGPU
     function = CUDAFunction
     module = CUDAModule
     memory_region = CUDAMemoryRegion
