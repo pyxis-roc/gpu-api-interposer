@@ -29,79 +29,19 @@ rt_to_gpu = capnp.load(os.path.join(os.path.dirname(__file__), 'rt_to_gpu_protoc
 
 _logger = logging.getLogger(__name__)
 
-class RemoteCUDAGPU(CUDAGPU):
-    def __init__(self, ordinal):
-        super().__init__(ordinal)
-
-        self.client = capnp.TwoPartyClient('localhost:55555')
-
-        ref = rt_to_gpu.GetInterface.new_message(iface = 'cudaGPU', ordinal = ordinal)
-
-        self.rg = self.client.restore(ref)
-        self.rg = self.rg.cast_as(rt_to_gpu.CUDAGPU)
-
-    def init_memory(self):
-        assert self.total_memory is not None
-        assert self.mem is None
-        self.rg.initMemory().wait()
-        self.mem = RemoteRebaseableMemory(self.total_memory, self.gpu_ordinal)
-
-    @property
-    def name(self):
-        return super().name
-
-    @name.setter
-    def name(self, name):
-        super(RemoteCUDAGPU, RemoteCUDAGPU).name.fset(self, name)
-        self.rg.setName(name).wait()
-
-    @property
-    def total_memory(self):
-        return super().total_memory
-
-    @total_memory.setter
-    def total_memory(self, size_in_bytes):
-        super(RemoteCUDAGPU, RemoteCUDAGPU).total_memory.fset(self, size_in_bytes)
-        self.rg.setTotalMemory(size_in_bytes).wait()
-
-    @property
-    def uuid(self):
-        return super().uuid
-
-    @uuid.setter
-    def uuid(self, uuid):
-        super(RemoteCUDAGPU, RemoteCUDAGPU).uuid.fset(self, uuid)
-        self.rg.setUuid(uuid).wait()
-
-    def set_attribute(self, attribute, value):
-        super().set_attribute(attribute, value)
-        self.rg.setAttribute(attribute, value).wait()
-
-# essentially, proxy
-class CUDAGPUProxy(rt_to_gpu.CUDAGPU.Server):
-    def __init__(self, local_impl):
-        self.local_impl = local_impl
-
-    def initMemory_context(self, context):
-        self.local_impl.init_memory()
-
+class NVGPUEmulatorProxy(rt_to_gpu.GPUEmulator.Server):
     def initialize_context(self, context):
-        self.local_impl = self.local_impl_class(context.params.ordinal)
+        props = {'total_memory': context.params.gpu_props.totalMemory,
+                 'gpu_ordinal': context.params.gpu_props.ordinal}
 
-    def setName_context(self, context):
-        self.local_impl.name = context.params.name
+        self.local_impl = NVGPUEmulator(props)
 
-    def setTotalMemory_context(self, context):
-        self.local_impl.total_memory = context.params.sizeInBytes
-
-    def setAttribute_context(self, context):
-        self.local_impl.set_attribute(context.params.attribute, context.params.value)
-
-    def setUuid_context(self, context):
-        self.local_impl.uuid = context.params.uuid
+    def loadImage_context(self, context):
+        self.local_impl.load_image(context.params.imgId, context.params.image)
 
     def launchKernel_context(self, context):
-        self.local_impl.launch_kernel(context.params.f,
+        self.local_impl.launch_kernel(context.params.imgId,
+                                      context.params.entry,
                                       dim(context.params.gridDimX,
                                           context.params.gridDimY,
                                           context.params.gridDimZ),
@@ -109,10 +49,9 @@ class CUDAGPUProxy(rt_to_gpu.CUDAGPU.Server):
                                           context.params.blockDimY,
                                           context.params.blockDimZ),
                                       context.params.sharedMemBytes,
-                                      context.params.stream,
+                                      context.params.queue,
                                       context.params.kernelParams)
 
-# essentially, proxies
 class RebaseableMemoryProxy(rt_to_gpu.RebaseableMemory.Server):
     def __init__(self, local_impl):
         self.local_impl = local_impl
@@ -142,14 +81,44 @@ class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
         if ref_id.iface == 'rebaseableMemory':
             assert ref_id.ordinal in self.devices
             return RebaseableMemoryProxy(self.devices[ref_id.ordinal].local_impl.mem)
-        elif ref_id.iface == 'cudaGPU':
+        elif ref_id.iface == 'gpuEmulator':
             if ref_id.ordinal not in self.devices:
-                _logger.info("Creating new GPU proxy for ordinal {ref_id.ordinal}")
-                self.devices[ref_id.ordinal] = CUDAGPUProxy(CUDAGPU(ref_id.ordinal))
+                _logger.info("Creating new GPU Emulator proxy for ordinal {ref_id.ordinal}")
+                self.devices[ref_id.ordinal] = NVGPUEmulatorProxy()
 
             return self.devices[ref_id.ordinal]
         else:
             assert False
+
+class RemoteCUDAGPU(CUDAGPU):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.emu_cls = RemoteNVGPUEmulator
+
+class RemoteNVGPUEmulator(object):
+    def __init__(self, gpu_props):
+        self.client = capnp.TwoPartyClient('localhost:55555')
+        ref = rt_to_gpu.GetInterface.new_message(iface = 'gpuEmulator',
+                                                 ordinal = gpu_props['gpu_ordinal'])
+
+        props = rt_to_gpu.GPUProperties.new_message(ordinal = gpu_props['gpu_ordinal'],
+                                                    totalMemory = gpu_props['total_memory'])
+        self.re = self.client.restore(ref)
+        self.re = self.re.cast_as(rt_to_gpu.GPUEmulator)
+        self.re.initialize(gpu_props = props).wait()
+
+        self.mem = RemoteRebaseableMemory(gpu_props['total_memory'], gpu_props['gpu_ordinal'])
+
+    def load_image(self, imageId, image):
+        self.re.loadImage(imgId = imageId, image=image).wait()
+
+    def launch_kernel(self, imageId, entry, gridDim, blockDim, sharedMemBytes, queue, kernelParams):
+        self.re.launchKernel(imgId = imageId, entry=entry,
+                              gridDimX = gridDim.x, gridDimY = gridDim.y, gridDimZ = gridDim.z,
+                              blockDimX = blockDim.x, blockDimY = blockDim.y, blockDimZ = blockDim.z,
+                              sharedMemBytes=sharedMemBytes,
+                              queue=0, #TODO
+                              kernelParams=kernelParams).wait() #TODO: async
 
 # this is a very thin layer and does not have the same semantics as RebaseableMemory
 class RemoteRebaseableMemory(RebaseableMemory):

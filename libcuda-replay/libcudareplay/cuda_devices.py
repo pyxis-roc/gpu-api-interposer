@@ -17,6 +17,7 @@ from harmonv.cuda import devspecs
 from cuda_api_objects import *
 import logging
 from collections import namedtuple
+import itertools
 
 _logger = logging.getLogger(__name__)
 
@@ -33,7 +34,36 @@ class CUDAGPU(object):
         self.primary_ctx = None
         self.memory_regions = memregions.MemoryRegions()
         self.cc = None
+
+        # represents an emulator and its memory
+        self.emu_cls = NVGPUEmulator
+        self.emu = None
         self.mem = None
+        self._emu_inited = False
+        self._img_id = 0
+
+    def _lazy_emu_init(self):
+
+        #TODO: it should be possible to do a non-lazy init, by scanning the trace or reading a configuration file, etc.
+        # right now, we lazy init whenever an actual action needs to be performed on the GPU (mem allocs/transfers, launches)
+
+        if self._emu_inited:
+            return
+
+        assert self.total_memory is not None
+        assert self.mem is None
+
+        # TODO: add more properties needed for emulation here ...
+        props = {'total_memory': self.total_memory,
+                 'gpu_ordinal': self.gpu_ordinal}
+
+        self.emu = self.emu_cls(props)
+        self.mem = self.emu.mem
+
+        if self.mem.mem is None:
+            self.mem.alloc_memory()
+
+        self._emu_inited = True
 
     @property
     def name(self):
@@ -85,7 +115,6 @@ class CUDAGPU(object):
             major = specs.cc_major
             minor = minor if minor is not None else specs.cc_minor
 
-
         # add this gpu to devspecs if this assertion fails
         assert major is not None and minor is not None, "Unrecognized GPU {self.name}"
 
@@ -122,12 +151,9 @@ class CUDAGPU(object):
 
         return False
 
-    def init_memory(self):
-        assert self.total_memory is not None
-        assert self.mem is None
-        self.mem = RebaseableMemory(self.total_memory)
-
     def alloc_memory_region(self, cumemregion):
+        self._lazy_emu_init()
+
         assert cumemregion.dev == self.gpu_ordinal
 
         if not self.memory_regions.add(memregions.MemoryRegion(cumemregion.dptr,
@@ -135,14 +161,13 @@ class CUDAGPU(object):
             _logger.error(f'alloc_memory_region: Failed to alloc memory region {cumemregion.dptr}')
             return False
 
-        if self.mem.mem is None:
-            self.mem.alloc_memory()
-
         self.mem.rebase(cumemregion.dptr)
 
         return True
 
     def dealloc_memory_region(self, cumemregion):
+        self._lazy_emu_init()
+
         assert cumemregion.dev == self.gpu_ordinal
 
         self.memory_regions.remove(memregions.MemoryRegion(cumemregion.dptr,
@@ -151,10 +176,21 @@ class CUDAGPU(object):
         return True
 
     def set_memory(self, dptr, data):
+        self._lazy_emu_init()
         self.mem.copy_to(dptr, data)
 
     def get_memory(self, dptr, bytecount):
+        self._lazy_emu_init()
         return self.mem.copy_from(dptr, bytecount)
+
+    def register_module(self, module):
+        self._lazy_emu_init()
+
+        for e in module.elf:
+            self.emu.load_image(id(e), e.get_data())
+
+        for p in itertools.chain(module.ptx, module.compat_ptx):
+            self.emu.load_image(id(p), p.get_data())
 
     def launch_kernel(self, f, gridDim, blockDim, sharedMemBytes, stream, kernelParams):
         def _pp_dim(d):
@@ -163,17 +199,34 @@ class CUDAGPU(object):
             else:
                 return f"{d.x}"
 
+        def _pp_param(p):
+            return hex(int.from_bytes(p, 'little', signed=False))
+
+        self._lazy_emu_init()
+
         # TODO: handle stream
-        paramTxt = ",".join([f"{p}" for p in kernelParams])
-        _logger.info('{self.name}({self.ordinal}): Launching {f.name}<<<{_pp_dim(gridDim)}, {_pp_dim(blockDim)}, {sharedMemBytes}>>>({paramTxt})')
+        paramTxt = ", ".join([f"{_pp_param(p)}" for p in kernelParams])
+        _logger.info(f'{self.name}({self.gpu_ordinal}): Launching {f.name}<<<{_pp_dim(gridDim)}, {_pp_dim(blockDim)}, {sharedMemBytes}>>>({paramTxt})')
 
         #TODO dispatch it to gpu device
+        #TODO ultimately change executable format?
+        self.emu.launch_kernel(id(f.ptx), f.name, gridDim, blockDim, sharedMemBytes, stream.queue, kernelParams)
 
-class NVGPUDevice(object):
-    """Represents an NVIDIA GPU device (more commonly, a simulator)"""
-    def __init__(self, cudagpu, memory):
-        self.cudagpu = cudagpu
-        self.memory = memory
+class NVGPUEmulator(object):
+    """An emulator for an NVIDIA GPU device. This interface is kept as
+       stateless as possible so it can be in a remote process"""
+
+    def __init__(self, gpu_props):
+        self.images = {}
+        self.mem = RebaseableMemory(gpu_props['total_memory'])
+
+    def load_image(self, imageId, image):
+        self.images[imageId] = image
+
+    def launch_kernel(self, imageId, entry, gridDim, blockDim, sharedMemBytes, queue, kernelParams):
+        print("HERE")
+        paramTxt = ", ".join([f"{p}" for p in kernelParams])
+        _logger.info(f'Running {entry}<<<{gridDim}, {blockDim}, {sharedMemBytes}, {queue}>>>({paramTxt})')
 
 class RebaseableMemory(object):
     """A memory object that can be rebased dynamically, and because it is

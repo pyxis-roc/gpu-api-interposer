@@ -5,6 +5,7 @@
 # "Implementation" of the CUDA device runtime API, actually just maintains API state.
 #
 # Author: Sreepathi Pai
+# Author: Amr Elhelw
 #
 # Copyright (C) 2019, University of Rochester
 
@@ -14,6 +15,7 @@ from harmonv import nvfatbin, compression, loader
 from cuda_api_objects import *
 from cuda_devices import *
 from cuda_remote_devices import *
+import itertools
 
 _logger = logging.getLogger(__name__)
 
@@ -91,7 +93,6 @@ class CUDADeviceAPIHandler(object):
     @check_retval
     def cuDeviceTotalMem(self, bytes_, dev):
         self.gpu_handles[dev].total_memory = bytes_
-        self.gpu_handles[dev].init_memory()
 
     @check_retval
     def cuDeviceGetAttribute(self, pi, attrib, dev):
@@ -151,10 +152,15 @@ class CUDADeviceAPIHandler(object):
 
         return ctx
 
-    def _load_module(self, cc, module):
-        elf = loader.extract_elf(module, cc)
-        ptx, compat_ptx = loader.extract_ptx(module, cc)
-        return self._factory.module(cc, elf, ptx, compat_ptx)
+    def _load_module(self, gpu, module):
+        elf = loader.extract_elf(module, gpu.cc)
+        ptx, compat_ptx = loader.extract_ptx(module, gpu.cc)
+        for m in itertools.chain(elf, ptx, compat_ptx):
+            m.parse()
+
+        mod = self._factory.module(gpu.cc, elf, ptx, compat_ptx)
+        gpu.register_module(mod)
+        return mod
 
     @check_retval
     def cuModuleGetFunction(self, hfunc, hmod, name):
@@ -169,14 +175,32 @@ class CUDADeviceAPIHandler(object):
         if hmod not in self.module_handles:
             # module handles are per context,
             # each context contains one gpu device
-            self.module_handles.register(hmod, self._load_module(gpu.compute_capability,
+            self.module_handles.register(hmod, self._load_module(gpu,
                                                                  self.main_module))
 
         module = self.module_handles[hmod]
 
         assert len(module.elf) > 0 or len(module.ptx) > 0 or len(module.compat_ptx) > 0, "Unable to find ELF suitable for arch {cc}, or any PTX at all"
 
-        self.function_handles.register(hfunc, self._factory.function(name))
+        elf = None
+        ptx = None
+        for m in module.elf:
+            for g in m.get_globals():
+                if g.name == name:
+                    elf = m
+                    break
+
+        nb = name.encode('ascii')
+        for m in itertools.chain(module.ptx, module.compat_ptx):
+            a = m.get_data()
+            if nb in a:
+                #TODO: need to parse ptx to get globals...
+                ptx = m
+                break
+
+        assert not (elf is None and ptx is None), "Unable to find ELF/PTX containing function {name}"
+
+        self.function_handles.register(hfunc, self._factory.function(name, elf, ptx))
 
     @check_retval
     def cuMemAlloc(self, dptr, bytesize):

@@ -49,9 +49,10 @@ class CUDAContextThreadStack(object):
 
 class CUDAFunction(object):
     """Represents a CUDA Function"""
-    def __init__(self, name):
+    def __init__(self, name, elf = None, ptx = None):
         self.name = name
-        self.image = None  # ptx or sass
+        self.elf = elf # binary image
+        self.ptx = ptx # text image
 
 class CUDAModule(object):
     """Represents a CUDA Module"""

@@ -40,6 +40,13 @@ class NVCubinPart(object):
         self.cubin = cubin
         self.decompressor = cubin.decompressor
 
+    def get_data(self):
+        # this will fail if decompress has not been called
+        if self.compressed:
+            return self.uncompressed_data
+        else:
+            return self.data
+
     def decompress(self):
         if hasattr(self, 'uncompressed_data'):
             return
