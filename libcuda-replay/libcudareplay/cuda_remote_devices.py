@@ -11,13 +11,6 @@
 #
 # Copyright (C) 2019, University of Rochester
 
-import mmap
-import ctypes
-import errno
-import memregions
-from harmonv.cuda.constants import *
-from harmonv.cuda import devspecs
-from cuda_api_objects import *
 from cuda_devices import *
 import logging
 import capnp
@@ -29,73 +22,6 @@ rt_to_gpu = capnp.load(os.path.join(os.path.dirname(__file__), 'rt_to_gpu_protoc
 
 _logger = logging.getLogger(__name__)
 
-class NVGPUEmulatorProxy(rt_to_gpu.GPUEmulator.Server):
-    local_cls = NVGPUEmulator
-
-    def initialize_context(self, context):
-        props = {'total_memory': context.params.gpu_props.totalMemory,
-                 'gpu_ordinal': context.params.gpu_props.ordinal}
-
-        self.local_impl = self.local_cls(props)
-
-    def loadImage_context(self, context):
-        self.local_impl.load_image(context.params.imgId, context.params.image)
-
-    def launchKernel_context(self, context):
-        self.local_impl.launch_kernel(context.params.imgId,
-                                      context.params.entry,
-                                      dim(context.params.gridDimX,
-                                          context.params.gridDimY,
-                                          context.params.gridDimZ),
-                                      dim(context.params.blockDimX,
-                                          context.params.blockDimY,
-                                          context.params.blockDimZ),
-                                      context.params.sharedMemBytes,
-                                      context.params.queue,
-                                      context.params.kernelParams)
-
-class RebaseableMemoryProxy(rt_to_gpu.RebaseableMemory.Server):
-    def __init__(self, local_impl):
-        self.local_impl = local_impl
-
-    def initialize_context(self, context):
-        #self.local_impl = self.local_impl_class(context.params.byteSize)
-        # this is no longer used ...
-        pass
-
-    def allocMemory_context(self, context):
-        self.local_impl.alloc_memory()
-
-    def rebase_context(self, context):
-        self.local_impl.rebase(context.params.newBase)
-
-    def copyTo_context(self, context):
-        self.local_impl.copy_to(context.params.addr, context.params.data)
-
-    def copyFrom(self, addr, byteCount, _context, **kwargs):
-        return self.local_impl.copy_from(addr, byteCount)
-
-class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
-    devices = None
-
-    def __init__(self, gpu_emulator_proxy_cls = NVGPUEmulatorProxy,
-                 rebaseable_memory_proxy_cls = RebaseableMemoryProxy):
-        self.devices = {}
-        self.rmp_cls = rebaseable_memory_proxy_cls
-        self.emp_cls = gpu_emulator_proxy_cls
-
-    def restore(self, ref_id):
-        if ref_id.iface == 'rebaseableMemory':
-            assert ref_id.ordinal in self.devices
-            return self.rmp_cls(self.devices[ref_id.ordinal].local_impl.mem)
-        elif ref_id.iface == 'gpuEmulator':
-            if ref_id.ordinal not in self.devices:
-                _logger.info("Creating new GPU Emulator proxy for ordinal {ref_id.ordinal}")
-                self.devices[ref_id.ordinal] = self.emp_cls()
-
-            return self.devices[ref_id.ordinal]
-        else:
-            assert False
 
 class RemoteNVGPUEmulator(object):
     def __init__(self, gpu_props):
