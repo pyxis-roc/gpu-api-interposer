@@ -30,11 +30,13 @@ rt_to_gpu = capnp.load(os.path.join(os.path.dirname(__file__), 'rt_to_gpu_protoc
 _logger = logging.getLogger(__name__)
 
 class NVGPUEmulatorProxy(rt_to_gpu.GPUEmulator.Server):
+    local_cls = NVGPUEmulator
+
     def initialize_context(self, context):
         props = {'total_memory': context.params.gpu_props.totalMemory,
                  'gpu_ordinal': context.params.gpu_props.ordinal}
 
-        self.local_impl = NVGPUEmulator(props)
+        self.local_impl = self.local_cls(props)
 
     def loadImage_context(self, context):
         self.local_impl.load_image(context.params.imgId, context.params.image)
@@ -58,6 +60,7 @@ class RebaseableMemoryProxy(rt_to_gpu.RebaseableMemory.Server):
 
     def initialize_context(self, context):
         #self.local_impl = self.local_impl_class(context.params.byteSize)
+        # this is no longer used ...
         pass
 
     def allocMemory_context(self, context):
@@ -74,26 +77,25 @@ class RebaseableMemoryProxy(rt_to_gpu.RebaseableMemory.Server):
 
 class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
     devices = None
-    def __init__(self):
+
+    def __init__(self, gpu_emulator_proxy_cls = NVGPUEmulatorProxy,
+                 rebaseable_memory_proxy_cls = RebaseableMemoryProxy):
         self.devices = {}
+        self.rmp_cls = rebaseable_memory_proxy_cls
+        self.emp_cls = gpu_emulator_proxy_cls
 
     def restore(self, ref_id):
         if ref_id.iface == 'rebaseableMemory':
             assert ref_id.ordinal in self.devices
-            return RebaseableMemoryProxy(self.devices[ref_id.ordinal].local_impl.mem)
+            return self.rmp_cls(self.devices[ref_id.ordinal].local_impl.mem)
         elif ref_id.iface == 'gpuEmulator':
             if ref_id.ordinal not in self.devices:
                 _logger.info("Creating new GPU Emulator proxy for ordinal {ref_id.ordinal}")
-                self.devices[ref_id.ordinal] = NVGPUEmulatorProxy()
+                self.devices[ref_id.ordinal] = self.emp_cls()
 
             return self.devices[ref_id.ordinal]
         else:
             assert False
-
-class RemoteCUDAGPU(CUDAGPU):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.emu_cls = RemoteNVGPUEmulator
 
 class RemoteNVGPUEmulator(object):
     def __init__(self, gpu_props):
@@ -119,6 +121,9 @@ class RemoteNVGPUEmulator(object):
                               sharedMemBytes=sharedMemBytes,
                               queue=0, #TODO
                               kernelParams=kernelParams).wait() #TODO: async
+
+class RemoteCUDAGPU(CUDAGPU):
+    emu_cls = RemoteNVGPUEmulator
 
 # this is a very thin layer and does not have the same semantics as RebaseableMemory
 class RemoteRebaseableMemory(RebaseableMemory):

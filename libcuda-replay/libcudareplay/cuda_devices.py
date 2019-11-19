@@ -23,8 +23,25 @@ _logger = logging.getLogger(__name__)
 
 dim = namedtuple('dim', 'x y z')
 
+class NVGPUEmulator(object):
+    """An emulator for an NVIDIA GPU device. This interface is kept as
+       stateless as possible so it can be in a remote process"""
+
+    def __init__(self, gpu_props):
+        self.images = {}
+        self.mem = RebaseableMemory(gpu_props['total_memory'])
+
+    def load_image(self, imageId, image):
+        self.images[imageId] = image
+
+    def launch_kernel(self, imageId, entry, gridDim, blockDim, sharedMemBytes, queue, kernelParams):
+        paramTxt = ", ".join([f"{p}" for p in kernelParams])
+        _logger.info(f'Running {entry}<<<{gridDim}, {blockDim}, {sharedMemBytes}, {queue}>>>({paramTxt})')
+
 class CUDAGPU(object):
     """Represents a CUDA GPU"""
+    emu_cls = NVGPUEmulator
+
     def __init__(self, ordinal):
         self.gpu_ordinal = ordinal
         self._name = None
@@ -36,7 +53,6 @@ class CUDAGPU(object):
         self.cc = None
 
         # represents an emulator and its memory
-        self.emu_cls = NVGPUEmulator
         self.emu = None
         self.mem = None
         self._emu_inited = False
@@ -55,6 +71,7 @@ class CUDAGPU(object):
 
         # TODO: add more properties needed for emulation here ...
         props = {'total_memory': self.total_memory,
+                 'max_shared_memory_per_mp': self.get_attribute(CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_MULTIPROCESSOR),
                  'gpu_ordinal': self.gpu_ordinal}
 
         self.emu = self.emu_cls(props)
@@ -211,22 +228,6 @@ class CUDAGPU(object):
         #TODO dispatch it to gpu device
         #TODO ultimately change executable format?
         self.emu.launch_kernel(id(f.ptx), f.name, gridDim, blockDim, sharedMemBytes, stream.queue, kernelParams)
-
-class NVGPUEmulator(object):
-    """An emulator for an NVIDIA GPU device. This interface is kept as
-       stateless as possible so it can be in a remote process"""
-
-    def __init__(self, gpu_props):
-        self.images = {}
-        self.mem = RebaseableMemory(gpu_props['total_memory'])
-
-    def load_image(self, imageId, image):
-        self.images[imageId] = image
-
-    def launch_kernel(self, imageId, entry, gridDim, blockDim, sharedMemBytes, queue, kernelParams):
-        print("HERE")
-        paramTxt = ", ".join([f"{p}" for p in kernelParams])
-        _logger.info(f'Running {entry}<<<{gridDim}, {blockDim}, {sharedMemBytes}, {queue}>>>({paramTxt})')
 
 class RebaseableMemory(object):
     """A memory object that can be rebased dynamically, and because it is
