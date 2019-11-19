@@ -4,6 +4,27 @@ import argparse
 import tarfile
 import os
 import sys
+import configparser
+import io
+
+def add_metadata(output, root, members):
+    cfg = configparser.ConfigParser()
+    cfg[root] = {'name': root}
+    cfg[root].update(members)
+
+    data = ""
+    with io.StringIO() as f:
+        cfg.write(f)
+        f.seek(0)
+
+        data = f.getvalue()
+
+    n = root + '.cfg'
+    ti = tarfile.TarInfo(name=os.path.join(root, n))
+    ti.size = len(data)
+
+    with io.BytesIO(data.encode('utf-8')) as f:
+        output.addfile(ti, fileobj=f)
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Pack trace and ancillary files into an archive")
@@ -40,11 +61,20 @@ if __name__ == "__main__":
 
     root = args.archive[0:args.archive.index(".")]
 
-    members_to_add = [td, args.blobstore, args.binary,
-                      args.binary + ".arg",
-                      args.binary + ".arg.yaml"]
+    members_to_add = [('trace', td),
+                      ('blobstore', args.blobstore),
+                      ('binary', args.binary),
+                      ('args_binary', args.binary + ".arg"),
+                      ('args_yaml', args.binary + ".arg.yaml")]
 
     with tarfile.open(args.archive, f'w:{args.compression}') as output:
-        for m in members_to_add:
-            print(f"Adding {m}")
-            output.add(m, os.path.join(root, os.path.basename(m)))
+        members = {}
+        for n, m in members_to_add:
+            print(f"Adding {n} file {m}")
+            arcname = os.path.join(root, os.path.basename(m))
+            output.add(m, arcname)
+
+            members[n] = arcname[len(root)+1:]
+            members["orig_" + n] = os.path.abspath(m)
+
+        add_metadata(output, root, members)
