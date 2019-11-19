@@ -59,7 +59,7 @@ class CUDADeviceAPIHandler(object):
         self.main_module = self.load_binary(self.binary)
 
     def load_binary(self, binary):
-        fatbin = nvfatbin.NVFatBinary(binary, compression.DecompressorCuobjdump)
+        fatbin = nvfatbin.NVFatBinary(binary, compression.DefaultDecompressor)
         fatbin.parse_fatbin()
 
         return fatbin
