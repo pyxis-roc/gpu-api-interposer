@@ -51,11 +51,15 @@ class CUDAFunction(object):
     """Represents a CUDA Function"""
     def __init__(self, name):
         self.name = name
+        self.image = None  # ptx or sass
 
 class CUDAModule(object):
     """Represents a CUDA Module"""
-    def __init__(self):
-        pass
+    def __init__(self, cc, elf, ptx, compat_ptx):
+        self.cc = cc
+        self.elf = elf
+        self.ptx = ptx
+        self.compat_ptx = compat_ptx
 
 class CUDAMemoryRegion(object):
     """Represents a CUDA Memory Region. This is not an API object per se."""
@@ -66,7 +70,10 @@ class CUDAMemoryRegion(object):
 
 class CUDAStream(object):
     """Represents a CUDA Stream"""
-    pass
+    def __init__(self):
+        # TODO
+        self.dev = None
+        self.queue = None
 
 class CUDAContext(object):
     usage_count = 0

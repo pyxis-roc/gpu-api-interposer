@@ -10,7 +10,7 @@
 
 import logging
 
-from harmonv import nvfatbin, compression
+from harmonv import nvfatbin, compression, loader
 from cuda_api_objects import *
 from cuda_devices import *
 from cuda_remote_devices import *
@@ -151,6 +151,11 @@ class CUDADeviceAPIHandler(object):
 
         return ctx
 
+    def _load_module(self, cc, module):
+        elf = loader.extract_elf(module, cc)
+        ptx, compat_ptx = loader.extract_ptx(module, cc)
+        return self._factory.module(cc, elf, ptx, compat_ptx)
+
     @check_retval
     def cuModuleGetFunction(self, hfunc, hmod, name):
         # I'm assuming the current context determines which variant of a function is loaded ...
@@ -162,33 +167,14 @@ class CUDADeviceAPIHandler(object):
         # this implicit registration is because the CUDA Runtime seems
         # to register modules for the main executable out-of-band.
         if hmod not in self.module_handles:
-            self.module_handles.register(hmod, self._factory.module())
-            module = self.main_module
-        else:
-            _logger.info(f'cuModuleGetFunction {name} on {hmod:x}, but module not found!')
-            assert False
+            # module handles are per context,
+            # each context contains one gpu device
+            self.module_handles.register(hmod, self._load_module(gpu.compute_capability,
+                                                                 self.main_module))
 
-        # need to separate this out to a loader ...
-        arch_exact = []
-        arch_relevant = []
-        arch = gpu.compute_capability[0]*10+gpu.compute_capability[1]
+        module = self.module_handles[hmod]
 
-        for c in module.cubins:
-            for cc in c.parts:
-                if cc.arch != arch and cc.type == nvfatbin.CUBIN_ELF:
-                    _logger.info(f'Skipping over ELF for arch {cc.arch} (need {arch})')
-                    continue
-
-                if cc.arch == arch:
-                    _logger.info(f'Found exact match for arch {arch} (type {cc.type})')
-                    arch_exact.append(cc)
-                    continue
-
-                if cc.arch != arch and cc.type == nvfatbin.CUBIN_PTX:
-                    _logger.info(f'Found PTX for arch {cc.arch}')
-                    arch_relevant.append(cc)
-
-        assert len(arch_exact) > 0 or len(arch_relevant) > 0, "Unable to find ELF suitable for arch {cc}, or any PTX at all"
+        assert len(module.elf) > 0 or len(module.ptx) > 0 or len(module.compat_ptx) > 0, "Unable to find ELF suitable for arch {cc}, or any PTX at all"
 
         self.function_handles.register(hfunc, self._factory.function(name))
 
@@ -252,6 +238,16 @@ class CUDADeviceAPIHandler(object):
 
         if hStream not in self.stream_handles:
             self.stream_handles.register(hStream, self._factory.stream())
+
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
+        gpu.launch_kernel(self.function_handles[f],
+                          dim(gridDimX, gridDimY, gridDimZ),
+                          dim(blockDimX, blockDimY, blockDimZ),
+                          sharedMemBytes,
+                          self.stream_handles[hStream],
+                          kernelParams)
 
     @check_retval
     def cuModuleUnload(self, hmod):
