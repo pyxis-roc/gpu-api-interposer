@@ -11,10 +11,10 @@
 import mmap
 import ctypes
 import errno
-import memregions
+from . import memregions
 from harmonv.cuda.constants import *
 from harmonv.cuda import devspecs
-from cuda_api_objects import *
+from .cuda_api_objects import *
 import logging
 from collections import namedtuple
 import itertools

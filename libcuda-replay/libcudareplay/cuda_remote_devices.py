@@ -11,7 +11,7 @@
 #
 # Copyright (C) 2019, University of Rochester
 
-from cuda_devices import *
+from .cuda_devices import *
 import logging
 import capnp
 import os

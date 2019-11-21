@@ -12,9 +12,9 @@
 import logging
 
 from harmonv import nvfatbin, compression, loader
-from cuda_api_objects import *
-from cuda_devices import *
-from cuda_remote_devices import *
+from .cuda_api_objects import *
+from .cuda_devices import *
+from .cuda_remote_devices import *
 import itertools
 
 _logger = logging.getLogger(__name__)
