@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+#
+# demorunner.py
+#
+# Provides a sample of how to load and run a trace
+#
+# Author: Sreepathi Pai
+#
+# Copyright (C) 2019, University of Rochester
+#
 
 import argparse
 import libcudareplay

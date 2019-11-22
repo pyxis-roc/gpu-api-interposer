@@ -9,7 +9,7 @@
 #
 # Copyright (C) 2019, University of Rochester
 
-from cuda_devices import *
+from .cuda_devices import *
 import logging
 import capnp
 import os
@@ -21,13 +21,13 @@ rt_to_gpu = capnp.load(os.path.join(os.path.dirname(__file__), 'rt_to_gpu_protoc
 _logger = logging.getLogger(__name__)
 
 class NVGPUEmulatorProxy(rt_to_gpu.GPUEmulator.Server):
-    local_cls = NVGPUEmulator
+    emu_cls = NVGPUEmulator
 
     def initialize_context(self, context):
         props = {'total_memory': context.params.gpu_props.totalMemory,
                  'gpu_ordinal': context.params.gpu_props.ordinal}
 
-        self.local_impl = self.local_cls(props)
+        self.local_impl = self.emu_cls(props)
 
     def loadImage_context(self, context):
         self.local_impl.load_image(context.params.imgId, context.params.image)
@@ -70,11 +70,13 @@ class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
     devices = None
 
     def __init__(self,
+                 gpu_emulator_cls = NVGPUEmulator,
                  gpu_emulator_proxy_cls = NVGPUEmulatorProxy,
                  rebaseable_memory_proxy_cls = RebaseableMemoryProxy):
         self.devices = {}
         self.rmp_cls = rebaseable_memory_proxy_cls
         self.emp_cls = gpu_emulator_proxy_cls
+        self.emu_cls = gpu_emulator_cls
 
     def restore(self, ref_id):
         if ref_id.iface == 'rebaseableMemory':
@@ -84,7 +86,13 @@ class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
             if ref_id.ordinal not in self.devices:
                 _logger.info("Creating new GPU Emulator proxy for ordinal {ref_id.ordinal}")
                 self.devices[ref_id.ordinal] = self.emp_cls()
-
+                self.devices[ref_id.ordinal].emu_cls = self.emu_cls
             return self.devices[ref_id.ordinal]
         else:
             assert False
+
+def create_remote_server(address, gpu_emulator_cls = None,
+                         gpu_emulator_proxy_cls = None, rebaseable_memory_proxy_cls = None):
+    restorer = RemoteRestorer(gpu_emulator_cls, gpu_emulator_proxy_cls, rebaseable_memory_proxy_cls)
+    server = capnp.TwoPartyServer(address)
+    return server
