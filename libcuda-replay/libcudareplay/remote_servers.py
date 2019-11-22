@@ -94,5 +94,5 @@ class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
 def create_remote_server(address, gpu_emulator_cls = None,
                          gpu_emulator_proxy_cls = None, rebaseable_memory_proxy_cls = None):
     restorer = RemoteRestorer(gpu_emulator_cls, gpu_emulator_proxy_cls, rebaseable_memory_proxy_cls)
-    server = capnp.TwoPartyServer(address)
+    server = capnp.TwoPartyServer(address, restorer)
     return server

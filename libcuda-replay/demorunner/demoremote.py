@@ -13,16 +13,15 @@ import argparse
 import libcudareplay.remote_servers
 import libcudareplay.cuda_devices
 
-class MyGPUEmulator(libcudareplay.cuda_devices.NVEmulator):
+class MyGPUEmulator(libcudareplay.cuda_devices.NVGPUEmulator):
     pass
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Sample remote client")
 
-    p.add_argument('address', help='address:port to listen on', default='localhost:5555')
+    p.add_argument('address', nargs='?', help='address:port to listen on', default='localhost:5555')
 
     args = p.parse_args()
 
     server = libcudareplay.remote_servers.create_remote_server(args.address, MyGPUEmulator)
-
     server.run_forever()
