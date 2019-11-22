@@ -84,15 +84,16 @@ class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
             return self.rmp_cls(self.devices[ref_id.ordinal].local_impl.mem)
         elif ref_id.iface == 'gpuEmulator':
             if ref_id.ordinal not in self.devices:
-                _logger.info("Creating new GPU Emulator proxy for ordinal {ref_id.ordinal}")
+                _logger.info(f"Creating new GPU Emulator proxy for ordinal {ref_id.ordinal}")
                 self.devices[ref_id.ordinal] = self.emp_cls()
                 self.devices[ref_id.ordinal].emu_cls = self.emu_cls
             return self.devices[ref_id.ordinal]
         else:
             assert False
 
-def create_remote_server(address, gpu_emulator_cls = None,
-                         gpu_emulator_proxy_cls = None, rebaseable_memory_proxy_cls = None):
+def create_remote_server(address, gpu_emulator_cls = NVGPUEmulator,
+                         gpu_emulator_proxy_cls = NVGPUEmulatorProxy,
+                         rebaseable_memory_proxy_cls = RebaseableMemoryProxy):
     restorer = RemoteRestorer(gpu_emulator_cls, gpu_emulator_proxy_cls, rebaseable_memory_proxy_cls)
     server = capnp.TwoPartyServer(address, restorer)
     return server

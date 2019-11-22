@@ -12,16 +12,36 @@
 import argparse
 import libcudareplay.remote_servers
 import libcudareplay.cuda_devices
+import logging
+
+_logger = logging.getLogger()
+logformat = '%(name)s: %(levelname)s: %(message)s'
 
 class MyGPUEmulator(libcudareplay.cuda_devices.NVGPUEmulator):
     pass
 
+def setup_logging(debug = False):
+    rootLogger = logging.getLogger('')
+
+    ch = logging.StreamHandler()
+    ch.setFormatter(logging.Formatter(logformat))
+    rootLogger.addHandler(ch)
+
+    if debug:
+        rootLogger.setLevel(logging.DEBUG)
+    else:
+        rootLogger.setLevel(logging.INFO)
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Sample remote client")
 
-    p.add_argument('address', nargs='?', help='address:port to listen on', default='localhost:5555')
+    p.add_argument('address', nargs='?', help='address:port to listen on', default='localhost:55555')
+    p.add_argument('-d', '--debug', action='store_true', help='Enable debugging')
 
     args = p.parse_args()
 
+    setup_logging(args.debug)
+
+    _logger.info(f'Listening on {args.address}. Press CTRL+\ to quit')
     server = libcudareplay.remote_servers.create_remote_server(args.address, MyGPUEmulator)
     server.run_forever()

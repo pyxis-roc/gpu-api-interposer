@@ -10,11 +10,12 @@
 # Copyright (c) 2019, University of Rochester
 
 import logging
-from libcudareplay import libcuda_replay
+from . import libcuda_replay
 import configparser
 from collections import namedtuple
-from libcudareplay.cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
+from .cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
 import os
+from .utils import ReplayConfig
 
 _logger = logging.getLogger(__name__)
 
@@ -23,10 +24,6 @@ FACTORIES = {'default': CUDADefaultFactory,
 
 TraceInfo = namedtuple('TraceInfo', 'name trace trace_dir blobstore binary args_binary args_yaml')
 
-class ReplayConfig(object):
-    debug = False
-    logformat = '%(name)s: %(levelname)s: %(message)s'
-    factory = 'default'
 
 class TraceRunner(object):
     def __init__(self, config):

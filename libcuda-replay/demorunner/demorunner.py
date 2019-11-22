@@ -17,11 +17,12 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Sample to demonstrate usage of tracerunner")
     p.add_argument("tracecfg", help="trace configuration file")
     p.add_argument("-d", dest="debug", action="store_true", help="Enable debugging mode", default=False)
-    p.add_argument("--factory", choices=['default', 'remote'], help="Enable debugging mode")
+    p.add_argument("--factory", choices=['default', 'remote'], help="Enable debugging mode", default='default')
     args = p.parse_args()
 
     cfg = tracerunner.ReplayConfig()
     cfg.debug = args.debug
+    cfg.factory = args.factory
 
     tr = tracerunner.TraceRunner(cfg)
 
@@ -29,4 +30,3 @@ if __name__ == "__main__":
     tr.configure_logger()
     tr.setup_replay()
     tr.replay()
-

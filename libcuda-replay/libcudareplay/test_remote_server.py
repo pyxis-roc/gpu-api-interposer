@@ -1,7 +1,7 @@
 #!/usr/bin/env pypy3
 
 import capnp
-import remote_servers
+from libcudareplay import remote_servers
 
 if __name__ == "__main__":
     restorer = remote_servers.RemoteRestorer()
