@@ -18,11 +18,14 @@ if __name__ == "__main__":
     p.add_argument("tracecfg", help="trace configuration file")
     p.add_argument("-d", dest="debug", action="store_true", help="Enable debugging mode", default=False)
     p.add_argument("--factory", choices=['default', 'remote'], help="Enable debugging mode", default='default')
+    p.add_argument("--remote-cmd", help="Enable debugging mode", default='./demoremote.py')
+
     args = p.parse_args()
 
     cfg = tracerunner.ReplayConfig()
     cfg.debug = args.debug
     cfg.factory = args.factory
+    cfg.remote_cmd = args.remote_cmd
 
     tr = tracerunner.TraceRunner(cfg)
 

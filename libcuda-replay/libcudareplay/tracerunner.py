@@ -16,6 +16,9 @@ from collections import namedtuple
 from .cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
 import os
 from .utils import ReplayConfig
+import subprocess
+import shlex
+import atexit
 
 _logger = logging.getLogger(__name__)
 
@@ -23,7 +26,6 @@ FACTORIES = {'default': CUDADefaultFactory,
              'remote': CUDARemoteFactory}
 
 TraceInfo = namedtuple('TraceInfo', 'name trace trace_dir blobstore binary args_binary args_yaml')
-
 
 class TraceRunner(object):
     def __init__(self, config):
@@ -98,14 +100,50 @@ class TraceRunner(object):
         else:
             rootLogger.setLevel(logging.INFO)
 
+    def _killremote(self):
+        _logger.info("Terminating remote")
+
+        self.remote_proc.terminate()
+        self.remote_proc = None
+
+    def _setup_remote(self):
+        _logger.info(f"Running remote command {self.config.remote_cmd}")
+
+        assert self.config.remote_cmd is not None, "Need to specify remote_cmd in config"
+
+        cmd = shlex.split(self.config.remote_cmd)
+
+        self.remote_proc = subprocess.Popen(cmd,
+                                            stdin=subprocess.PIPE,
+                                            stdout=subprocess.PIPE,
+                                            universal_newlines=True,
+                                            close_fds=True)
+
+        msg = self.remote_proc.stdout.readline()
+
+        if msg.strip() == "EMULATOR READY":
+            atexit.register(self._killremote)
+            _logger.info(f"Remote command {self.config.remote_cmd} successfully started")
+            return True
+        else:
+            _logger.info(f"Remote command {self.config.remote_cmd} did not return expected message")
+            _logger.info(f"Message was: {msg}")
+            return False
+
+
     def setup_replay(self):
         trace = self.traces[self.current_trace]
         self.replayer = libcuda_replay.Replay(trace.trace_dir, trace.blobstore)
 
         argh = libcuda_replay.NVArgHandler(trace.args_yaml)
         factory = FACTORIES[self.config.factory]()
-        apih = CUDADeviceAPIHandler(trace.binary, factory)
 
+        if self.config.factory == 'remote':
+            if not self._setup_remote():
+                _logger.error('Could not start remote')
+                return
+
+        apih = CUDADeviceAPIHandler(trace.binary, factory)
         self.trace_handler = libcuda_replay.NVTraceHandler(argh, apih)
 
     def replay(self):

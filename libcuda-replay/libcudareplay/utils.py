@@ -11,3 +11,4 @@ class ReplayConfig(object):
     debug = False
     logformat = '%(name)s: %(levelname)s: %(message)s'
     factory = 'default'
+    remote_cmd = None

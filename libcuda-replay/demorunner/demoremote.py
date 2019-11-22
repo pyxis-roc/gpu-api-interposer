@@ -13,6 +13,7 @@ import argparse
 import libcudareplay.remote_servers
 import libcudareplay.cuda_devices
 import logging
+import sys
 
 _logger = logging.getLogger()
 logformat = '%(name)s: %(levelname)s: %(message)s'
@@ -41,7 +42,8 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     setup_logging(args.debug)
-
     _logger.info(f'Listening on {args.address}. Press CTRL+\ to quit')
     server = libcudareplay.remote_servers.create_remote_server(args.address, MyGPUEmulator)
+    print("EMULATOR READY", file=sys.stdout)
+    sys.stdout.flush()
     server.run_forever()
