@@ -14,6 +14,7 @@ import libcudareplay
 import libcudareplay.cuda_device_runtime
 import libcudareplay.tracerunner as tracerunner
 import logging
+import os
 from democommon import MyGPUEmulator
 
 _logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ if __name__ == "__main__":
     p.add_argument("-d", dest="debug", action="store_true", help="Enable debugging mode", default=False)
     p.add_argument("--factory", choices=['default', 'remote'], help="Enable debugging mode", default='default')
     p.add_argument("--remote-cmd", help="Remote command to execute", default='./demoremote.py')
+    p.add_argument("--remote-addr", help="Remote address", default='localhost:55555')
 
     args = p.parse_args()
 
@@ -45,9 +47,12 @@ if __name__ == "__main__":
     if args.factory == 'default':
         cfg.emu_class = MyGPUEmulator
 
+    if args.remote_addr:
+        os.environ['REMOTE_EMULATOR_ADDR'] = args.remote_addr
+
     tr = tracerunner.TraceRunner(cfg)
 
     tr.load_trace_from_cfg(args.tracecfg)
     tr.configure_logger()
-    tr.setup_replay()
-    tr.replay()
+    if tr.setup_replay():
+        tr.replay()

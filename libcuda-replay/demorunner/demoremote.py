@@ -14,6 +14,7 @@ import libcudareplay.remote_servers
 import logging
 import sys
 from democommon import MyGPUEmulator
+import os
 
 _logger = logging.getLogger()
 logformat = 'remote %(name)s: %(levelname)s: %(message)s'
@@ -33,14 +34,19 @@ def setup_logging(debug = False):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Sample remote client")
 
-    p.add_argument('address', nargs='?', help='address:port to listen on', default='localhost:55555')
     p.add_argument('-d', '--debug', action='store_true', help='Enable debugging')
 
     args = p.parse_args()
 
+    if 'REMOTE_EMULATOR_ADDR' in os.environ:
+        addr = os.environ['REMOTE_EMULATOR_ADDR']
+    else:
+        _logger.error('No address to listen. Specify one using environment variable REMOTE_EMULATOR_ADDR')
+        sys.exit(1)
+
     setup_logging(args.debug)
-    _logger.info(f'Listening on {args.address}. Press CTRL+\ to quit')
-    server = libcudareplay.remote_servers.create_remote_server(args.address, MyGPUEmulator)
+    _logger.info(f'Listening on {addr}. Press CTRL+\ to quit')
+    server = libcudareplay.remote_servers.create_remote_server(addr, MyGPUEmulator)
     print("EMULATOR READY", file=sys.stdout)
     sys.stdout.flush()
     server.run_forever()

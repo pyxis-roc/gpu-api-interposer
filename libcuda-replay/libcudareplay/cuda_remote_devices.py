@@ -27,12 +27,20 @@ class RemoteNVGPUEmulator(object):
     def __init__(self, gpu_props):
         _logger.debug('Initializing RemoteNVGPUEmulator')
 
-        self.client = capnp.TwoPartyClient('localhost:55555')
+        if 'REMOTE_EMULATOR_ADDR' in os.environ:
+            addr = os.environ['REMOTE_EMULATOR_ADDR']
+        else:
+            addr = 'localhost:55555'
+
+        _logger.info(f'RemoteNVGPUEmulator connecting to remote process using address {addr}')
+
+        self.client = capnp.TwoPartyClient(addr)
         ref = rt_to_gpu.GetInterface.new_message(iface = 'gpuEmulator',
                                                  ordinal = gpu_props['gpu_ordinal'])
 
         props = rt_to_gpu.GPUProperties.new_message(ordinal = gpu_props['gpu_ordinal'],
                                                     totalMemory = gpu_props['total_memory'])
+
         self.re = self.client.restore(ref)
         self.re = self.re.cast_as(rt_to_gpu.GPUEmulator)
         self.re.initialize(gpu_props = props).wait()
@@ -59,7 +67,15 @@ class RemoteCUDAGPU(CUDAGPU):
 class RemoteRebaseableMemory(RebaseableMemory):
     def __init__(self, bytesize, ordinal):
         super(RemoteRebaseableMemory, self).__init__(bytesize)
-        self.client = capnp.TwoPartyClient('localhost:55555')
+
+        if 'REMOTE_EMULATOR_ADDR' in os.environ:
+            addr = os.environ['REMOTE_EMULATOR_ADDR']
+        else:
+            addr = 'localhost:55555'
+
+        _logger.info(f'RemoteRebaseableMemory connecting to remote process using address {addr}')
+
+        self.client = capnp.TwoPartyClient(addr)
 
         ref = rt_to_gpu.GetInterface.new_message(iface = 'rebaseableMemory', ordinal = ordinal)
 

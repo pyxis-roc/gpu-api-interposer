@@ -141,13 +141,14 @@ class TraceRunner(object):
         if self.config.factory == 'remote':
             if not self._setup_remote():
                 _logger.error('Could not start remote')
-                return
+                return False
 
             if self.config.emu_class is not None:
                 _logger.warning('Emulator class for remote factory is not RemoteNVGPUEmulator')
 
         apih = CUDADeviceAPIHandler(trace.binary, factory, self.config)
         self.trace_handler = libcuda_replay.NVTraceHandler(argh, apih)
+        return True
 
     def replay(self):
         self.replayer.replay(self.trace_handler)

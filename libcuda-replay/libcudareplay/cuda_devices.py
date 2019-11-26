@@ -28,7 +28,7 @@ class NVGPUEmulator(object):
        stateless as possible so it can be in a remote process"""
 
     def __init__(self, gpu_props):
-        _logger.info('Initializing NVGPUEmulator')
+        _logger.debug('Initializing NVGPUEmulator')
         self.images = {}
         self.mem = RebaseableMemory(gpu_props['total_memory'])
 
