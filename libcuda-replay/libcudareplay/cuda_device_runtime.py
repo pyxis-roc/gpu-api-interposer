@@ -45,9 +45,19 @@ def check_retval(f):
 
     return checker
 
+class CUDADeviceAPIInstr(object):
+    # set of API functions that should be instrumented
+    instr_fns = None
+
+    def __init__(self):
+        self.instr_fns = set()
+
+    def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount, _data, _gpudata):
+        pass
+
 class CUDADeviceAPIHandler(object):
     """Tracks state across CUDA Device API calls. Called by the TraceHandler."""
-    def __init__(self, binary, factory):
+    def __init__(self, binary, factory, config = None):
         self.binary = binary
         self._factory = factory
         self.gpu_handles = CUDAHandles("CUDevice")
@@ -56,6 +66,12 @@ class CUDADeviceAPIHandler(object):
         self.module_handles = CUDAHandles("CUmodule")
         self.memory_handles = CUDAHandles("CUdeviceptr")
         self.stream_handles = CUDAHandles("CUstream")
+        self.config = config
+
+        if self.config and self.config.api_instr:
+            self.api_instr = self.config.api_instr
+        else:
+            self.api_instr = CUDADeviceAPIInstr()
 
         self.gpus = []
         self.main_module = self.load_binary(self.binary)
@@ -252,9 +268,10 @@ class CUDADeviceAPIHandler(object):
         assert gpu.has_dptr(srcDevice, ByteCount)
         _logger.info(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes from device 0x{srcDevice:x} to host 0x{dstHost:x}')
 
-        if gpu.get_memory(srcDevice, ByteCount) != _data:
-            # legitimate reasons exist for data not to match (e.g. floating point data)
-            _logger.warning(f'cuMemcpyDtoH on device {ctx.dev}: {ByteCount} bytes from 0x{srcDevice:x} did not match original trace!')
+        if 'cuMemcpyDtoH' in self.api_instr.instr_fns:
+            # TODO: should we send gpu object?
+            self.api_instr.cuMemcpyDtoH(dstHost, srcDevice, ByteCount, _data,
+                                        gpu.get_memory(srcDevice, ByteCount))
 
     @check_retval
     def cuLaunchKernel(self, f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams):

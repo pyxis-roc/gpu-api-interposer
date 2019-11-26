@@ -12,3 +12,4 @@ class ReplayConfig(object):
     logformat = '%(name)s: %(levelname)s: %(message)s'
     factory = 'default'
     remote_cmd = None
+    api_instr = None

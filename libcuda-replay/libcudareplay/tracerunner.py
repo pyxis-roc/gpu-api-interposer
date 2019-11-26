@@ -143,7 +143,7 @@ class TraceRunner(object):
                 _logger.error('Could not start remote')
                 return
 
-        apih = CUDADeviceAPIHandler(trace.binary, factory)
+        apih = CUDADeviceAPIHandler(trace.binary, factory, self.config)
         self.trace_handler = libcuda_replay.NVTraceHandler(argh, apih)
 
     def replay(self):

@@ -11,7 +11,20 @@
 
 import argparse
 import libcudareplay
+import libcudareplay.cuda_device_runtime
 import libcudareplay.tracerunner as tracerunner
+import logging
+
+_logger = logging.getLogger(__name__)
+
+class MyAPIInstr(libcudareplay.cuda_device_runtime.CUDADeviceAPIInstr):
+    def __init__(self):
+        self.instr_fns = set(['cuMemcpyDtoH'])
+
+    def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount, _data, _gpudata):
+        if _gpudata != _data:
+            # legitimate reasons exist for data not to match (e.g. floating point data)
+            _logger.warning(f'cuMemcpyDtoH: {ByteCount} bytes from 0x{srcDevice:x} did not match original trace!')
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Sample to demonstrate usage of tracerunner")
@@ -26,6 +39,7 @@ if __name__ == "__main__":
     cfg.debug = args.debug
     cfg.factory = args.factory
     cfg.remote_cmd = args.remote_cmd
+    cfg.api_instr = MyAPIInstr()
 
     tr = tracerunner.TraceRunner(cfg)
 
