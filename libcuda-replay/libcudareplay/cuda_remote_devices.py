@@ -25,6 +25,8 @@ _logger = logging.getLogger(__name__)
 
 class RemoteNVGPUEmulator(object):
     def __init__(self, gpu_props):
+        _logger.debug('Initializing RemoteNVGPUEmulator')
+
         self.client = capnp.TwoPartyClient('localhost:55555')
         ref = rt_to_gpu.GetInterface.new_message(iface = 'gpuEmulator',
                                                  ordinal = gpu_props['gpu_ordinal'])
@@ -49,7 +51,9 @@ class RemoteNVGPUEmulator(object):
                               kernelParams=kernelParams).wait() #TODO: async
 
 class RemoteCUDAGPU(CUDAGPU):
-    emu_cls = RemoteNVGPUEmulator
+    def __init__(self, ordinal, emu_cls = RemoteNVGPUEmulator):
+        super().__init__(ordinal, emu_cls)
+        _logger.debug(f'Initializing RemoteCUDAGPU {ordinal}')
 
 # this is a very thin layer and does not have the same semantics as RebaseableMemory
 class RemoteRebaseableMemory(RebaseableMemory):

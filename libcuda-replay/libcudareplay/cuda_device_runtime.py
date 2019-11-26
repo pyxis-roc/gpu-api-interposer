@@ -73,6 +73,10 @@ class CUDADeviceAPIHandler(object):
         else:
             self.api_instr = CUDADeviceAPIInstr()
 
+        self.gpu_kwargs = {}
+        if self.config and self.config.emu_class:
+            self.gpu_kwargs['emu_cls'] = self.config.emu_class
+
         self.gpus = []
         self.main_module = self.load_binary(self.binary)
 
@@ -96,7 +100,7 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuDeviceGetCount(self, count):
-        self.gpus = [self._factory.gpu(i) for i in range(count)]
+        self.gpus = [self._factory.gpu(i, **self.gpu_kwargs) for i in range(count)]
 
     @check_retval
     def cuDeviceGet(self, device, ordinal):

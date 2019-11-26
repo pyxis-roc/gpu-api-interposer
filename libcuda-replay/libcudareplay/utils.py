@@ -13,3 +13,4 @@ class ReplayConfig(object):
     factory = 'default'
     remote_cmd = None
     api_instr = None
+    emu_class = None    # must be set only if factory is 'default'

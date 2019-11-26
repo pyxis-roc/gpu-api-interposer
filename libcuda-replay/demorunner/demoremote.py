@@ -11,15 +11,12 @@
 
 import argparse
 import libcudareplay.remote_servers
-import libcudareplay.cuda_devices
 import logging
 import sys
+from democommon import MyGPUEmulator
 
 _logger = logging.getLogger()
-logformat = '%(name)s: %(levelname)s: %(message)s'
-
-class MyGPUEmulator(libcudareplay.cuda_devices.NVGPUEmulator):
-    pass
+logformat = 'remote %(name)s: %(levelname)s: %(message)s'
 
 def setup_logging(debug = False):
     rootLogger = logging.getLogger('')

@@ -28,6 +28,7 @@ class NVGPUEmulator(object):
        stateless as possible so it can be in a remote process"""
 
     def __init__(self, gpu_props):
+        _logger.info('Initializing NVGPUEmulator')
         self.images = {}
         self.mem = RebaseableMemory(gpu_props['total_memory'])
 
@@ -40,9 +41,7 @@ class NVGPUEmulator(object):
 
 class CUDAGPU(object):
     """Represents a CUDA GPU"""
-    emu_cls = NVGPUEmulator
-
-    def __init__(self, ordinal):
+    def __init__(self, ordinal, emu_cls = NVGPUEmulator):
         self.gpu_ordinal = ordinal
         self._name = None
         self._total_memory = None
@@ -53,6 +52,7 @@ class CUDAGPU(object):
         self.cc = None
 
         # represents an emulator and its memory
+        self.emu_cls = emu_cls
         self.emu = None
         self.mem = None
         self._emu_inited = False
