@@ -37,6 +37,7 @@ class TraceRunner(object):
             trace_name = cfg.get(section, 'name')
             trace = os.path.join(cfgpath, cfg.get(section, 'trace'))
             trace_dir = libcuda_replay.get_actual_tracedir(trace)
+            print(trace_dir)
             assert len(trace_dir) == 1, trace_dir # do not support more than one tracedir yet ...
             trace_dir = trace_dir[0]
             blobstore = os.path.join(cfgpath, cfg.get(section, 'blobstore'))

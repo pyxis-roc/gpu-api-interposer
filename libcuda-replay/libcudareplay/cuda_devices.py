@@ -194,10 +194,12 @@ class CUDAGPU(object):
 
     def set_memory(self, dptr, data):
         self._lazy_emu_init()
+        _logger.debug(f'set_memory: {len(data)} bytes at 0x{dptr:x}')
         self.mem.copy_to(dptr, data)
 
     def get_memory(self, dptr, bytecount):
         self._lazy_emu_init()
+        _logger.debug(f'get_memory: {bytecount} bytes from 0x{dptr:x}')
         return self.mem.copy_from(dptr, bytecount)
 
     def register_module(self, module):
@@ -303,3 +305,17 @@ class RebaseableMemory(object):
 
         offset = addr - self.baseaddr
         return self.mem[offset:offset+bytecount]
+
+    def set_memory(self, addr, data):
+        assert addr >= self.baseaddr
+        offset = addr - self.baseaddr
+        _logger.debug(f'Setting {len(data)} bytes at 0x{addr:x} (actually {offset:x})')
+        self.mem[offset:offset+len(data)] = data
+        self.set_highest_write_addr(addr + len(data) - 1)
+
+    def get_memory(self, addr, bytecount):
+        assert addr >= self.baseaddr
+        offset = addr - self.baseaddr
+        _logger.debug(f'Reading {bytecount} bytes from 0x{addr:x} (actually {offset:x})')                
+        return self.mem[offset:offset+bytecount]
+        

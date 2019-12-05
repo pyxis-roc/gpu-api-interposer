@@ -34,7 +34,7 @@ class NVGPUEmulatorProxy(rt_to_gpu.GPUEmulator.Server):
 
     def launchKernel_context(self, context):
         self.local_impl.launch_kernel(context.params.imgId,
-                                      context.params.entry,
+                                      context.params.entry.decode('ascii'),
                                       dim(context.params.gridDimX,
                                           context.params.gridDimY,
                                           context.params.gridDimZ),
