@@ -37,8 +37,10 @@ class TraceRunner(object):
             trace_name = cfg.get(section, 'name')
             trace = os.path.join(cfgpath, cfg.get(section, 'trace'))
             trace_dir = libcuda_replay.get_actual_tracedir(trace)
-            print(trace_dir)
-            assert len(trace_dir) == 1, trace_dir # do not support more than one tracedir yet ...
+            if len(trace_dir) == 0:
+                _logger.debug(f"{trace} does not exist or is not readable")
+
+            assert len(trace_dir) == 1, f"{trace} does not exist or is not readable: {trace_dir}" # do not support more than one tracedir yet ...
             trace_dir = trace_dir[0]
             blobstore = os.path.join(cfgpath, cfg.get(section, 'blobstore'))
             binary = os.path.join(cfgpath, cfg.get(section, 'binary'))
