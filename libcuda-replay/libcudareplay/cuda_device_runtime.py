@@ -213,11 +213,13 @@ class CUDADeviceAPIHandler(object):
         nb = name.encode('ascii')
         for m in itertools.chain(module.ptx, module.compat_ptx):
             a = m.get_data()
+            #print(a)
             if nb in a:
                 #TODO: need to parse ptx to get globals...
                 ptx = m
                 break
 
+        _logger.info(f"Using ELF:{elf} and PTX:{ptx} for {name}")
         assert not (elf is None and ptx is None), "Unable to find ELF/PTX containing function {name}"
 
         self.function_handles.register(hfunc, self._factory.function(name, elf, ptx))

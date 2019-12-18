@@ -33,6 +33,7 @@ class NVGPUEmulator(object):
         self.mem = RebaseableMemory(gpu_props['total_memory'])
 
     def load_image(self, imageId, image):
+        _logger.info(f"Registering {len(image)} bytes as PTX/ELF image {imageId}")
         self.images[imageId] = image
 
     def launch_kernel(self, imageId, entry, gridDim, blockDim, sharedMemBytes, queue, kernelParams):
