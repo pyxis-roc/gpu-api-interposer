@@ -309,13 +309,24 @@ class RebaseableMemory(object):
     def set_memory(self, addr, data):
         assert addr >= self.baseaddr
         offset = addr - self.baseaddr
-        _logger.debug(f'Setting {len(data)} bytes at 0x{addr:x} (actually {offset:x})')
+        if(len(data) == 4):
+            _logger.debug(f'{self} Setting {len(data)} bytes at 0x{addr:x} (actually {offset:x}) {data}')
+        else:
+            _logger.debug(f'{self} Setting {len(data)} bytes at 0x{addr:x} (actually {offset:x})')
+
         self.mem[offset:offset+len(data)] = data
         self.set_highest_write_addr(addr + len(data) - 1)
 
     def get_memory(self, addr, bytecount):
         assert addr >= self.baseaddr
         offset = addr - self.baseaddr
-        _logger.debug(f'Reading {bytecount} bytes from 0x{addr:x} (actually {offset:x})')                
-        return self.mem[offset:offset+bytecount]
-        
+        data = self.mem[offset:offset+bytecount]
+
+        if(len(data) == 4):
+            _logger.debug(f'Reading {bytecount} bytes from 0x{addr:x} (actually {offset:x}) {data}')
+        else:
+            _logger.debug(f'Reading {bytecount} bytes from 0x{addr:x} (actually {offset:x})')
+
+        _logger.debug(f'Reading {bytecount} bytes from 0x{addr:x} (actually {offset:x})')
+        return data
+

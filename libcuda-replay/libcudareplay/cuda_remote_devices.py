@@ -91,7 +91,7 @@ class RemoteRebaseableMemory(RebaseableMemory):
         self.rb.rebase(new_base).wait()
 
     def copy_to(self, addr, data):
-        self.rb.copyTo(addr, data)
+        self.rb.copyTo(addr, data).wait()
 
     def copy_from(self, addr, bytecount):
         res = self.rb.copyFrom(addr, bytecount)

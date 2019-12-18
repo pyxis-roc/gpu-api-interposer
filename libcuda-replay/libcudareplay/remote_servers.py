@@ -61,10 +61,13 @@ class RebaseableMemoryProxy(rt_to_gpu.RebaseableMemory.Server):
         self.local_impl.rebase(context.params.newBase)
 
     def copyTo_context(self, context):
+        _logger.debug(f'copyTo {context.params.data} bytes from {context.params.addr:x}')
         self.local_impl.copy_to(context.params.addr, context.params.data)
 
     def copyFrom(self, addr, byteCount, _context, **kwargs):
-        return self.local_impl.copy_from(addr, byteCount)
+        _logger.debug(f'{self.local_impl} copyFrom {byteCount} bytes from {addr:x}')
+        data = self.local_impl.copy_from(addr, byteCount)
+        return data
 
 class RemoteRestorer(rt_to_gpu.GetInterface.Restorer):
     devices = None

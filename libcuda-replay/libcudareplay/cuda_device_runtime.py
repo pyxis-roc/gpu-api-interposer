@@ -257,7 +257,7 @@ class CUDADeviceAPIHandler(object):
         gpu = self.gpu_handles[ctx.dev]
 
         assert gpu.has_dptr(dstDevice, ByteCount)
-        _logger.info(f'cuMemcpyHtoD on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} from 0x{srcHost:x}')
+        #_logger.info(f'cuMemcpyHtoD on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} from 0x{srcHost:x}')
         gpu.set_memory(dstDevice, _data)
 
     @check_retval
