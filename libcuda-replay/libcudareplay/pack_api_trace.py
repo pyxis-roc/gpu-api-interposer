@@ -6,7 +6,7 @@ import os
 import sys
 import configparser
 import io
-
+import stat
 def add_metadata(output, root, members):
     cfg = configparser.ConfigParser()
     cfg[root] = {'name': root}
@@ -25,6 +25,12 @@ def add_metadata(output, root, members):
 
     with io.BytesIO(data.encode('utf-8')) as f:
         output.addfile(ti, fileobj=f)
+
+def fixperms(t):
+    t.mode = t.mode | stat.S_IRGRP | stat.S_IROTH
+    if t.mode & stat.S_IFDIR:
+        t.mode = t.mode | stat.S_IXGRP | stat.S_IXOTH
+    return t
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Pack trace and ancillary files into an archive")
@@ -72,7 +78,7 @@ if __name__ == "__main__":
         for n, m in members_to_add:
             print(f"Adding {n} file {m}")
             arcname = os.path.join(root, os.path.basename(m))
-            output.add(m, arcname)
+            output.add(m, arcname, filter=fixperms)
 
             members[n] = arcname[len(root)+1:]
             members["orig_" + n] = os.path.abspath(m)
