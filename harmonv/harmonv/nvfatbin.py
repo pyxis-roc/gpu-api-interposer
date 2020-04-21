@@ -270,8 +270,10 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == 0x2a01: #EIATTR_SW1850030_WAR
                 ndx += attr_size
+            elif attr_fmt == 0x2804: #EIATTR_COOP_GROUP_INSTR_OFFSETS
+                ndx += attr_size
             else:
-                print(f"unrecognized {attr_fmt:x} {attr_size}")
+                print(f"WARNING: unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
 
         return args
