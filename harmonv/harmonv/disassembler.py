@@ -44,16 +44,32 @@ class SASSFunction(object):
 
         self.headers = headers # list of strings
         self.binary = sass_binary
+        self.arg_info = None
+        self.fn_info = None
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
 
+    def set_arg_info(self, args):
+        self.arg_info = args
+
+    def set_fn_info(self, fninfo):
+        self.fn_info = fninfo
+
     def to_dict(self):
-        return {'function': self.function,
-                'producer': self.producer,
-                'headers': self.headers,
-                'binary': self.binary,
-                'disassembly': [dict(x._asdict()) for x in self.disassembly]}
+        out = {'function': self.function,
+               'producer': self.producer,
+               'headers': self.headers,
+               'binary': self.binary,
+               'disassembly': [dict(x._asdict()) for x in self.disassembly]}
+
+        if self.arg_info:
+            out['arg_info'] = [dict(x._asdict()) for x in self.arg_info]
+
+        if self.fn_info:
+            out['fn_info'] = self.fn_info
+
+        return out
 
 class DisassemblerCUObjdump(object):
     @staticmethod
@@ -102,11 +118,11 @@ class DisassemblerCUObjdump(object):
                     continue
                 else:
                     insn = SASS_INSN_CUOBJDUMP(loc=m.group('loc'),
-                                                      opcode=m.group('opcode'),
-                                                      text=m.group('text'),
-                                                      vliw_start=m.group('startbrace') is not None,
-                                                      vliw_end=m.group('endbrace') is not None,
-                                                      raw=l)
+                                               opcode=m.group('opcode'),
+                                               text=m.group('text'),
+                                               vliw_start=m.group('startbrace') is not None,
+                                               vliw_end=m.group('endbrace') is not None,
+                                               raw=l)
                     #print(l, insn)
                     disasm.append(insn)
 
@@ -117,6 +133,8 @@ class DisassemblerCUObjdump(object):
     @staticmethod
     def disassemble(cubin, function_names = [], function_index = None, _keep = False):
         cubin_data = cubin.get_data()
+        fnargs = cubin.get_args()
+        fninfo = cubin.get_fn_info()
 
         assert not (len(function_names) and (function_index is not None)), f"Can't specify both function_names and function_index at the same time"
 
@@ -143,6 +161,8 @@ class DisassemblerCUObjdump(object):
                 for fn, (hdr, sass) in fn_headers_sass.items():
                     #print(fn, hdr, sass)
                     out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
+                    out[fn].set_arg_info(fnargs[fn])
+                    out[fn].set_fn_info(fninfo[fn])
             except:
                 raise
 

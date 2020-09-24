@@ -20,6 +20,7 @@ import os
 import zlib
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
+ATTR_INFO = namedtuple('ATTR_INFO', 'attr_fmt attr_size data')
 GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
 
 CUBIN_PTX = 1
@@ -197,6 +198,9 @@ class NVCubinPartELF(NVCubinPart):
     def get_args(self):
         return self.args
 
+    def get_fn_info(self):
+        return self.fn_info
+
     def parse_symtab(self, elf):
         # TODO: note that fatbin checks for sh_type == SHT_SYMTAB
         symtab = elf.get_section_by_name(".symtab")
@@ -214,6 +218,94 @@ class NVCubinPartELF(NVCubinPart):
 
         return global_syms
 
+    def parse_nv_info_section(self, s, data):
+        ndx = 0
+        section_size = len(data)
+        out = []
+        #print(s.name)
+        while(ndx < section_size):
+            attr_fmt = struct.unpack_from('H', data, ndx)[0]
+            attr_size = struct.unpack_from('H', data, ndx + 2)[0]
+            #print(f"{attr_fmt:x} {attr_size}")
+            ndx += 4
+
+            # possibly use construct?
+
+            out.append(ATTR_INFO(attr_fmt, attr_size, data[ndx:ndx+attr_size]))
+
+            if attr_fmt == 0x1704: # EIATTR_KPARAM_INFO, EIFMT_SVAL
+                ndx += attr_size
+            elif attr_fmt == 0xa04:   # EIATTR_PARAM_CBANK, EIFMT_SVAL
+                ndx += attr_size
+            elif attr_fmt == 0x0d04:  # EIATTR_SYNC_STACK, EIFMT_SVAL
+                ndx += attr_size
+            elif attr_fmt == 0x204:   # EIATTR_IMAGE_SLOT, EIFMT_SVAL
+                ndx += attr_size
+            elif attr_fmt == 0x1903:  # EIATTR_CBANK_PARAM_SIZE, EIFMT_HVAL
+                pass
+            elif attr_fmt == 0x2304  : #EIATTR_MAX_STACK_SIZE
+                ndx += attr_size
+            elif attr_fmt == 0x1204  : #EIATTR_MIN_STACK_SIZE_
+                ndx += attr_size
+            elif attr_fmt == 0x1104  : #EIATTR_FRAME_SIZE
+                ndx += attr_size
+            elif attr_fmt == 0x1b03 : #EIATTR_MAXREG_COUNT
+                pass
+            elif attr_fmt == 0x1c04 : #EIATTR_EXIT_INSTR_OFFSETS
+                ndx += attr_size
+            elif attr_fmt == 0x1e04 : #EIATTR_CRS_STACK_SIZE
+                ndx += attr_size
+            elif attr_fmt == 0x504 : #EIATTR_MAX_THREADS
+                ndx += attr_size
+            elif attr_fmt == 0x1d04 : #EIATTR_S2RCTAID_INSTR_OFFSETS
+                ndx += attr_size
+            elif attr_fmt == 0xf04 : #EIATTR_EXTERNS
+                ndx += attr_size
+            elif attr_fmt == 0x1f01 : # EIATTR_NEED_CNP_WRAPPER
+                ndx += attr_size
+            elif attr_fmt == 0x2001 : #EIATTR_NEED_CNP_PATCH
+                ndx += attr_size
+            elif attr_fmt == 0x401 : # EIATTR_CTAIDZ_USED
+                ndx += attr_size
+            elif attr_fmt == 0x2a01: #EIATTR_SW1850030_WAR
+                ndx += attr_size
+            elif attr_fmt == 0x2804: #EIATTR_COOP_GROUP_INSTR_OFFSETS
+                ndx += attr_size
+            else:
+                print(f"WARNING: unrecognized param info attribute  {attr_fmt:x} {attr_size}")
+                ndx += attr_size
+
+        return out
+
+    def parse_param_info(self, info):
+        args = []
+        for nfo in info:
+            if nfo.attr_fmt == 0x1704: # EIATTR_KPARAM_INFO, EIFMT_SVAL
+                # W,S,S,B[4]
+                ordinal = struct.unpack_from('H', nfo.data, 0 + 4)[0]
+                offset = struct.unpack_from('H', nfo.data, 0 + 6)[0]
+                size = struct.unpack_from('H', nfo.data, 0 + 10)[0] >> 2
+                # Pointee's logAlignment : 0x0    Space : 0x0     cbank : 0x1f    Parameter Space : CBANK
+
+                args.append(KPARAM(ordinal = ordinal, offset=offset, size=size))
+
+        return args
+
+    def parse_fn_info(self, info):
+        out = {}
+        for nfo in info:
+            if nfo.attr_fmt == 0x1b03:
+                out['EIATTR_MAXREG_COUNT'] = nfo.attr_size # unused, SHI_REGISTERS is used instead
+            elif nfo.attr_fmt == 0x1903:
+                out['EIATTR_CBANK_PARAM_SIZE'] = struct.unpack_from('H', nfo.data, 0)[0]
+            elif nfo.attr_fmt == 0x0a04:
+                start, size = struct.unpack_from('HH', nfo.data, 4) # skip word
+                out['EIATTR_PARAM_CBANK'] = {'start': start,
+                                             'size': size}
+
+        return out
+
+    # deprecated, do not use
     def parse_nv_param_info_section(self, s, data):
         ndx = 0
         section_size = len(data)
@@ -299,11 +391,18 @@ class NVCubinPartELF(NVCubinPart):
         gs = self.parse_symtab(self.cubin_elf)
         self.nvglobals = gs
         self.args = {}
+        self.fn_info = {}
+
         for s in self.cubin_elf.iter_sections():
             #print(s.name)
             if s.name[:8] == ".nv.info":
-                args = self.parse_nv_param_info_section(s, s.data())
+                info = self.parse_nv_info_section(s, s.data())
+                #args = self.parse_nv_param_info_section(s, s.data())
+                args = self.parse_param_info(info)
+                fninfo = self.parse_fn_info(info)
+
                 self.args[s.name[9:]] = args
+                self.fn_info[s.name[9:]] = fninfo
 
         if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)

@@ -64,6 +64,7 @@ def get_function_info(fatbin):
 
             for elfcubin, rawelf in elf_data:
                 disfns = DisassemblerCUObjdump.disassemble(elfcubin)
+
                 for fn, sassfn in disfns.items():
                     function_info.append(sassfn)
                     #print(yaml.dump(sassfn.to_dict()))
@@ -71,6 +72,7 @@ def get_function_info(fatbin):
             ocubin['functions'] = function_info
             out.append(ocubin)
         else:
+            # these warnings are harmless if you get the output you need
             if len(elf_data) and not len(ptx_data):
                 print("WARNING: ELF data present, but no PTX data found")
             elif len(ptx_data) and not len(elf_data):
