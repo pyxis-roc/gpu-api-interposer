@@ -41,7 +41,7 @@ class SASSFunction(object):
         self.function = function
         self.disassembly = sass_disassembly # list of SASS_*_INSN
         self.producer = producer
-        
+
         self.headers = headers # list of strings
         self.binary = sass_binary
 
@@ -63,7 +63,7 @@ class DisassemblerCUObjdump(object):
         out = {}
         fn = None
         fn_name = None
-        for lno, l in enumerate(output.split('\n'), 1):
+        for lno, l in enumerate(output.splitlines(), 1):
             m = CUOBJDUMP_RE_FUNC_START.match(l) # don't have to do this on every line
             if m is not None:
                 assert fn_name is None, f"{lno}: Previous function {fn_name} did not end properly"

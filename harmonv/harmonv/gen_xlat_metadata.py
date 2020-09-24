@@ -18,6 +18,7 @@ import tempfile
 import os
 import yaml
 import re
+import subprocess
 
 def extract_ptx(fatbin, _keep_fatbin = False):
     ptx_data = []
@@ -81,6 +82,28 @@ def get_function_info(fatbin):
 
     return out
 
+# roughly based on: http://stackoverflow.com/questions/6526500/c-name-mangling-library-for-python
+# adapted from npreader2/demangle
+def cxxfilt_demangle(names, format="auto", no_params=False, cppfilt = 'c++filt'):
+    """Use the c++filt program to demangle names"""
+    args = [cppfilt] # if DOS, this would be cxxfilt
+    if isinstance(names, str):
+        names = [names]
+
+    if format != "auto":
+        args.extend("-s", format)
+
+    if no_params:
+        args.append("-p")
+
+    args.extend(names)
+    output = subprocess.check_output(args)
+    demangled = [x.decode('utf-8') for x in output.splitlines()]
+
+    assert len(demangled) == len(names)
+    return demangled
+
+
 if __name__ == "__main__":
     import sys
     import argparse
@@ -92,6 +115,8 @@ if __name__ == "__main__":
     p.add_argument("-d", dest="debug", help="Debug", action="store_true")
     p.add_argument("--only", dest="only_re", action="append", help="Regular expressions to include functions", default=[])
     p.add_argument("--except", dest="except_re", action="append", help="Regular expressions to exclude functions", default=[])
+    p.add_argument("--no-demangle", dest="demangle", action="store_false", help="Do not demangle function names, which uses c++filt")
+
 
     args = p.parse_args()
 
@@ -114,6 +139,12 @@ if __name__ == "__main__":
             cubin['functions'] = [x for x in cubin['functions'] if not except_re.search(x.function)]
 
         cubin['functions'] = [x.to_dict() for x in cubin['functions']]
+        mangled = [x['function'] for x in cubin['functions']]
+
+        if args.demangle:
+            demangled = cxxfilt_demangle(mangled)
+            for f, d in zip(cubin['functions'], demangled):
+                f['function_demangled'] = d
 
     with open(args.output, 'w') as f:
         print(yaml.dump(function_info), file=f)
