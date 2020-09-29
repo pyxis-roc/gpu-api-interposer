@@ -18,6 +18,7 @@ import struct
 from collections import namedtuple
 import os
 import zlib
+import re
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
 ATTR_INFO = namedtuple('ATTR_INFO', 'attr_fmt attr_size data')
@@ -32,6 +33,8 @@ HOSTS = {1: "linux",
 
 DEBUG_MODE = 0
 LIBRARY_MODE = 1
+
+CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)\.(?P<symbol>.*)")
 
 class NVCubinPart(object):
     def __init__(self, part_type, header, data, cubin):
@@ -370,6 +373,16 @@ class NVCubinPartELF(NVCubinPart):
 
         return args
 
+    def parse_constant(self, section, data):
+        m = CONSTANT_RE.match(section.name)
+
+        assert m is not None, f"Couldn't parse constant section name: {section.name}"
+
+        bank = int(m.group('bank'))
+        symbol = m.group('symbol')
+
+        return symbol, {'bank': bank, 'data': data}
+
     def parse(self):
         data = self.data
         if self.compressed:
@@ -392,10 +405,11 @@ class NVCubinPartELF(NVCubinPart):
         self.nvglobals = gs
         self.args = {}
         self.fn_info = {}
+        self.constants = {}
 
         for s in self.cubin_elf.iter_sections():
             #print(s.name)
-            if s.name[:8] == ".nv.info":
+            if s.name.startswith(".nv.info"):
                 info = self.parse_nv_info_section(s, s.data())
                 #args = self.parse_nv_param_info_section(s, s.data())
                 args = self.parse_param_info(info)
@@ -403,6 +417,10 @@ class NVCubinPartELF(NVCubinPart):
 
                 self.args[s.name[9:]] = args
                 self.fn_info[s.name[9:]] = fninfo
+            elif s.name.startswith(".nv.constant"):
+                fn_name, const = self.parse_constant(s, s.data())
+                if fn_name not in self.constants: self.constants[fn_name] = []
+                self.constants[fn_name].append(const)
 
         if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)

@@ -46,7 +46,6 @@ def get_function_info(fatbin):
 
         ptx_data = []
         elf_data = []
-
         # each cubin contains parts, for PTX or for ELF
         for cc in c.parts:
             if isinstance(cc, nvfatbin.NVCubinPartPTX):
@@ -56,8 +55,9 @@ def get_function_info(fatbin):
 
         # check that both PTX and ELF are present
         if len(ptx_data) and len(elf_data):
-            ocubin = {'cubin': 'cubin', # TODO
-                      'ptx': [{'data': pd[1].decode('ascii')} for pd in ptx_data], #TODO
+            ocubin = {'cubin': [{'arch': ed[0].arch} for ed in elf_data],
+                      'ptx': [{'arch': pd[0].arch,
+                               'data': pd[1].decode('ascii')} for pd in ptx_data], #TODO
                       }
 
             function_info = []
@@ -67,7 +67,6 @@ def get_function_info(fatbin):
 
                 for fn, sassfn in disfns.items():
                     function_info.append(sassfn)
-                    #print(yaml.dump(sassfn.to_dict()))
 
             ocubin['functions'] = function_info
             out.append(ocubin)

@@ -46,6 +46,7 @@ class SASSFunction(object):
         self.binary = sass_binary
         self.arg_info = None
         self.fn_info = None
+        self.cubin_info = {}
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
@@ -56,11 +57,15 @@ class SASSFunction(object):
     def set_fn_info(self, fninfo):
         self.fn_info = fninfo
 
+    def set_constants(self, constants):
+        self.constants = constants
+
     def to_dict(self):
         out = {'function': self.function,
                'producer': self.producer,
                'headers': self.headers,
                'binary': self.binary,
+               'cubin_info': self.cubin_info,
                'disassembly': [dict(x._asdict()) for x in self.disassembly]}
 
         if self.arg_info:
@@ -68,6 +73,9 @@ class SASSFunction(object):
 
         if self.fn_info:
             out['fn_info'] = self.fn_info
+
+        if self.constants:
+            out['constants'] = self.constants
 
         return out
 
@@ -135,6 +143,8 @@ class DisassemblerCUObjdump(object):
         cubin_data = cubin.get_data()
         fnargs = cubin.get_args()
         fninfo = cubin.get_fn_info()
+        const = cubin.constants
+        cubin_info = {'arch': cubin.arch}
 
         assert not (len(function_names) and (function_index is not None)), f"Can't specify both function_names and function_index at the same time"
 
@@ -163,6 +173,8 @@ class DisassemblerCUObjdump(object):
                     out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
                     out[fn].set_arg_info(fnargs[fn])
                     out[fn].set_fn_info(fninfo[fn])
+                    out[fn].set_constants(const[fn])
+                    out[fn].cubin_info = cubin_info
             except:
                 raise
 
