@@ -156,27 +156,28 @@ class DisassemblerCUObjdump(object):
             args.append('-findex')
             args.append(str(function_index))
 
-        tmpcubin = "/tmp/tmp.cubin"
         out = {}
-        with open(tmpcubin, "wb") as f:
+        with tempfile.NamedTemporaryFile(suffix=".cubin", delete=False) as f:
             f.write(cubin_data)
-            f.flush()
+            tmpcubin = f.name
 
-            try:
-                output = subprocess.check_output(['cuobjdump'] + args + ['-sass', tmpcubin])
-                output = output.decode('ascii')
-                by_function = DisassemblerCUObjdump._parse_cuobjdump_output(output)
-                fn_headers_sass = DisassemblerCUObjdump._parse_fn_sass(by_function)
+        try:
+            output = subprocess.check_output(['cuobjdump'] + args + ['-sass', tmpcubin])
+            output = output.decode('ascii')
+            by_function = DisassemblerCUObjdump._parse_cuobjdump_output(output)
+            fn_headers_sass = DisassemblerCUObjdump._parse_fn_sass(by_function)
 
-                for fn, (hdr, sass) in fn_headers_sass.items():
-                    #print(fn, hdr, sass)
-                    out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
-                    out[fn].set_arg_info(fnargs[fn])
-                    out[fn].set_fn_info(fninfo[fn])
-                    out[fn].set_constants(const[fn])
-                    out[fn].cubin_info = cubin_info
-            except:
-                raise
+            for fn, (hdr, sass) in fn_headers_sass.items():
+                #print(fn, hdr, sass)
+                out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
+                out[fn].set_arg_info(fnargs[fn])
+                out[fn].set_fn_info(fninfo[fn])
+                out[fn].set_constants(const[fn])
+                out[fn].cubin_info = cubin_info
+        except:
+            raise
+        finally:
+            os.unlink(tmpcubin)
 
         return out
 
