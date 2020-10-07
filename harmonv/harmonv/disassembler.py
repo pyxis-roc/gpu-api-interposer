@@ -170,9 +170,9 @@ class DisassemblerCUObjdump(object):
             for fn, (hdr, sass) in fn_headers_sass.items():
                 #print(fn, hdr, sass)
                 out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
-                out[fn].set_arg_info(fnargs[fn])
-                out[fn].set_fn_info(fninfo[fn])
-                out[fn].set_constants(const[fn])
+                if fn in fnargs: out[fn].set_arg_info(fnargs[fn])
+                if fn in fninfo: out[fn].set_fn_info(fninfo[fn])
+                if fn in const: out[fn].set_constants(const[fn])
                 out[fn].cubin_info = cubin_info
         except:
             raise
