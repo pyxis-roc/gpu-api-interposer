@@ -34,7 +34,7 @@ HOSTS = {1: "linux",
 DEBUG_MODE = 0
 LIBRARY_MODE = 1
 
-CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)\.(?P<symbol>.*)")
+CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)(\.(?P<symbol>.*))?")
 
 class NVCubinPart(object):
     def __init__(self, part_type, header, data, cubin):
@@ -380,8 +380,12 @@ class NVCubinPartELF(NVCubinPart):
 
         bank = int(m.group('bank'))
         symbol = m.group('symbol')
+        out = {'bank': bank, 'data': data}
+        if symbol is None:
+            symbol = '' # possibly global
+            out['global'] = True
 
-        return symbol, {'bank': bank, 'data': data}
+        return symbol, out
 
     def parse(self):
         data = self.data

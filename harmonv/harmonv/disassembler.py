@@ -57,8 +57,11 @@ class SASSFunction(object):
     def set_fn_info(self, fninfo):
         self.fn_info = fninfo
 
-    def set_constants(self, constants):
-        self.constants = constants
+    def set_constants(self, constants, update = False):
+        if update:
+            self.constants.extend(constants)
+        else:
+            self.constants = constants
 
     def to_dict(self):
         out = {'function': self.function,
@@ -173,7 +176,11 @@ class DisassemblerCUObjdump(object):
                 if fn in fnargs: out[fn].set_arg_info(fnargs[fn])
                 if fn in fninfo: out[fn].set_fn_info(fninfo[fn])
                 if fn in const: out[fn].set_constants(const[fn])
+                if '' in const: out[fn].set_constants(const[''], update=True)
                 out[fn].cubin_info = cubin_info
+        except subprocess.CalledProcessError as e:
+            logger.error(f'ERROR: cuobjdump failed to handle cubin (arch={cubin.arch}): {e}')
+            return out
         except:
             raise
         finally:

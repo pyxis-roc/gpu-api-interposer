@@ -19,6 +19,7 @@ import os
 import yaml
 import re
 import subprocess
+import sys
 
 def extract_ptx(fatbin, _keep_fatbin = False):
     ptx_data = []
@@ -149,3 +150,5 @@ if __name__ == "__main__":
 
     with open(args.output, 'w') as f:
         print(yaml.dump(function_info), file=f)
+
+    print(f"Wrote {args.output}", file=sys.stderr)
