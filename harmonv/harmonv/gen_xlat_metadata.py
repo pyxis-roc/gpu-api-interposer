@@ -105,6 +105,19 @@ def cxxfilt_demangle(names, format="auto", no_params=False, cppfilt = 'c++filt')
     assert len(demangled) == len(names)
     return demangled
 
+def get_function_relocations(fns, fninfo):
+    changed = True
+    while changed:
+        keep_fns = set()
+        for f in fninfo:
+            if f.function in fns and f.relocations:
+                relsyms = set([r['symbol'] for r in f.relocations])
+                keep_fns |= relsyms # note: not all relsyms need to be functions
+
+        changed = len(keep_fns - fns) > 0
+        fns |= keep_fns
+
+    return fns
 
 if __name__ == "__main__":
     import sys
@@ -118,6 +131,7 @@ if __name__ == "__main__":
     p.add_argument("--only", dest="only_re", action="append", help="Regular expressions to include functions", default=[])
     p.add_argument("--except", dest="except_re", action="append", help="Regular expressions to exclude functions", default=[])
     p.add_argument("--no-demangle", dest="demangle", action="store_false", help="Do not demangle function names, which uses c++filt")
+    p.add_argument("--no-relocs", dest="relocs", action="store_false", help="Do not extract functions referenced in relocations even if they do not match --only")
 
 
     args = p.parse_args()
@@ -135,7 +149,10 @@ if __name__ == "__main__":
 
     for cubin in function_info:
         if args.only_re:
-            cubin['functions'] = [x for x in cubin['functions'] if only_re.search(x.function)]
+            keep_fns = set([x.function for x in cubin['functions'] if only_re.search(x.function)])
+            if args.relocs: keep_fns = get_function_relocations(keep_fns, cubin['functions'])
+
+            cubin['functions'] = [x for x in cubin['functions'] if x.function in keep_fns]
 
         if args.except_re:
             cubin['functions'] = [x for x in cubin['functions'] if not except_re.search(x.function)]

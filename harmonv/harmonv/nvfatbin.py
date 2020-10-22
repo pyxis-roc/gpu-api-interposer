@@ -24,8 +24,16 @@ KPARAM = namedtuple('KPARAM', 'ordinal offset size')
 ATTR_INFO = namedtuple('ATTR_INFO', 'attr_fmt attr_size data')
 GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
 
+FATBIN_MAGIC = 0xBA55ED50
+OLD_STYLE_FATBIN_MAGIC = 0x1EE55A01 # not supported
+
+# these are FATBIN_KIND_* in fatbinary.h, but this naming convention
+# predates that file.
+
 CUBIN_PTX = 1
 CUBIN_ELF = 2
+CUBIN_OLDCUBIN = 4
+CUBIN_IR = 8 # NVVM
 
 HOSTS = {1: "linux",
          2: "mac",
@@ -35,6 +43,10 @@ DEBUG_MODE = 0
 LIBRARY_MODE = 1
 
 CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)(\.(?P<symbol>.*))?")
+
+# relocation types, lots more...
+R_CUDA_ABS32_20 = 42
+R_NV_64 = 2
 
 class NVCubinPart(object):
     def __init__(self, part_type, header, data, cubin):
@@ -387,6 +399,19 @@ class NVCubinPartELF(NVCubinPart):
 
         return symbol, out
 
+    def parse_relocations(self, section):
+        if section.name.startswith(".rel."):
+            target = section.name[4:]
+            symtab = self.cubin_elf.get_section(section['sh_link'])
+            out = []
+            for r in section.iter_relocations():
+                out.append((r, symtab.get_symbol(r['r_info_sym']).name))
+
+            return target, out
+        else: # rela
+            return None, None
+            #raise NotImplementedError(f"Don't support rela-sections {section.name}")
+
     def parse(self):
         data = self.data
         if self.compressed:
@@ -410,6 +435,7 @@ class NVCubinPartELF(NVCubinPart):
         self.args = {}
         self.fn_info = {}
         self.constants = {}
+        self.relocations = {}
 
         for s in self.cubin_elf.iter_sections():
             #print(s.name)
@@ -425,6 +451,9 @@ class NVCubinPartELF(NVCubinPart):
                 fn_name, const = self.parse_constant(s, s.data())
                 if fn_name not in self.constants: self.constants[fn_name] = []
                 self.constants[fn_name].append(const)
+            elif isinstance(s, elftools.elf.relocation.RelocationSection):
+                tgt, relocs = self.parse_relocations(s)
+                self.relocations[tgt] = relocs
 
         if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)
@@ -490,7 +519,7 @@ class NVFatBinary(object):
                 break
 
         if nv_fatbin:
-            fatbin_header = struct.Struct('QQ')
+            fatbin_header = struct.Struct('IHHQ') # from fatbinary.h
             assert fatbin_header.size == 16, fatbin_header.size
 
             elfname = os.path.basename(self.elf)
@@ -504,8 +533,9 @@ class NVFatBinary(object):
             cubins = []
             ndx = 0
             while ndx < len(self.fatbin_data):
-                magic, next_offset = fatbin_header.unpack_from(self.fatbin_data, ndx)
-                ndx += fatbin_header.size
+                magic, version, hdrSize, next_offset = fatbin_header.unpack_from(self.fatbin_data, ndx)
+                if magic != FATBIN_MAGIC: raise NotImplementedError(f"Don't support fat binary with magic={magic:x}")
+                ndx += hdrSize #fatbin_header.size
 
                 #if next_offset == 0:
                 #    continue

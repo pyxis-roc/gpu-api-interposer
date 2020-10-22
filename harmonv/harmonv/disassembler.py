@@ -47,6 +47,8 @@ class SASSFunction(object):
         self.arg_info = None
         self.fn_info = None
         self.cubin_info = {}
+        self.constants = None
+        self.relocations = None
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
@@ -56,6 +58,16 @@ class SASSFunction(object):
 
     def set_fn_info(self, fninfo):
         self.fn_info = fninfo
+
+    def set_relocations(self, relocations):
+        out = []
+        for r, sym in relocations:
+            out.append({'offset': r['r_offset'],
+                        'symbol': sym,
+                        'info': r['r_info'],
+                        'info_type': r['r_info_type']})
+
+        self.relocations = out
 
     def set_constants(self, constants, update = False):
         if update:
@@ -79,6 +91,9 @@ class SASSFunction(object):
 
         if self.constants:
             out['constants'] = self.constants
+
+        if self.relocations:
+            out['relocations'] = self.relocations
 
         return out
 
@@ -169,14 +184,14 @@ class DisassemblerCUObjdump(object):
             output = output.decode('ascii')
             by_function = DisassemblerCUObjdump._parse_cuobjdump_output(output)
             fn_headers_sass = DisassemblerCUObjdump._parse_fn_sass(by_function)
-
             for fn, (hdr, sass) in fn_headers_sass.items():
-                #print(fn, hdr, sass)
                 out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
                 if fn in fnargs: out[fn].set_arg_info(fnargs[fn])
                 if fn in fninfo: out[fn].set_fn_info(fninfo[fn])
                 if fn in const: out[fn].set_constants(const[fn])
                 if '' in const: out[fn].set_constants(const[''], update=True)
+                if f'.text.{fn}' in cubin.relocations:
+                    out[fn].set_relocations(cubin.relocations[f'.text.{fn}'])
                 out[fn].cubin_info = cubin_info
         except subprocess.CalledProcessError as e:
             logger.error(f'ERROR: cuobjdump failed to handle cubin (arch={cubin.arch}): {e}')
