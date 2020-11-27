@@ -19,9 +19,10 @@ from collections import namedtuple
 import os
 import zlib
 import re
+from nvinfo import *
+import warnings
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
-ATTR_INFO = namedtuple('ATTR_INFO', 'attr_fmt attr_size data')
 GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
 
 FATBIN_MAGIC = 0xBA55ED50
@@ -248,6 +249,8 @@ class NVCubinPartELF(NVCubinPart):
 
             out.append(ATTR_INFO(attr_fmt, attr_size, data[ndx:ndx+attr_size]))
 
+            # TODO: refactor this using nvinfo
+
             if attr_fmt == 0x1704: # EIATTR_KPARAM_INFO, EIFMT_SVAL
                 ndx += attr_size
             elif attr_fmt == 0xa04:   # EIATTR_PARAM_CBANK, EIFMT_SVAL
@@ -264,7 +267,7 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == 0x1104  : #EIATTR_FRAME_SIZE
                 ndx += attr_size
-            elif attr_fmt == 0x1b03 : #EIATTR_MAXREG_COUNT
+            elif attr_fmt == 0x1b03 : #EIATTR_MAXREG_COUNT # uses 0x00ff as 'attr_size'
                 pass
             elif attr_fmt == 0x1c04 : #EIATTR_EXIT_INSTR_OFFSETS
                 ndx += attr_size
@@ -284,10 +287,16 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == 0x2a01: #EIATTR_SW1850030_WAR
                 ndx += attr_size
+            elif attr_fmt == EIATTR_SW2393858_WAR:
+                ndx += attr_size
             elif attr_fmt == 0x2804: #EIATTR_COOP_GROUP_INSTR_OFFSETS
                 ndx += attr_size
+            elif attr_fmt == EIATTR_REGCOUNT: #EIATTR_REGCOUNT
+                ndx += attr_size
+            elif attr_fmt == EIATTR_CUDA_API_VERSION:
+                ndx += attr_size
             else:
-                print(f"WARNING: unrecognized param info attribute  {attr_fmt:x} {attr_size}")
+                warnings.warn(f"Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
 
         return out
@@ -295,7 +304,7 @@ class NVCubinPartELF(NVCubinPart):
     def parse_param_info(self, info):
         args = []
         for nfo in info:
-            if nfo.attr_fmt == 0x1704: # EIATTR_KPARAM_INFO, EIFMT_SVAL
+            if nfo.attr_fmt == EIATTR_KPARAM_INFO: # EIATTR_KPARAM_INFO, EIFMT_SVAL
                 # W,S,S,B[4]
                 ordinal = struct.unpack_from('H', nfo.data, 0 + 4)[0]
                 offset = struct.unpack_from('H', nfo.data, 0 + 6)[0]
@@ -311,12 +320,17 @@ class NVCubinPartELF(NVCubinPart):
         for nfo in info:
             if nfo.attr_fmt == 0x1b03:
                 out['EIATTR_MAXREG_COUNT'] = nfo.attr_size # unused, SHI_REGISTERS is used instead
-            elif nfo.attr_fmt == 0x1903:
+            elif nfo.attr_fmt == EIATTR_CBANK_PARAM_SIZE:
                 out['EIATTR_CBANK_PARAM_SIZE'] = struct.unpack_from('H', nfo.data, 0)[0]
-            elif nfo.attr_fmt == 0x0a04:
+            elif nfo.attr_fmt == EIATTR_PARAM_CBANK:
                 start, size = struct.unpack_from('HH', nfo.data, 4) # skip word
                 out['EIATTR_PARAM_CBANK'] = {'start': start,
                                              'size': size}
+            elif nfo.attr_fmt == EIATTR_REGCOUNT:
+                pass
+            elif nfo.attr_fmt == EIATTR_CUDA_API_VERSION:
+                version = struct.unpack_from('I', nfo.data, 0)[0]
+                out['EIATTR_CUDA_API_VERSION'] = version # this is version * 10, so 111 for 11.1
 
         return out
 
@@ -420,7 +434,7 @@ class NVCubinPartELF(NVCubinPart):
             if hasattr(self, 'uncompressed_data'):
                 data = self.uncompressed_data
             else:
-                print("WARNING: elf_parse: Don't know how to parse compressed ELFs")
+                warnings.warn("Don't know how to parse compressed ELFs")
                 return
 
         self.cubin_elf = ELFFile(io.BytesIO(data))
