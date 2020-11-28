@@ -295,6 +295,10 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == EIATTR_CUDA_API_VERSION:
                 ndx += attr_size
+            elif attr_fmt == EIATTR_SW_WAR:
+                ndx += attr_size
+            elif attr_fmt == EIATTR_INT_WARP_WIDE_INSTR_OFFSETS:
+                ndx += attr_size
             else:
                 warnings.warn(f"Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
