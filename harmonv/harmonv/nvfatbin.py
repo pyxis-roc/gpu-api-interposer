@@ -17,7 +17,6 @@ import io
 import struct
 from collections import namedtuple
 import os
-import zlib
 import re
 from nvinfo import *
 import warnings

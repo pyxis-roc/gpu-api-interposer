@@ -12,6 +12,7 @@ Obviously, this is unaffiliated with NVIDIA.
 You'll need the following Python3 packages
 
   - pyelftools
+  - lz4
 
 # Installation
 
@@ -29,5 +30,5 @@ This contains tools for working with NVIDIA Fat Binaries and CUBIN files.
 
 ## ptxextract.py
 
-This extracts compressed PTX files from NVIDIA Fat Binaries. It
-currently requires `cuobjdump` to decompress the files.
+This extracts PTX files from NVIDIA Fat Binaries. It requires
+`cuobjdump` or the `lz4` library to decompress sections.
