@@ -19,7 +19,7 @@ import logging
 import subprocess
 import re
 from collections import namedtuple
-import disasm_parser
+from harmonv import disasm_parser
 
 logger = logging.getLogger(__name__)
 

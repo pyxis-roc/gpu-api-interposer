@@ -18,7 +18,12 @@ import struct
 from collections import namedtuple
 import os
 import re
-from nvinfo import *
+
+try:
+    from nvinfo import *
+except ImportError:
+    from .nvinfo import *
+
 import warnings
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')

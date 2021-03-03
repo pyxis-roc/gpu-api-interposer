@@ -22,5 +22,7 @@ setup(name='harmonv',
       version='0.1',
       packages=['harmonv'],
       cmdclass={'install': CustomInstall, 'develop': CustomDevelop},
-      package_data={'harmonv': ['ptx/*.cfg', 'ptx/*.interp', 'ptx/*.tokens']}
+      package_data={'harmonv': ['ptx/*.cfg', 'ptx/*.interp', 'ptx/*.tokens']},
+      scripts=['bin/hcuobjdump',
+               'bin/gen_xlat_metadata.py']
 )
