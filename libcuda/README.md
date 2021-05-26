@@ -119,7 +119,7 @@ You can use `babeltrace` to see the trace:
 
 You can also use `libcuda-replay.py` to rerun the trace:
 
-    /path/to/libcuda-replay/libcuda_replay.py /path/to/lttng-trace /path/to/bs.db /path/to/argfiles.yaml
+    /path/to/libcuda-replay/libcuda_replay.py /path/to/lttng-trace /path/to/bs.db /path/to/binary /path/to/argfiles.yaml
 
 ## Adding new APIs to record in the trace
 
