@@ -57,7 +57,11 @@ if __name__ == "__main__":
         for ptx in extract_ptx(fatbin, args.keep):
             print(ptx[0].get_filename())
             with open(ptx[0].get_filename(), "wb") as f:
-                f.write(ptx[1])
+                if ptx[1][-1] == 0:
+                    # CUDA versions >= 11.0 store a 0 byte at the end
+                    f.write(ptx[1][:-1])
+                else:
+                    f.write(ptx[1])
 
     if "elf" in args.extract:
         for elf in extract_elf(fatbin):
