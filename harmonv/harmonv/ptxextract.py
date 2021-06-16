@@ -6,6 +6,7 @@ import struct
 import subprocess
 import tempfile
 import os
+from pathlib import Path
 
 def extract_ptx(fatbin, _keep_fatbin = False):
     ptx_data = []
@@ -36,6 +37,7 @@ if __name__ == "__main__":
                    default=[], help="What to extract" )
     p.add_argument("-k", "--keep", dest="keep", action="store_true", help="Keep temporary files")
     p.add_argument("-d", dest="debug", help="Debug", action="store_true")
+    p.add_argument("-p", dest="file_prefix", help="Filename prefix")
 
     args = p.parse_args()
 
@@ -55,8 +57,11 @@ if __name__ == "__main__":
 
     if "ptx" in args.extract:
         for ptx in extract_ptx(fatbin, args.keep):
-            print(ptx[0].get_filename())
-            with open(ptx[0].get_filename(), "wb") as f:
+            fn = Path(ptx[0].get_filename())
+            if args.file_prefix:
+                fn = fn.parent / (args.file_prefix + fn.name)
+            print(fn)
+            with open(fn, "wb") as f:
                 if ptx[1][-1] == 0:
                     # CUDA versions >= 11.0 store a 0 byte at the end
                     f.write(ptx[1][:-1])
@@ -65,6 +70,10 @@ if __name__ == "__main__":
 
     if "elf" in args.extract:
         for elf in extract_elf(fatbin):
-            print(elf[0].get_filename())
-            with open(elf[0].get_filename(), "wb") as f:
+            fn = Path(elf[0].get_filename())
+            if args.file_prefix:
+                fn.name = fn.parent / (args.file_prefix + fn.name)
+
+            print(fn)
+            with open(fn, "wb") as f:
                 f.write(elf[1])
