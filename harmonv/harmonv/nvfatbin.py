@@ -82,8 +82,7 @@ class NVCubinPart(object):
         # as shown by -lelf and -lptx
 
         def prefix(i):
-            # TODO: assuming cuobjdump truncates from first ".", to check if it truncates from last "."
-            p = i.find(b'.')
+            p = i.rfind(b'.')
             if p != -1:
                 return i[:p]
 
