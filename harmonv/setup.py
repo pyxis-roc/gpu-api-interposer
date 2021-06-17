@@ -24,5 +24,6 @@ setup(name='harmonv',
       cmdclass={'install': CustomInstall, 'develop': CustomDevelop},
       package_data={'harmonv': ['ptx/*.cfg', 'ptx/*.interp', 'ptx/*.tokens']},
       scripts=['bin/hcuobjdump',
-               'bin/gen_xlat_metadata.py']
+               'bin/gen_xlat_metadata.py',
+               'bin/fbextractor.py']
 )
