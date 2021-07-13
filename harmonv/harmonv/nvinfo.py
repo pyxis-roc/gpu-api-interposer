@@ -15,4 +15,6 @@ EIATTR_CUDA_API_VERSION = 0x3704
 EIATTR_SW2393858_WAR = 0x3001
 EIATTR_INT_WARP_WIDE_INSTR_OFFSETS = 0x3104 # data is an array of offset words with length prefix?
 EIATTR_SW_WAR = 0x3604 # data is word
-
+EIATTR_LD_CACHEMOD_INSTR_OFFSETS = 0x2504 # data is array of words
+EIATTR_INDIRECT_BRANCH_TARGETS = 0x3404 # data is array of word, shortx2, word, word
+EIATTR_SW2861232_WAR = 0x3501

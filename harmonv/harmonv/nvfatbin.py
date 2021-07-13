@@ -302,8 +302,14 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == EIATTR_INT_WARP_WIDE_INSTR_OFFSETS:
                 ndx += attr_size
+            elif attr_fmt == EIATTR_LD_CACHEMOD_INSTR_OFFSETS:
+                ndx += attr_size
+            elif attr_fmt == EIATTR_INDIRECT_BRANCH_TARGETS:
+                ndx += attr_size
+            elif attr_fmt == EIATTR_SW2861232_WAR:
+                ndx += attr_size
             else:
-                warnings.warn(f"Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
+                warnings.warn(f"{self.get_filename()}: Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
 
         return out
