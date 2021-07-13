@@ -30,7 +30,7 @@ SASS_INSN_CUOBJDUMP = namedtuple('SASS_INSN_CUOBJDUMP', 'loc opcode text raw vli
 class ParseError(object):
     def error(self, tok, message):
         import sys
-        print(f"{tok.err_scoord}: {message}", file=sys.stderr)
+        print(f"{tok.srcfile}:{tok.err_scoord}: {message}", file=sys.stderr)
         print("    " + tok.err_line, file=sys.stderr)
         print(" "*(tok.err_coord[1][0]+4) +"^"*(tok.err_coord[1][1] - tok.err_coord[1][0]), file=sys.stderr)
         raise ValueError(message)
@@ -40,7 +40,8 @@ class DisassemblyTokenizer(object):
     match = None
     _token_stream = None
 
-    def __init__(self, strdata, err):
+    def __init__(self, strdata, err, src = '<unknown>'):
+        self.srcfile = src
         self.data = strdata
         self._token_stream = self.tokenize()
         self.token, self.match = next(self._token_stream)
@@ -55,7 +56,7 @@ class DisassemblyTokenizer(object):
 
     def tokenize(self):
         # based on the example in the re docs
-        tokens = [('ADDR', r'/\*[0-9A-Fa-f]{4}\*/'),
+        tokens = [('ADDR', r'/\*[0-9A-Fa-f]{4,5}\*/'),
                   ('START_VLIW', r'\{'),
                   ('END_VLIW', r'\}'),
                   ('OPCODE', r'/\* 0x[A-Fa-f0-9]+ \*/'),
@@ -134,10 +135,13 @@ class DisassemblyTokenizer(object):
 # d = (sched | disasm)+
 
 class DisassemblyParser(object):
+    def __init__(self, src):
+        self.srcfile = src
+
     def parse(self, disasm, token_stream = None):
         if token_stream is None:
             err = ParseError()
-            token_stream = DisassemblyTokenizer(disasm, err)
+            token_stream = DisassemblyTokenizer(disasm, err, src = self.srcfile)
 
         out = []
         while True:

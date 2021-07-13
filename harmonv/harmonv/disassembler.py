@@ -101,7 +101,7 @@ class SASSFunction(object):
 
 class DisassemblerCUObjdump(object):
     @staticmethod
-    def _parse_cuobjdump_output(output):
+    def _parse_cuobjdump_output(src, output):
         """Get per-function SASS dumps"""
 
         out = {}
@@ -159,10 +159,10 @@ class DisassemblerCUObjdump(object):
         return out
 
     @staticmethod
-    def _parse_fn_sass_2(fn_output):
+    def _parse_fn_sass_2(src, fn_output):
         out = {}
 
-        parser = disasm_parser.DisassemblyParser()
+        parser = disasm_parser.DisassemblyParser(src)
 
         for fn, data in fn_output.items():
             header = []
@@ -172,7 +172,7 @@ class DisassemblerCUObjdump(object):
             for lno, l in enumerate(data, 1):
                 m = SASS_DIRECTIVE.match(l)
                 if m:
-                    assert len(disasm) == 0, f"{lno}: Line '{l}' in middle of disassembly looks like a directive, was expecting disassembly"
+                    assert len(disasm) == 0, f"{src}:{lno}: Line '{l}' in middle of disassembly looks like a directive, was expecting disassembly"
                     header.append(l)
                     continue
                 else:
@@ -187,7 +187,7 @@ class DisassemblerCUObjdump(object):
         return out
 
     @staticmethod
-    def disassemble(cubin, function_names = [], function_index = None, _keep = False):
+    def disassemble(cubin, function_names = [], function_index = None, _keep = False, src = '<unknown>'):
         cubin_data = cubin.get_data()
         fnargs = cubin.get_args()
         fninfo = cubin.get_fn_info()
@@ -212,8 +212,8 @@ class DisassemblerCUObjdump(object):
         try:
             output = subprocess.check_output(['cuobjdump'] + args + ['-sass', tmpcubin])
             output = output.decode('ascii')
-            by_function = DisassemblerCUObjdump._parse_cuobjdump_output(output)
-            fn_headers_sass = DisassemblerCUObjdump._parse_fn_sass_2(by_function)
+            by_function = DisassemblerCUObjdump._parse_cuobjdump_output(src, output)
+            fn_headers_sass = DisassemblerCUObjdump._parse_fn_sass_2(src, by_function)
             for fn, (hdr, sass) in fn_headers_sass.items():
                 out[fn] = SASSFunction(fn, sass_disassembly=sass, producer='cuobjdump', headers=hdr)
                 if fn in fnargs: out[fn].set_arg_info(fnargs[fn])

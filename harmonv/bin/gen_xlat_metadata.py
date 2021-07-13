@@ -64,7 +64,7 @@ def get_function_info(fatbin):
             function_info = []
 
             for elfcubin, rawelf in elf_data:
-                disfns = DisassemblerCUObjdump.disassemble(elfcubin)
+                disfns = DisassemblerCUObjdump.disassemble(elfcubin, src = fatbin.elf)
 
                 for fn, sassfn in disfns.items():
                     function_info.append(sassfn)
