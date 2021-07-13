@@ -178,6 +178,12 @@ class DisassemblyParser(object):
 
         return out
 
+
+    # The instruction DEPBAR {0} ; can confuse the parser
+    # because it reads DEPBAR {0 and END_VLIW and then finds a semicolon insted of an opcode
+    #
+    #TODO: need to see how cuda < 10 renders it.
+
     def parse_disasm(self, token_stream):
         """ disasm ::= disassembly (semicolon | end_vliw) opcode # 10 and beyond
             disasm ::= disassembly semicolon end_vliw? opcode # prior to 10"""
@@ -194,6 +200,14 @@ class DisassemblyParser(object):
         if lookahead == token_stream.END_VLIW:
             end_vliw = True
             _, _ = token_stream.consume()
+
+        # hack to handle DEPBAR
+        if disasm.startswith("DEPBAR") and end_vliw:
+            lookahead = token_stream.lookahead()
+            if lookahead == token_stream.SEMICOLON:
+                _, _ = token_stream.consume()
+                end_vliw = False # we're assuming DEPBAR will not be inside a VLIW
+                disasm += "}"
 
         opcode = token_stream.expect(token_stream.OPCODE)
         return disasm, end_vliw, opcode
