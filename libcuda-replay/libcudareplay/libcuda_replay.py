@@ -11,13 +11,13 @@
 
 import sqlite3
 import yaml
-import babeltrace
+import bt2
 import argparse
 import glob
 import os
 import yaml
 import logging
-from .cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
+from libcudareplay.cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
 
 _logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class PrePostLinker(object):
         # so make copies for post
 
         if fields is None:
-            fields = pre_ev.field_list_with_scope(babeltrace.CTFScope.EVENT_FIELDS)
+            fields = pre_ev.payload_field
 
         evdata = {'.name': pre_ev.name}
         for f in fields:
@@ -109,25 +109,25 @@ class NVTraceHandler(object):
         pass
 
     def cuDeviceGetCount_post(self, ev, bsdata):
-        self.apihandler.cuDeviceGetCount(ev['count'])
+        self.apihandler.cuDeviceGetCount(int(ev['count']))
 
     def cuDeviceGet_post(self, ev, bsdata):
-        self.apihandler.cuDeviceGet(ev['device_contents'], ev['ordinal'])
+        self.apihandler.cuDeviceGet(int(ev['device_contents']), int(ev['ordinal']))
 
     def cuDeviceGetName_post(self, ev, bsdata):
-        self.apihandler.cuDeviceGetName(ev['name'], ev['dev'])
+        self.apihandler.cuDeviceGetName(str(ev['name']), int(ev['dev']))
 
     def cuDeviceTotalMem_v2_post(self, ev, bsdata):
-        self.apihandler.cuDeviceTotalMem(ev['bytes_contents'], ev['dev'])
+        self.apihandler.cuDeviceTotalMem(int(ev['bytes_contents']), int(ev['dev']))
 
     def cuDeviceTotalMem_post(self, ev, bsdata):
-        self.apihandler.cuDeviceTotalMem(ev['bytes_contents'], ev['dev'])
+        self.apihandler.cuDeviceTotalMem(int(ev['bytes_contents']), int(ev['dev']))
 
     def cuDeviceGetAttribute_post(self, ev, bsdata):
-        self.apihandler.cuDeviceGetAttribute(ev['pi_contents'], ev['attrib'], ev['dev'])
+        self.apihandler.cuDeviceGetAttribute(int(ev['pi_contents']), int(ev['attrib']), int(ev['dev']))
 
     def cuDeviceGetUuid_post(self, ev, bsdata):
-        self.apihandler.cuDeviceGetUuid(ev['uuid'], ev['dev'])
+        self.apihandler.cuDeviceGetUuid(ev['uuid'], int(ev['dev'])) # TODO
 
     def cuCtxGetCurrent_post(self, ev, bsdata):
         self.apihandler.cuCtxGetCurrent(ev['pctx_contents'])
@@ -139,29 +139,26 @@ class NVTraceHandler(object):
         self.pre_post.register_pre('cuDriverGetVersion', ev, bsdata)
 
     def cuDevicePrimaryCtxRetain_post(self, ev, bsdata):
-        self.apihandler.cuDevicePrimaryCtxRetain(ev['pctx_contents'], ev['dev'])
+        self.apihandler.cuDevicePrimaryCtxRetain(ev['pctx_contents'], int(ev['dev']))
 
     def cuDevicePrimaryCtxRelease_post(self, ev, bsdata):
-        self.apihandler.cuDevicePrimaryCtxRelease(ev['dev'])
+        self.apihandler.cuDevicePrimaryCtxRelease(int(ev['dev']))
 
     def cuCtxGetDevice_post(self, ev, bsdata):
-        self.apihandler.cuCtxGetDevice(ev['device_contents'])
-
-    def cuModuleGetFunction_post(self, ev, bsdata):
-        self.apihandler.cuCtxGetDevice(ev['hfunc_contents'], ev['hmod'], ev['name'])
+        self.apihandler.cuCtxGetDevice(int(ev['device_contents']))
 
     def cuMemAlloc_v2_pre(self, ev, bsdata):
         self.pre_post.register_pre('cuMemAlloc_v2', ev, bsdata)
 
     def cuMemAlloc_v2_post(self, ev, bsdata):
         pre_ev, pre_bsdata = self.pre_post.get_pre('cuMemAlloc_v2', ev)
-        self.apihandler.cuMemAlloc(ev['dptr_contents'], pre_ev['bytesize'])
+        self.apihandler.cuMemAlloc(int(ev['dptr_contents']), int(pre_ev['bytesize']))
 
     def cuMemFree_v2_post(self, ev, bsdata):
-        self.apihandler.cuMemFree(ev['dptr'])
+        self.apihandler.cuMemFree(int(ev['dptr']))
 
     def cuModuleUnload_post(self, ev, bsdata):
-        self.apihandler.cuModuleUnload(ev['hmod'])
+        self.apihandler.cuModuleUnload(int(ev['hmod']))
 
     def cuMemcpyHtoD_v2_pre(self, ev, bsdata):
         # this has no post
@@ -173,8 +170,8 @@ class NVTraceHandler(object):
         else:
             assert False, "No 'srcHost' found in blobstore for cuMemcpyHtoD"
 
-        self.apihandler.cuMemcpyHtoD(ev['dstDevice'], ev['srcHost'],
-                                     ev['ByteCount'], data)
+        self.apihandler.cuMemcpyHtoD(int(ev['dstDevice']), int(ev['srcHost']),
+                                     int(ev['ByteCount']), data)
 
     def cuMemcpyDtoH_v2_post(self, ev, bsdata):
         data = None
@@ -187,14 +184,15 @@ class NVTraceHandler(object):
 
         #WARNING: if DtoH was asynchronous, then dstHost is invalid!
 
-        self.apihandler.cuMemcpyDtoH(ev['dstHost'], ev['srcDevice'], ev['ByteCount'], data)
+        self.apihandler.cuMemcpyDtoH(int(ev['dstHost']), int(ev['srcDevice']), int(ev['ByteCount']), data)
 
     def cuDriverGetVersion_post(self, ev, bsdata):
         pre_ev, pre_bsdata = self.pre_post.get_pre('cuDriverGetVersion', ev)
         self.apihandler.cuDriverGetVersion(ev['driverVersion'])
 
     def cuModuleGetFunction_post(self, ev, bsdata):
-        self.apihandler.cuModuleGetFunction(ev['hfunc_contents'], ev['hmod'], ev['name'])
+        self.apihandler.cuModuleGetFunction(int(ev['hfunc_contents']), int(ev['hmod']),
+                                            str(ev['name']))
 
     def cuLaunchKernel_post(self, ev, bsdata):
         fn = self.apihandler.function_handles[ev['f']].name
@@ -234,10 +232,9 @@ class Replay(object):
     def __init__(self, trace, blobstore):
         self.trace = trace
 
-        self.tc = babeltrace.TraceCollection()
-        self.th = self.tc.add_trace(self.trace, 'ctf')
-
-        assert self.th is not None, "Unable to add trace"
+        #self.tc = babeltrace.TraceCollection()
+        #self.th = self.tc.add_trace(self.trace, 'ctf')
+        self.msg_it = bt2.TraceCollectionMessageIterator(self.trace)
 
         assert os.path.exists(blobstore), f"{blobstore} does not exit"
 
@@ -251,7 +248,7 @@ class Replay(object):
         self.tctx.vtid = ev['vtid']
         self.tctx.thread_id = self.tctx.vtid
 
-        if '_retval' in ev:
+        if '_retval' in ev.payload_field:
             self.tctx.retval = ev['_retval']
         else:
             # can happen for -pre
@@ -270,7 +267,12 @@ class Replay(object):
         last_row = None
 
         lprefix = len(self.prefix)
-        for event in self.tc.events:
+        for msg in self.msg_it:
+            if type(msg) is not bt2._EventMessageConst:
+                continue
+
+            event = msg.event
+
             if event.name[:lprefix] == self.prefix:
                 ctx = event['_ctx']
                 blobstore_data = []
