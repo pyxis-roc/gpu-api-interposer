@@ -17,7 +17,7 @@ import glob
 import os
 import yaml
 import logging
-from .cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
+from libcudareplay.cuda_device_runtime import CUDADeviceAPIHandler, CUDADefaultFactory, CUDARemoteFactory
 
 _logger = logging.getLogger(__name__)
 
