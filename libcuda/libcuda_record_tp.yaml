@@ -439,6 +439,14 @@ tracepoint_events:
             int_type: CUdevice
       - *retval_field
       - *ctx_field
+  cuDevicePrimaryCtxRelease_v2_post:
+    fields:
+      - dev:
+          type: ctf_integer
+          type_args:
+            int_type: CUdevice
+      - *retval_field
+      - *ctx_field
   cuDevicePrimaryCtxRetain_post:
     fields:
       - pctx_contents:
