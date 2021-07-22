@@ -239,6 +239,9 @@ class CUDADeviceAPIHandler(object):
 
         self.memory_handles.register(dptr, mr)
 
+        if 'cuMemAlloc' in self.api_instr.instr_fns:
+            self.api_instr.cuMemAlloc(dptr, bytesize)
+
     @check_retval
     def cuMemFree(self, dptr):
         mr = self.memory_handles[dptr]
@@ -249,6 +252,8 @@ class CUDADeviceAPIHandler(object):
 
         _logger.info(f'cuMemFree on device {mr.dev}: {mr.bytesize} bytes at 0x{mr.dptr:x}')
         self.memory_handles.unregister(dptr)
+        if 'cuMemFree' in self.api_instr.instr_fns:
+            self.api_instr.cuMemFree(dptr)
 
     @check_retval
     def cuMemcpyHtoD(self, dstDevice, srcHost, ByteCount, _data):
@@ -261,6 +266,8 @@ class CUDADeviceAPIHandler(object):
         assert gpu.has_dptr(dstDevice, ByteCount)
         #_logger.info(f'cuMemcpyHtoD on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} from 0x{srcHost:x}')
         gpu.set_memory(dstDevice, _data)
+        if 'cuMemcpyHtoD' in self.api_instr.instr_fns:
+            self.api_instr.cuMemcpyHtoD(dstDevice, srcHost, ByteCount, _data)
 
     @check_retval
     def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount, _data):
