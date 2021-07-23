@@ -31,6 +31,8 @@ post:
   - cuDevicePrimaryCtxRetain
   - cuGetExportTable
   - cuDevicePrimaryCtxRelease
+  - cuDevicePrimaryCtxRelease_v2
   - cuMemGetInfo_v2
 optional_functions:
   - cuDeviceGetUuid
+  - cuDevicePrimaryCtxRelease
