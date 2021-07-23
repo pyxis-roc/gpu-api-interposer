@@ -11,7 +11,7 @@ You'll need the following Python3 packages:
 If you're going to use `libcuda_record.so` to generate a trace of the
 CUDA device API, you'll also need:
 
-  - babeltrace (< 2.0)
+  - babeltrace (== 2.0)
   - lttng
 
 In addition to the `lttng-tools` and `liblttng-ust` packages.
