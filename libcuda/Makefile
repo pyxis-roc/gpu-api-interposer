@@ -1,13 +1,8 @@
 GENINTERPOSER=../generator/geninterposer.py
 GENTRACEPOINTS=../generator/gentracepoints.py
 GENRECORDER=../generator/genrecorder.py
-FAKE_C_HEADERS=/usr/share/python3-pycparser/fake_libc_include
+FAKE_C_HEADERS ?= /usr/share/python3-pycparser/fake_libc_include
 
-ifeq ($(shell if [ -d $(FAKE_C_HEADERS) ]; then echo t; fi),t)
-	$(error No fake c headers (needed by pycparser) found at $(FAKE_C_HEADERS). If these are not in \
-		`/usr/share/python3-pycparser/fake_libc_include`, then you should pass the correct directory as:$n    \
-		make FAKE_C_HEADERS=/path/to/fake_libc_include ... )
-endif
 #~/extsrc/pycparser/utils/fake_libc_include/
 CUDA_INC=$(CUDA_LIB)/../include
 CUDA_H=$(CUDA_INC)/cuda.h
