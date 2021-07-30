@@ -21,6 +21,7 @@ import copy
 import yaml
 import difflib
 import itertools
+import os
 
 TEMPLATE_INIT_ORIG_HANDLE = """static __attribute__((constructor)) void init_orig_handle() {{
     char *original_library_path = getenv("{env_variable}");
@@ -704,6 +705,12 @@ if __name__ == "__main__":
     p.add_argument("-o", dest="output", help="Output file")
 
     args = p.parse_args()
+
+
+    if args.fake_c_headers:
+        if not os.path.isdir(args.fake_c_headers):
+            print(f"ERROR: Directory {args.fake_c_headers} specified for --fake-c-headers does not exist")
+            sys.exit(1)
 
     ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers, args.output_prefix)
     if args.filter:
