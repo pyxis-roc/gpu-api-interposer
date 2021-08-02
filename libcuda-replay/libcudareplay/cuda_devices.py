@@ -173,10 +173,11 @@ class CUDAGPU(object):
         self._lazy_emu_init()
 
         assert cumemregion.dev == self.gpu_ordinal
+        assert cumemregion.bytesize != 0
 
         if not self.memory_regions.add(memregions.MemoryRegion(cumemregion.dptr,
                                                                cumemregion.dptr + cumemregion.bytesize - 1)):
-            _logger.error(f'alloc_memory_region: Failed to alloc memory region {cumemregion.dptr}')
+            _logger.error(f'alloc_memory_region: Failed to alloc memory region 0x{cumemregion.dptr:x}')
             return False
 
         self.mem.rebase(cumemregion.dptr)
