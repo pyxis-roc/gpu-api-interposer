@@ -65,7 +65,11 @@ if __name__ == "__main__":
         print(f"ERROR: Binary {args.binary} must have an args file {args.binary}.arg.yaml")
         sys.exit(1)
 
-    root = args.archive[0:args.archive.index(".")]
+    if args.root:
+        root = args.root
+    else:
+        root = os.path.basename(args.archive)
+        root = root[0:root.index(".")]
 
     members_to_add = [('trace', td),
                       ('blobstore', args.blobstore),
@@ -76,8 +80,8 @@ if __name__ == "__main__":
     with tarfile.open(args.archive, f'w:{args.compression}') as output:
         members = {}
         for n, m in members_to_add:
-            print(f"Adding {n} file {m}")
             arcname = os.path.join(root, os.path.basename(m))
+            print(f"Adding {n} file {m} as {arcname}")
             output.add(m, arcname, filter=fixperms)
 
             members[n] = arcname[len(root)+1:]
