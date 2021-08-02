@@ -7,6 +7,8 @@ import sys
 import configparser
 import io
 import stat
+import time
+
 def add_metadata(output, root, members):
     cfg = configparser.ConfigParser()
     cfg[root] = {'name': root}
@@ -22,6 +24,7 @@ def add_metadata(output, root, members):
     n = root + '.cfg'
     ti = tarfile.TarInfo(name=os.path.join(root, n))
     ti.size = len(data)
+    ti.mtime = time.time()
 
     with io.BytesIO(data.encode('utf-8')) as f:
         output.addfile(ti, fileobj=f)
