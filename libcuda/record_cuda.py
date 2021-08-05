@@ -9,8 +9,6 @@ import sys
 import tempfile
 import datetime
 import atexit
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-import nvparams
 
 
 
@@ -40,7 +38,7 @@ if __name__ == '__main__':
             break
     else:
         print("Could not locate libcuda.so.1 in the usual places, set DLOPEN_LIBRARY to point to libcuda.so.1")
-        exit(1)
+        sys.exit(1)
 
     TS = f'{datetime.datetime.now():%Y%m%d-%H%M%S}'
 
@@ -65,7 +63,19 @@ if __name__ == '__main__':
         new_env['BLOBSTORE_PATH'] = BLOBSTORE_PATH
 
 
-    
+    if not os.path.isfile(new_env['ARGHELPER_FILE']) or (os.path.getctime(new_env['ARGHELPER_FILE']) < os.path.getctime(args.cmd[0])):
+        sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+        import nvparams
+        ka = nvparams.get_kernel_arguments(args.cmd[0])
+        if len(ka) > 0:
+            import yaml
+            d, b = nvparams.create_arg_recorder_helper(ka, new_env['ARGHELPER_FILE'], True)
+            with open(new_env['ARGHELPER_FILE'] + ".yaml", "w") as f:
+                f.write(yaml.dump(d))
+        else:
+            print("ERROR: No kernel argument information found. Does the binary contain ELF sections?", sys.stderr)
+            sys.exit(1)
+
     try:
         # make a temporary directory where the trace will be stored
         tracedir = tempfile.mkdtemp()
@@ -92,7 +102,7 @@ if __name__ == '__main__':
         subprocess.run(["lttng", "stop"], capture_output=True, check=True)
     except subprocess.CalledProcessError as e:
         print(e.stderr, file=sys.stderr)
-        exit(1)
+        sys.exit(1)
     
     # now call record_cuda.py
 
@@ -104,12 +114,15 @@ if __name__ == '__main__':
     if args.archive is None:
         args.archive = args.cmd[0] + '.tar.' + args.compression
 
-    # pack_api_trace.py assumes that the ARGFILE is in the same location as the binary
-    # This will be fixed and patched in a future update
-    subprocess.run([pack_api_path, tracedir, BLOBSTORE_PATH, args.cmd[0], args.archive])
-
-    os.remove(new_env['BLOBSTORE_PATH'])
-
     # Only remove arghelper file if it was not specified via command line
     if args.ARGHELPER_FILE is not None:
-        shutil.rmtree(new_env['ARGHELPER_FILE'])
+        subprocess.run([pack_api_path, tracedir, BLOBSTORE_PATH, args.cmd[0], args.archive, "--argfile", args.ARGHELPER_FILE])
+        try:
+            os.remove(new_env['ARGHELPER_FILE'])
+            os.remove(new_env['ARGHELPER_FILE'] + '.yaml')
+        except OSError:
+            pass
+    else:
+        subprocess.run([pack_api_path, tracedir, BLOBSTORE_PATH, args.cmd[0], args.archive])
+
+    os.remove(new_env['BLOBSTORE_PATH'])
