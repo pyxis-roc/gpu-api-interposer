@@ -38,6 +38,7 @@ if __name__ == "__main__":
     p.add_argument("blobstore", help="Blobstore file")
     p.add_argument("binary", help="Binary file")
     p.add_argument("archive", help="Archive output file")
+    p.add_argument("--argfile", help="Path to argfile. This must be specified if /path/to/[binary].arg does not exist")
     p.add_argument("-c", "--compression", choices=['bz2', 'xz'], help="Compression format", default="bz2")
     p.add_argument("-r", "--root", help="Root of tar file (default: name of archive before first .)")
 
@@ -65,13 +66,14 @@ if __name__ == "__main__":
         print(f"ERROR: Binary {args.binary} must have an args file {args.binary}.arg.yaml")
         sys.exit(1)
 
-    root = args.archive[0:args.archive.index(".")]
+    root = args.archive[0:args.archive.index(".")] if "." in args.archive else args.archive
 
+    
     members_to_add = [('trace', td),
                       ('blobstore', args.blobstore),
                       ('binary', args.binary),
-                      ('args_binary', args.binary + ".arg"),
-                      ('args_yaml', args.binary + ".arg.yaml")]
+                      ('args_binary', getattr(args, "argfile", args.binary + ".arg")),
+                      ('args_yaml', getattr(args, "argfile", args.binary + ".arg") + ".yaml")]
 
     with tarfile.open(args.archive, f'w:{args.compression}') as output:
         members = {}
