@@ -303,6 +303,9 @@ class CUDADeviceAPIHandler(object):
                           self.stream_handles[hStream],
                           kernelParams)
 
+        if 'cuLaunchKernel' in self.api_instr.instr_fns:
+            self.api_instr.cuLaunchKernel(self.function_handles[f].name, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, self.stream_handles[hStream], kernelParams)
+
     @check_retval
     def cuModuleUnload(self, hmod):
         # TODO: check _retval
