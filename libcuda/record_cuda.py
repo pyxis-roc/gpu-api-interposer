@@ -109,7 +109,7 @@ if __name__ == '__main__':
     if args.archive is None:
         args.archive = args.cmd[0] + '.tar.' + args.compression
 
-    root = os.path.basename(args.cmd[0].split('.')[0])
+    root = os.path.basename(args.cmd[0]).split('.')[0]
     members_to_add = [('trace', tracedir),
                   ('blobstore', BLOBSTORE_PATH),
                   ('binary', args.cmd[0]),
