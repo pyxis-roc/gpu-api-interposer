@@ -32,6 +32,19 @@ def fixperms(t):
         t.mode = t.mode | stat.S_IXGRP | stat.S_IXOTH
     return t
 
+def pack_trace(archive, compression, root, members_to_add, verbose = True):
+    with tarfile.open(archive, f'w:{compression}') as output:
+        members = {}
+        for n, m in members_to_add:
+            if verbose: print(f"Adding {n} file {m}")
+            arcname = os.path.join(root, os.path.basename(m))
+            output.add(m, arcname, filter=fixperms)
+
+            members[n] = arcname[len(root)+1:]
+            members["orig_" + n] = os.path.abspath(m)
+
+        add_metadata(output, root, members)
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Pack trace and ancillary files into an archive")
     p.add_argument("tracedir", help="LTTNG trace directory")
@@ -68,21 +81,11 @@ if __name__ == "__main__":
 
     root = args.archive[0:args.archive.index(".")] if "." in args.archive else args.archive
 
-    
     members_to_add = [('trace', td),
                       ('blobstore', args.blobstore),
                       ('binary', args.binary),
                       ('args_binary', getattr(args, "argfile", args.binary + ".arg")),
                       ('args_yaml', getattr(args, "argfile", args.binary + ".arg") + ".yaml")]
 
-    with tarfile.open(args.archive, f'w:{args.compression}') as output:
-        members = {}
-        for n, m in members_to_add:
-            print(f"Adding {n} file {m}")
-            arcname = os.path.join(root, os.path.basename(m))
-            output.add(m, arcname, filter=fixperms)
-
-            members[n] = arcname[len(root)+1:]
-            members["orig_" + n] = os.path.abspath(m)
-
-        add_metadata(output, root, members)
+    pack_trace(args.archive, args.compression,
+               root, members_to_add)
