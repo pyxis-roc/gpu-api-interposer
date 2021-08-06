@@ -9,6 +9,7 @@ import sys
 import tempfile
 import datetime
 import atexit
+from libcudareplay import pack_api_trace
 
 
 
@@ -104,25 +105,26 @@ if __name__ == '__main__':
         print(e.stderr, file=sys.stderr)
         sys.exit(1)
     
-    # now call record_cuda.py
-
-    # A hack to get the path to the module, so we can execute it
-    import libcudareplay.pack_api_trace as pack_api_trace
-    pack_api_path = os.path.abspath(pack_api_trace.__file__)
-
     # Assume the binary is the first element of cmd
     if args.archive is None:
         args.archive = args.cmd[0] + '.tar.' + args.compression
 
+    root = os.path.basename(args.cmd[0].split('.')[0])
+    members_to_add = [('trace', tracedir),
+                  ('blobstore', BLOBSTORE_PATH),
+                  ('binary', args.cmd[0]),
+                  ('args_binary', new_env['ARGHELPER_FILE']),
+                  ('args_yaml', new_env['ARGHELPER_FILE'] + ".yaml")]
+    pack_api_trace.pack_trace(args.archive, args.compression, root, members_to_add)
+
     # Only remove arghelper file if it was not specified via command line
     if args.ARGHELPER_FILE is not None:
-        subprocess.run([pack_api_path, tracedir, BLOBSTORE_PATH, args.cmd[0], args.archive, "--argfile", args.ARGHELPER_FILE])
         try:
             os.remove(new_env['ARGHELPER_FILE'])
             os.remove(new_env['ARGHELPER_FILE'] + '.yaml')
         except OSError:
             pass
-    else:
-        subprocess.run([pack_api_path, tracedir, BLOBSTORE_PATH, args.cmd[0], args.archive])
-
-    os.remove(new_env['BLOBSTORE_PATH'])
+    try:
+        os.remove(new_env['BLOBSTORE_PATH'])
+    except OSError:
+        print("Warning: could not remove BLOBSTORE.", file=sys.stderr)
