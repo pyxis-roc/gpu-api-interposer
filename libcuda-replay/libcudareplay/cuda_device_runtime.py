@@ -67,6 +67,7 @@ class CUDADeviceAPIHandler(object):
         self.memory_handles = CUDAHandles("CUdeviceptr")
         self.stream_handles = CUDAHandles("CUstream")
         self.config = config
+        self.module_globals = {} # handle: set
 
         if self.config and self.config.api_instr:
             self.api_instr = self.config.api_instr
@@ -235,12 +236,33 @@ class CUDADeviceAPIHandler(object):
 
         mr = self._factory.memory_region(ctx.dev, dptr, bytesize)
 
-        assert gpu.alloc_memory_region(mr) is not None
+        assert gpu.alloc_memory_region(mr)
 
         self.memory_handles.register(dptr, mr)
 
         if 'cuMemAlloc' in self.api_instr.instr_fns:
             self.api_instr.cuMemAlloc(dptr, bytesize)
+
+    @check_retval
+    def cuModuleGetGlobal(self, dptr, bytesize, hmod, name):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(f'cuModuleGetGlobal on device {ctx.dev}: {bytesize} bytes at 0x{dptr:x} for symbol {name}')
+        self.module_globals[hmod] = self.module_globals.get(hmod, set())
+
+        if dptr != 0 and bytesize != 0:
+            if name not in self.module_globals[hmod]:
+                gpu = self.gpu_handles[ctx.dev]
+
+                mr = self._factory.memory_region(ctx.dev, dptr, bytesize)
+
+                assert gpu.alloc_memory_region(mr)
+
+                self.memory_handles.register(dptr, mr)
+
+                self.module_globals[hmod].add(name)
+        else:
+            _logger.warning(f'One of dptr ({dptr:x}) or bytesize ({bytesize}) was NULL/0, not registering cuModuleGetGlobal for {name}')
 
     @check_retval
     def cuMemFree(self, dptr):

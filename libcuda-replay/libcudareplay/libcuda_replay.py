@@ -194,6 +194,10 @@ class NVTraceHandler(object):
         self.apihandler.cuModuleGetFunction(int(ev['hfunc_contents']), int(ev['hmod']),
                                             str(ev['name']))
 
+    def cuModuleGetGlobal_v2_post(self, ev, bsdata):
+        self.apihandler.cuModuleGetGlobal(int(ev['dptr_contents']), int(ev['bytes_contents']),
+                                          int(ev['hmod']), str(ev['name']))
+
     def cuLaunchKernel_post(self, ev, bsdata):
         fn = self.apihandler.function_handles[ev['f']].name
 
