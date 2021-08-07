@@ -42,6 +42,9 @@ $(BUILD_DIR)/kernelparams.h: kernelparams.h
 $(BUILD_DIR)/record_cuda.sh: record_cuda.sh
 	cp $< $@
 
+$(BUILD_DIR)/record_cuda.py: record_cuda.py
+	cp $< $@
+
 $(BUILD_DIR)/nvparams.py: nvparams.py
 	cp $< $@
 endif
