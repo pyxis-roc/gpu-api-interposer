@@ -11,7 +11,7 @@ ARGHELPER=../arghelper
 SONAME=libcuda.so.1
 # do not include trailing / in BUILD_DIR
 BUILD_DIR=build
-OBJS=$(BUILD_DIR)/libcuda_passthru.so $(BUILD_DIR)/libcuda_trace.so $(BUILD_DIR)/libcuda_record.so $(BUILD_DIR)/record_cuda.sh
+OBJS=$(BUILD_DIR)/libcuda_passthru.so $(BUILD_DIR)/libcuda_trace.so $(BUILD_DIR)/libcuda_record.so $(BUILD_DIR)/record_cuda.sh $(BUILD_DIR)/record_cuda.py
 
 
 all: $(OBJS)
