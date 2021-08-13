@@ -4,7 +4,8 @@ GENRECORDER=../generator/genrecorder.py
 FAKE_C_HEADERS ?= /usr/share/python3-pycparser/fake_libc_include
 
 #~/extsrc/pycparser/utils/fake_libc_include/
-CUDA_INC=$(CUDA_LIB)/../include
+CUDA_HOME ?= /usr/local/cuda
+CUDA_INC=$(CUDA_HOME)/include
 CUDA_H=$(CUDA_INC)/cuda.h
 BLOBSTORE=../blobstore
 ARGHELPER=../arghelper
