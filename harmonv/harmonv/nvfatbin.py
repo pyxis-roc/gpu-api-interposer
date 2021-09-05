@@ -559,7 +559,7 @@ class NVFatBinary(object):
             # there are multiple cubins, one per object
             cubins = []
             ndx = 0
-            while ndx < len(self.fatbin_data):
+            while ndx + fatbin_header.size < len(self.fatbin_data): # clang sets weird next offset?
                 magic, version, hdrSize, next_offset = fatbin_header.unpack_from(self.fatbin_data, ndx)
                 if magic != FATBIN_MAGIC: raise NotImplementedError(f"Don't support fat binary with magic={magic:x}")
                 ndx += hdrSize #fatbin_header.size
@@ -574,7 +574,7 @@ class NVFatBinary(object):
                 if DEBUG_MODE:
                     with open(f"/tmp/fatbin_part_{len(cubins):02d}_{elfname}", "wb") as f:
                         print(f"WRITING /tmp/fatbin_part_{len(cubins):02d}_{elfname}")
-                        f.write(fatbin_header.pack(magic, next_offset))
+                        f.write(fatbin_header.pack(magic, version, hdrSize, next_offset))
                         f.write(cubin_data)
 
                     with open(f"/tmp/fatbin_cubin_{len(cubins):02d}_{elfname}", "wb") as f:
