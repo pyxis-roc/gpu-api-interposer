@@ -468,7 +468,7 @@ tracepoint_events:
             int_type: intptr_t
             expr: "*ppExportTable"
       - pExportTableId:
-          type: ctf_array
+          type: ctf_array_hex
           type_args:
             int_type: char
             expr: "pExportTableId->bytes"
