@@ -94,6 +94,10 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
                 return en
         elif ty is c_ast.IdentifierType:
             return ty(decl.names)
+        elif ty is c_ast.Enum:
+            return ty(decl.name, decl.values)
+        elif ty is c_ast.Struct:
+            return ty(decl.name, decl.decls)
         else:
             assert False, ty
 
