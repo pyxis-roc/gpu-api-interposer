@@ -684,8 +684,17 @@ def get_ast(preprocessed_file):
     ast = pycparser.parse_file(preprocessed_file)
     return ast
 
-def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None):
+def add_undocumented(undocumented, main_header_pp, cppargsfile, fake_c_headers):
+    undocumentedpp = preprocess(undocumented, cppargsfile, fake_c_headers)
+    with open(main_header_pp, "a") as mh:
+        with open(undocumentedpp, "r") as uh:
+            mh.write(uh.read())
+
+def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None, undocumented = None):
     preprocessed = preprocess(hfile, cppargsfile, fake_c_headers)
+    if undocumented:
+        add_undocumented(undocumented, preprocessed, cppargsfile, fake_c_headers)
+
     ast = get_ast(preprocessed)
     os.unlink(preprocessed)
     ig = InterposerGenerator(hfile, ast, oprefix)
@@ -695,6 +704,7 @@ def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None)
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Generate a interceptor")
     p.add_argument("hfile", help="Include file")
+    p.add_argument("--undocumented", help="Include file for undocumented functions")
     p.add_argument("--fake-c-headers", help="Path to pycparser's fake C headers")
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true", help="Original library is dlopen-ed")
@@ -718,7 +728,7 @@ if __name__ == "__main__":
             print(f"ERROR: Directory {args.fake_c_headers} specified for --fake-c-headers does not exist")
             sys.exit(1)
 
-    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers, args.output_prefix)
+    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers, args.output_prefix, undocumented = args.undocumented)
     if args.filter:
         if not ig.add_filter(args.filter):
             sys.exit(1)

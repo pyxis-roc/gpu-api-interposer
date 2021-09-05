@@ -27,10 +27,10 @@ all: $(OBJS)
 	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC)
 
 $(BUILD_DIR)/libcudart_passthru.c:
-	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) -o $@
+	$(GENINTERPOSER) --undocumented undocumented.h --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) -o $@
 
 $(BUILD_DIR)/libcudart_trace.c:
-	$(GENINTERPOSER) --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --trace -o $@
+	$(GENINTERPOSER) --undocumented undocumented.h --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --trace -o $@
 
 .phony: clean
 
