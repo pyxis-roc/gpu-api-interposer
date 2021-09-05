@@ -473,6 +473,10 @@ tracepoint_events:
             int_type: char
             expr: "pExportTableId->bytes"
             count: 16
+      - tableSize:
+          type: ctf_integer
+          type_args:
+            expr: "(*_retval == 0) ? *((uint32_t *) *ppExportTable) : 0"
       - *retval_field
       - *ctx_field
   cuMemGetInfo_v2_post:
