@@ -73,7 +73,6 @@ class DecompressorCuobjdump(object):
                            stderr = subprocess.PIPE)
 
         os.chdir(curdir)
-
         cuobjdump_output = os.path.join(tmpdir, elf.get_filename())
 
         data = None
@@ -102,11 +101,15 @@ class DecompressorCuobjdump(object):
         os.close(h)
 
         DecompressorCuobjdump.create_fatbin(output, cubin)
+        old_filename = cubin.cubin.filename
+        cubin.cubin.filename = output
 
         if cubin.type == nvfatbin.CUBIN_PTX:
             data = DecompressorCuobjdump.decompress_ptx(cubin, output, _keep)
         elif cubin.type == nvfatbin.CUBIN_ELF:
             data = DecompressorCuobjdump.decompress_elf(cubin, output, _keep)
+
+        cubin.cubin.filename = old_filename
 
         if _keep:
             print(output)
