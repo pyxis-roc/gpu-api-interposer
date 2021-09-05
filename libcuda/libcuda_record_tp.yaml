@@ -476,6 +476,7 @@ tracepoint_events:
       - tableSize:
           type: ctf_integer
           type_args:
+            int_type: uint32_t
             expr: "(*_retval == 0) ? *((uint32_t *) *ppExportTable) : 0"
       - *retval_field
       - *ctx_field
