@@ -98,6 +98,8 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
             return ty(decl.name, decl.values)
         elif ty is c_ast.Struct:
             return ty(decl.name, decl.decls)
+        elif ty is c_ast.Union:
+            return ty(decl.name, decl.decls)
         else:
             assert False, ty
 
