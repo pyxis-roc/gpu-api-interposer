@@ -16,7 +16,7 @@ import array
 import struct
 
 def get_kernel_arguments(elffile):
-    fatbin = nvfatbin.NVFatBinary(elffile, compression.DecompressorCuobjdump)
+    fatbin = nvfatbin.NVFatBinary(elffile, compression.DefaultDecompressor)
     fatbin.parse_fatbin()
 
     all_out = []
