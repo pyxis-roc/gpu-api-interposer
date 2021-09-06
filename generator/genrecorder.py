@@ -16,6 +16,7 @@ import os
 from pycparser import c_ast, c_generator
 from geninterposer import FuncDeclVisitor, get_ast, preprocess
 import sys
+from codegenutils import *
 
 BLOBSTORE_XTORS = """
 static  __attribute__((constructor)) void init_blobstore() {
@@ -36,27 +37,6 @@ static __attribute__((destructor)) void deinit_blobstore() {
    if(_bs) bs_close(_bs);
 }
 """
-
-class PassthruExpr(c_ast.Node):
-    __slots__ = ('code', 'coord')
-
-    def __init__(self, code, coord=None):
-        self.code = code
-        self.coord = coord
-
-class PassthruStmt(c_ast.Node):
-    __slots__ = ('code', 'coord')
-
-    def __init__(self, code, coord=None):
-        self.code = code
-        self.coord = coord
-
-class MyCGenerator(c_generator.CGenerator):
-    def visit_PassthruStmt(self, n):
-        return n.code
-
-    def visit_PassthruExpr(self, n):
-        return n.code
 
 def load_yaml(f):
     with open(f, "r") as yf:

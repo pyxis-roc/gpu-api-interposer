@@ -6,7 +6,7 @@
 #
 # Author: Sreepathi Pai
 #
-# Copyright (C) 2019, The University of Rochester
+# Copyright (C) 2019, 2021 The University of Rochester
 #
 
 import sys
@@ -22,6 +22,7 @@ import yaml
 import difflib
 import itertools
 import os
+from codegenutils import *
 
 TEMPLATE_INIT_ORIG_HANDLE = """static __attribute__((constructor)) void init_orig_handle() {{
     char *original_library_path = getenv("{env_variable}");
@@ -232,6 +233,42 @@ class ReturnValuePlugin(InterposerPlugin):
         else:
             return [decl_node['fncall']]
 
+class InterceptReturnValuePlugin(InterposerPlugin):
+    def set_intercept(self, f):
+        with open(f, "r") as f:
+            self._intercept = yaml.safe_load(f)
+
+    def generate_includes(self, context):
+        if 'includes' in self._intercept:
+            includes = [f"#include <{h}>" for h in self._intercept['includes']]
+
+        return ["#include <stdlib.h>", "#include <stdio.h>"] + includes
+
+    def generate(self, decl_node, context):
+
+        # get the fnptr node
+        # PtrDecl -> FuncDecl ->type
+
+        context['called'] = True
+
+        if decl_node['origname'] not in self._intercept:
+            call = PassthruStmt(self._intercept['not_implemented_code'])
+        else:
+            call = copy.deepcopy(decl_node['fncall'])
+            call.name = c_ast.ID(self._intercept[decl_node['origname']])
+
+        if decl_node['retval_decl']:
+            context['retval'] = decl_node['retval_decl'].name
+
+            if decl_node['origname'] in self._intercept:
+                return [c_ast.Assignment("=",
+                                         c_ast.ID(context['retval']),
+                                         call)]
+            else:
+                return [call]
+        else:
+            return [call]
+
 class DefaultHeadersPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         # this doesn't generate anything.
@@ -331,7 +368,7 @@ class CommonInstrumentMixin(object):
             f.write('extern "C" {\n')
             f.write("#endif\n")
 
-            cgen = c_generator.CGenerator()
+            cgen = MyCGenerator()
             f.write(cgen.visit(self.ast))
 
             f.write("#ifdef __cplusplus\n")
@@ -453,7 +490,7 @@ class TpEventArgGeneratorPlugin(InterposerPlugin):
         decls = dict([(d['origname'], d) for d in self.generator.get_decl_nodes()])
 
         out = {}
-        cgen = c_generator.CGenerator()
+        cgen = MyCGenerator()
         for f in fns:
             fd = self.generator.global_ctx['pre'].get(f, None) or self.generator.global_ctx['post'][f]
 
@@ -506,6 +543,8 @@ class InterposerGenerator(object):
         self.filter_data = None
         self.global_ctx = {}
 
+        self.intercept = False
+
     def get_decl_nodes(self):
         return self.fdv.func_decl_nodes
 
@@ -553,7 +592,9 @@ class InterposerGenerator(object):
 
     def add_plugin(self, plugin):
         # TODO: automate ordering later...
-        self.plugins.append(plugin(self))
+        p = plugin(self)
+        self.plugins.append(p)
+        return p
 
     def generate_shells(self):
         def next_func_code(node_data):
@@ -578,10 +619,19 @@ class InterposerGenerator(object):
                              None),
                     node_data['retval_decl']]
 
+        def next_func_code_intercept(node_data):
+            return [PassthruStmt(f'const char *_fn = "{node_data["origname"]}";'),
+                    node_data['retval_decl']]
+
+        if self.intercept:
+            nfc = next_func_code_intercept
+        else:
+            nfc = next_func_code
+
         for nn in self.fdv.func_decl_nodes:
             n = nn['decl']
             nn['shell'] = pycparser.c_ast.FuncDef(n, None,
-                                                  c_ast.Compound(next_func_code(nn))
+                                                  c_ast.Compound(nfc(nn))
                                               )
 
     def generate_plugins(self, decl_node):
@@ -635,7 +685,7 @@ class InterposerGenerator(object):
 
             f.write("\n")
 
-            generator = c_generator.CGenerator()
+            generator = MyCGenerator()
 
             for n in self.fdv.func_decl_nodes:
                 passthru = copy.deepcopy(n['shell'])
@@ -712,10 +762,11 @@ if __name__ == "__main__":
     p.add_argument("--ctx", dest="context", action="store_true",
                    help="Generate ordered context variable")
     p.add_argument("--pre-instrument", action="store_true",
-                   help="Instrument functions before they've been called, generate a header file for post-call instrumentation functions")
+                   help="Instrument functions before they've been called, generate a header file for pre-call instrumentation functions")
     p.add_argument("--post-instrument", action="store_true",
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--trace", action="store_true", help="Generate tracer")
+    p.add_argument("--intercept", metavar="FILE", help="Generate interceptor using FILE")
     p.add_argument("--tpargs", action="store_true", help="Generate tracepoint arguments for pre/post functions")
     p.add_argument("--oprefix", dest="output_prefix", help="Output prefix for supplementary output files")
     p.add_argument("-o", dest="output", help="Output file")
@@ -733,6 +784,10 @@ if __name__ == "__main__":
         if not ig.add_filter(args.filter):
             sys.exit(1)
 
+    if args.intercept:
+        assert not args.trace or args.pre_instrument or args.post_instrument, f"--intercept can only be specified without --trace/--pre-instrument/--post-instrument" # why?
+        ig.intercept = True
+
     ig.dlopen = args.dlopen
     if args.dlopen:
         ig.add_plugin(DLOpenPlugin)
@@ -748,7 +803,11 @@ if __name__ == "__main__":
     if args.pre_instrument:
         ig.add_plugin(PreInstrumentPlugin)
 
-    ig.add_plugin(ReturnValuePlugin)
+    if not args.intercept:
+        ig.add_plugin(ReturnValuePlugin)
+    else:
+        p = ig.add_plugin(InterceptReturnValuePlugin)
+        p.set_intercept(args.intercept)
 
     if args.post_instrument:
         ig.add_plugin(PostInstrumentPlugin)
