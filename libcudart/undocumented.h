@@ -1,6 +1,6 @@
 /* all from 10.0 */
 
-/* from crt/link.stub */
+/* from crt/link.stub (or from crt/host_runtime.h) */
 
 void** __cudaRegisterFatBinary(  void *fatCubin );
 void __cudaUnregisterFatBinary(   void **fatCubinHandle );
@@ -12,6 +12,12 @@ unsigned __cudaPushCallConfiguration(dim3 gridDim,
                                      void *stream);
 
 /* from crt/host_runtime.h */
+
+// 11.x?
+void __cudaRegisterFatBinaryEnd(
+  void **fatCubinHandle
+);
+
 
 cudaError_t __cudaPopCallConfiguration(
   dim3         *gridDim,
