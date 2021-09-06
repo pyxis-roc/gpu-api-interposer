@@ -17,3 +17,17 @@ cudaDriverGetVersion:
   ptxvm_cudaDriverGetVersion
 cudaRuntimeGetVersion:
   ptxvm_cudaRuntimeGetVersion
+cudaMalloc:
+  ptxvm_cudaMalloc
+cudaMemcpy:
+  ptxvm_cudaMemcpy
+__cudaPushCallConfiguration:
+  ptxvm___cudaPushCallConfiguration
+__cudaPopCallConfiguration:
+  ptxvm___cudaPopCallConfiguration
+cudaLaunchKernel:
+  ptxvm_cudaLaunchKernel
+cudaGetLastError:
+  ptxvm_cudaGetLastError
+cudaFree:
+  ptxvm_cudaFree
