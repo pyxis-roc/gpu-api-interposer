@@ -1,0 +1,19 @@
+includes:
+  - ptxvm_compatrt.h
+not_implemented_code: |
+  fprintf(stderr, "ERROR: %s is not yet implemented\n", _fn);
+  exit(1);
+__cudaRegisterFatBinary:
+  ptxvm___cudaRegisterFatBinary
+__cudaRegisterFunction:
+  ptxvm__cudaRegisterFunction
+__cudaUnregisterFatBinary:
+  ptxvm___cudaUnregisterFatBinary
+cudaGetDevice:
+  ptxvm_cudaGetDevice
+cudaGetDeviceProperties:
+  ptxvm_cudaGetDeviceProperties
+cudaDriverGetVersion:
+  ptxvm_cudaDriverGetVersion
+cudaRuntimeGetVersion:
+  ptxvm_cudaRuntimeGetVersion

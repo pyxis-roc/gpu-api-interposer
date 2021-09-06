@@ -18,19 +18,25 @@ endif
 SONAME=$(shell objdump -p $(SO) | grep SONAME | awk '{print $$2}')
 # do not include trailing / in BUILD_DIR
 BUILD_DIR=build
-OBJS=$(BUILD_DIR)/libcudart_passthru.so $(BUILD_DIR)/libcudart_trace.so
+OBJS=$(BUILD_DIR)/libcudart_passthru.so $(BUILD_DIR)/libcudart_trace.so $(BUILD_DIR)/libcudart_intercept.so $(BUILD_DIR)/$(SONAME)
 
 
 all: $(OBJS)
 
 %.so: %.c
-	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC)
+	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC) -I$(COMPAT_INC) $(COMPAT_LIBS)
+
+$(BUILD_DIR)/$(SONAME): $(BUILD_DIR)/libcudart_intercept.so
+	ln -s $< $@
 
 $(BUILD_DIR)/libcudart_passthru.c: undocumented.h
 	$(GENINTERPOSER) --undocumented undocumented.h --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) -o $@
 
 $(BUILD_DIR)/libcudart_trace.c: undocumented.h
 	$(GENINTERPOSER) --undocumented undocumented.h --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --trace -o $@
+
+$(BUILD_DIR)/libcudart_intercept.c: undocumented.h
+	$(GENINTERPOSER) --undocumented undocumented.h --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) --intercept intercept.yaml -o $@
 
 .phony: clean
 
