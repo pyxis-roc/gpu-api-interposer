@@ -24,7 +24,7 @@ OBJS=$(BUILD_DIR)/libcudart_passthru.so $(BUILD_DIR)/libcudart_trace.so $(BUILD_
 all: $(OBJS)
 
 %.so: %.c
-	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -ldl -I$(CUDA_INC) -I$(COMPAT_INC) $(COMPAT_LIBS)
+	gcc -g -fPIC -shared -Wl,--soname='$(SONAME)' $< -o $@ -I$(CUDA_INC) -I$(COMPAT_INC) $(COMPAT_LIBS) -ldl
 
 $(BUILD_DIR)/$(SONAME): $(BUILD_DIR)/libcudart_intercept.so
 	ln -s $< $@
