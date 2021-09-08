@@ -13,7 +13,7 @@ unsigned __cudaPushCallConfiguration(dim3 gridDim,
 
 /* from crt/host_runtime.h */
 
-// 11.x?
+// 10.1+
 void __cudaRegisterFatBinaryEnd(
   void **fatCubinHandle
 );

@@ -9,6 +9,8 @@ __cudaRegisterFunction:
   ptxvm__cudaRegisterFunction
 __cudaUnregisterFatBinary:
   ptxvm___cudaUnregisterFatBinary
+__cudaRegisterFatBinaryEnd:
+  ptxvm___cudaRegisterFatBinaryEnd
 cudaGetDevice:
   ptxvm_cudaGetDevice
 cudaGetDeviceProperties:
