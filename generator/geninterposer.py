@@ -241,10 +241,14 @@ class InterceptReturnValuePlugin(InterposerPlugin):
         self.cfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_interceptor.c"
         self.hfile_ast = c_ast.FileAST([])
         self.cfile_ast = c_ast.FileAST([])
+        self.completed = set()
 
     def set_intercept(self, f):
         with open(f, "r") as f:
             self._intercept = yaml.safe_load(f)
+
+    def set_completed(self, pfx_names):
+        self.completed = set(pfx_names)
 
     def generate_includes(self, context):
         if 'includes' in self._intercept:
@@ -276,13 +280,13 @@ class InterceptReturnValuePlugin(InterposerPlugin):
         else:
             interceptor = self._intercept['default_prefix'] + oname
 
-        decl = self._get_decl(decl_node['decl'], oname, interceptor)
-
         call = copy.deepcopy(decl_node['fncall'])
         call.name = c_ast.ID(interceptor)
 
-        self.hfile_ast.ext.append(decl)
-        self.cfile_ast.ext.append(self._get_body(decl, interceptor))
+        if interceptor not in self.completed:
+            decl = self._get_decl(decl_node['decl'], oname, interceptor)
+            self.hfile_ast.ext.append(decl)
+            self.cfile_ast.ext.append(self._get_body(decl, interceptor))
 
         if decl_node['retval_decl']:
             context['retval'] = decl_node['retval_decl'].name
@@ -810,6 +814,7 @@ if __name__ == "__main__":
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--trace", action="store_true", help="Generate tracer")
     p.add_argument("--intercept", metavar="FILE", help="Generate interceptor using FILE")
+    p.add_argument("--completed", metavar="FILE", help="List of functions that have been intercepted")
     p.add_argument("--tpargs", action="store_true", help="Generate tracepoint arguments for pre/post functions")
     p.add_argument("--oprefix", dest="output_prefix", help="Output prefix for supplementary output files")
     p.add_argument("-o", dest="output", help="Output file")
@@ -851,6 +856,8 @@ if __name__ == "__main__":
     else:
         p = ig.add_plugin(InterceptReturnValuePlugin)
         p.set_intercept(args.intercept)
+        if args.completed:
+            p.set_completed([x.strip() for x in open(args.completed, 'r').readlines()])
 
     if args.post_instrument:
         ig.add_plugin(PostInstrumentPlugin)
