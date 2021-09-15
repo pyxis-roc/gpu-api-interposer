@@ -3,33 +3,4 @@ includes:
 not_implemented_code: |
   fprintf(stderr, "ERROR: %s is not yet implemented\n", _fn);
   exit(1);
-__cudaRegisterFatBinary:
-  ptxvm___cudaRegisterFatBinary
-__cudaRegisterFunction:
-  ptxvm__cudaRegisterFunction
-__cudaUnregisterFatBinary:
-  ptxvm___cudaUnregisterFatBinary
-__cudaRegisterFatBinaryEnd:
-  ptxvm___cudaRegisterFatBinaryEnd
-cudaGetDevice:
-  ptxvm_cudaGetDevice
-cudaGetDeviceProperties:
-  ptxvm_cudaGetDeviceProperties
-cudaDriverGetVersion:
-  ptxvm_cudaDriverGetVersion
-cudaRuntimeGetVersion:
-  ptxvm_cudaRuntimeGetVersion
-cudaMalloc:
-  ptxvm_cudaMalloc
-cudaMemcpy:
-  ptxvm_cudaMemcpy
-__cudaPushCallConfiguration:
-  ptxvm___cudaPushCallConfiguration
-__cudaPopCallConfiguration:
-  ptxvm___cudaPopCallConfiguration
-cudaLaunchKernel:
-  ptxvm_cudaLaunchKernel
-cudaGetLastError:
-  ptxvm_cudaGetLastError
-cudaFree:
-  ptxvm_cudaFree
+default_prefix: ptxvm_

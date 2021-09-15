@@ -234,6 +234,14 @@ class ReturnValuePlugin(InterposerPlugin):
             return [decl_node['fncall']]
 
 class InterceptReturnValuePlugin(InterposerPlugin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.hfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_interceptor.h"
+        self.cfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_interceptor.c"
+        self.hfile_ast = c_ast.FileAST([])
+        self.cfile_ast = c_ast.FileAST([])
+
     def set_intercept(self, f):
         with open(f, "r") as f:
             self._intercept = yaml.safe_load(f)
@@ -244,30 +252,66 @@ class InterceptReturnValuePlugin(InterposerPlugin):
 
         return ["#include <stdlib.h>", "#include <stdio.h>"] + includes
 
+    def _get_decl(self, func_decl_node, old_name, new_name):
+        new_decl = copy.deepcopy(func_decl_node)
+        fdv = FuncDeclVisitor()
+        fdv.set_declname(new_decl.type, old_name, new_name)
+        return new_decl
+
+    def _get_body(self, new_decl_node, name):
+        return c_ast.FuncDef(new_decl_node, [], c_ast.Compound([
+            PassthruStmt(f'const char *_fn = "{name}";'),
+            PassthruStmt(self._intercept['not_implemented_code'])
+        ]))
+
     def generate(self, decl_node, context):
-
-        # get the fnptr node
-        # PtrDecl -> FuncDecl ->type
-
         context['called'] = True
 
-        if decl_node['origname'] not in self._intercept:
-            call = PassthruStmt(self._intercept['not_implemented_code'])
+        oname = decl_node['origname']
+        if 'override' in self._intercept:
+            if oname in self._intercept['override']:
+                interceptor = self._intercept['override'][oname]
+            else:
+                interceptor = self._intercept['default_prefix'] + oname
         else:
-            call = copy.deepcopy(decl_node['fncall'])
-            call.name = c_ast.ID(self._intercept[decl_node['origname']])
+            interceptor = self._intercept['default_prefix'] + oname
+
+        decl = self._get_decl(decl_node['decl'], oname, interceptor)
+
+        call = copy.deepcopy(decl_node['fncall'])
+        call.name = c_ast.ID(interceptor)
+
+        self.hfile_ast.ext.append(decl)
+        self.cfile_ast.ext.append(self._get_body(decl, interceptor))
 
         if decl_node['retval_decl']:
             context['retval'] = decl_node['retval_decl'].name
 
-            if decl_node['origname'] in self._intercept:
-                return [c_ast.Assignment("=",
-                                         c_ast.ID(context['retval']),
-                                         call)]
-            else:
-                return [call]
+            return [c_ast.Assignment("=",
+                                     c_ast.ID(context['retval']),
+                                     call)]
         else:
             return [call]
+
+    def generate_post_code(self, context):
+        with open(self.hfile, "w") as f:
+            f.write("/* automatically generated, do not edit */\n")
+            f.write("#pragma once\n")
+            cgen = MyCGenerator()
+            f.write(cgen.visit(self.hfile_ast))
+
+        with open(self.cfile, "w") as f:
+            f.write("/* automatically generated, do not edit */\n")
+            for x in self.generate_includes(context):
+                f.write(x + "\n")
+
+            f.write(f"#include <{self.hfile}>\n")
+            cgen = MyCGenerator()
+            f.write(cgen.visit(self.cfile_ast))
+
+        return []
+
+
 
 class DefaultHeadersPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
@@ -620,8 +664,7 @@ class InterposerGenerator(object):
                     node_data['retval_decl']]
 
         def next_func_code_intercept(node_data):
-            return [PassthruStmt(f'const char *_fn = "{node_data["origname"]}";'),
-                    node_data['retval_decl']]
+            return [node_data['retval_decl']]
 
         if self.intercept:
             nfc = next_func_code_intercept
