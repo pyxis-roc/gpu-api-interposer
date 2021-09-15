@@ -43,13 +43,12 @@ if [ ! -f "$LIBRARY" ]; then
     exit 1;
 fi;
 
-export PTX_MODULE=`realpath "$1"`
-# echo "PTX_MODULE is set to $PTX_MODULE"
+if [ ! "$1" == "no" ]; then
+    PTX_MODULE=`realpath "$1"`
+    # echo "PTX_MODULE is set to $PTX_MODULE"
+else
+    PTX_MODULE=$1
+fi;
 shift;
 
-export LD_PRELOAD=$LIBRARY
-if true; then
-    export LD_LIBRARY_PATH=$LIBRARY_DIR:$LD_LIBRARY_PATH
-fi;
-
-"$@"
+LD_LIBRARY_PATH=$LIBRARY_DIR:$LD_LIBRARY_PATH LD_PRELOAD=$LIBRARY PTX_MODULE=$PTX_MODULE "$@"
