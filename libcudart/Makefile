@@ -30,8 +30,8 @@ $(BUILD_DIR)/completed: $(COMPAT_INC)/ptxvm_compatrt.h
 	grep --only-matching 'ptxvm_.*(' $< | sed 's/(//g' > $@
 
 $(BUILD_DIR)/$(SONAME): $(BUILD_DIR)/libcudart_intercept.so
-	ln -s $< $@
-	ln -sf $< $(BUILD_DIR)/libcudart.so
+	ln -s `basename $<` $@
+	ln -sf `basename $<` $(BUILD_DIR)/libcudart.so
 
 $(BUILD_DIR)/libcudart_passthru.c: undocumented.h
 	$(GENINTERPOSER) --undocumented undocumented.h --dlopen --fake-c-headers $(FAKE_C_HEADERS) --cppargsfile cuda_h_cpp_args $(CUDA_H) -o $@
