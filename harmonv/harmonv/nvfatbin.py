@@ -27,7 +27,7 @@ except ImportError:
 import warnings
 
 KPARAM = namedtuple('KPARAM', 'ordinal offset size')
-GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value')
+GLOBALINFO = namedtuple('GLOBALINFO', 'name info size value other_raw')
 
 FATBIN_MAGIC = 0xBA55ED50
 OLD_STYLE_FATBIN_MAGIC = 0x1EE55A01 # not supported
@@ -52,6 +52,9 @@ CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)(\.(?P<symbol>.*))?")
 # relocation types, lots more...
 R_CUDA_ABS32_20 = 42
 R_NV_64 = 2
+
+# STO_CUDA
+STO_CUDA_ENTRY = 0x10
 
 class NVCubinPart(object):
     def __init__(self, part_type, header, data, cubin):
@@ -225,13 +228,17 @@ class NVCubinPartELF(NVCubinPart):
         symtab = elf.get_section_by_name(".symtab")
         global_syms = []
         if symtab:
-            for sym in symtab.iter_symbols():
+            for i, sym in enumerate(symtab.iter_symbols()):
                 n = sym.name
                 if sym.entry['st_info']['bind'] == 'STB_GLOBAL':
+                    symtab.stream.seek(symtab['sh_offset'] + i * symtab['sh_entsize'])
+                    raw_entry = symtab.stream.read(symtab['sh_entsize'])
+                    other_raw = raw_entry[4+1]
                     gi = GLOBALINFO(name=n,
                                     info=sym.entry['st_info'],
                                     size=sym.entry['st_size'],
-                                    value=sym.entry['st_value'])
+                                    value=sym.entry['st_value'], # also add st_other?
+                                    other_raw=other_raw)
 
                     global_syms.append(gi)
 
