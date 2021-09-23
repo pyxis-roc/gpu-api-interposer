@@ -39,7 +39,19 @@ def extract_elf(fatbin):
 
     return elf_data
 
-def get_function_info(fatbin):
+def get_function_info(fatbin, ptx_missing_okay = False):
+    def _gfi(ocubin):
+        function_info = []
+
+        for elfcubin, rawelf in elf_data:
+            disfns = DisassemblerCUObjdump.disassemble(elfcubin, src = fatbin.elf)
+
+            for fn, sassfn in disfns.items():
+                function_info.append(sassfn)
+
+        ocubin['functions'] = function_info
+        return ocubin
+
     out = []
 
     for c in fatbin.cubins:
@@ -54,27 +66,21 @@ def get_function_info(fatbin):
             elif isinstance(cc, nvfatbin.NVCubinPartELF):
                 elf_data.append((cc, extract_elf_helper(cc)))
 
+        # TODO: refactor this
         # check that both PTX and ELF are present
         if len(ptx_data) and len(elf_data):
             ocubin = {'cubin': [{'arch': ed[0].arch} for ed in elf_data],
                       'ptx': [{'arch': pd[0].arch,
                                'data': pd[1].decode('ascii')} for pd in ptx_data], #TODO
                       }
-
-            function_info = []
-
-            for elfcubin, rawelf in elf_data:
-                disfns = DisassemblerCUObjdump.disassemble(elfcubin, src = fatbin.elf)
-
-                for fn, sassfn in disfns.items():
-                    function_info.append(sassfn)
-
-            ocubin['functions'] = function_info
-            out.append(ocubin)
+            out.append(_gfi(ocubin))
         else:
             # these warnings are harmless if you get the output you need
             if len(elf_data) and not len(ptx_data):
                 print("WARNING: ELF data present, but no PTX data found")
+                if ptx_missing_okay:
+                    ocubin = {'cubin': [{'arch': ed[0].arch} for ed in elf_data]}
+                    out.append(_gfi(ocubin))
             elif len(ptx_data) and not len(elf_data):
                 print("WARNING: PTX data present, but no ELF/Binary data found")
             else:
@@ -132,6 +138,7 @@ if __name__ == "__main__":
     p.add_argument("--except", dest="except_re", action="append", help="Regular expressions to exclude functions", default=[])
     p.add_argument("--no-demangle", dest="demangle", action="store_false", help="Do not demangle function names, which uses c++filt")
     p.add_argument("--no-relocs", dest="relocs", action="store_false", help="Do not extract functions referenced in relocations even if they do not match --only")
+    p.add_argument("--ptx-missing-okay", action="store_true", help="Extract ELF/SASS data even if PTX is missing.")
 
 
     args = p.parse_args()
@@ -142,7 +149,7 @@ if __name__ == "__main__":
 
     fatbin = nvfatbin.NVFatBinary(args.elffile, decompressor=DefaultDecompressor)
     fatbin.parse_fatbin()
-    function_info = get_function_info(fatbin)
+    function_info = get_function_info(fatbin, args.ptx_missing_okay)
 
     only_re = re.compile("|".join(args.only_re))
     except_re = re.compile("|".join(args.except_re))

@@ -51,6 +51,7 @@ class SASSFunction(object):
         self.cubin_info = {}
         self.constants = None
         self.relocations = None
+        self.sym_info = []
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
@@ -60,6 +61,10 @@ class SASSFunction(object):
 
     def set_fn_info(self, fninfo):
         self.fn_info = fninfo
+
+    def set_syminfo(self, syminfo):
+        if syminfo.other_raw & nvfatbin.STO_CUDA_ENTRY:
+            self.sym_info.append('STO_CUDA_ENTRY')
 
     def set_relocations(self, relocations):
         out = []
@@ -96,6 +101,9 @@ class SASSFunction(object):
 
         if self.relocations:
             out['relocations'] = self.relocations
+
+        if self.sym_info:
+            out['sym_info'] = self.sym_info
 
         return out
 
@@ -192,6 +200,8 @@ class DisassemblerCUObjdump(object):
         fnargs = cubin.get_args()
         fninfo = cubin.get_fn_info()
         const = cubin.constants
+        syminfo = dict([(st.name, st) for st in cubin.nvglobals])
+
         cubin_info = {'arch': cubin.arch}
 
         assert not (len(function_names) and (function_index is not None)), f"Can't specify both function_names and function_index at the same time"
@@ -219,6 +229,7 @@ class DisassemblerCUObjdump(object):
                 if fn in fnargs: out[fn].set_arg_info(fnargs[fn])
                 if fn in fninfo: out[fn].set_fn_info(fninfo[fn])
                 if fn in const: out[fn].set_constants(const[fn])
+                if fn in syminfo: out[fn].set_syminfo(syminfo[fn])
                 if '' in const: out[fn].set_constants(const[''], update=True)
                 if f'.text.{fn}' in cubin.relocations:
                     out[fn].set_relocations(cubin.relocations[f'.text.{fn}'])
