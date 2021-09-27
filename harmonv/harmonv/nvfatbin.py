@@ -48,6 +48,7 @@ DEBUG_MODE = 0
 LIBRARY_MODE = 1
 
 CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)(\.(?P<symbol>.*))?")
+SHAREDMEM_RE = re.compile(r"\.nv\.shared\.(?P<symbol>.+)")
 
 # relocation types, lots more...
 R_CUDA_ABS32_20 = 42
@@ -230,6 +231,7 @@ class NVCubinPartELF(NVCubinPart):
         if symtab:
             for i, sym in enumerate(symtab.iter_symbols()):
                 n = sym.name
+
                 if sym.entry['st_info']['bind'] == 'STB_GLOBAL':
                     symtab.stream.seek(symtab['sh_offset'] + i * symtab['sh_entsize'])
                     raw_entry = symtab.stream.read(symtab['sh_entsize'])
@@ -433,6 +435,13 @@ class NVCubinPartELF(NVCubinPart):
 
         return symbol, out
 
+    def parse_sharedmem(self, section):
+        m = SHAREDMEM_RE.match(section.name)
+        assert m is not None, f"Couldn't parse shared memory section name: {section.name}"
+        symbol = m.group('symbol')
+
+        return symbol, section.data_size
+
     def parse_relocations(self, section):
         if section.name.startswith(".rel."):
             target = section.name[4:]
@@ -470,6 +479,7 @@ class NVCubinPartELF(NVCubinPart):
         self.fn_info = {}
         self.constants = {}
         self.relocations = {}
+        self.sharedmem = {}
 
         for s in self.cubin_elf.iter_sections():
             #print(s.name)
@@ -488,6 +498,9 @@ class NVCubinPartELF(NVCubinPart):
             elif isinstance(s, elftools.elf.relocation.RelocationSection):
                 tgt, relocs = self.parse_relocations(s)
                 self.relocations[tgt] = relocs
+            elif s.name.startswith(".nv.shared"):
+                fn_name, shmem_size = self.parse_sharedmem(s)
+                self.sharedmem[fn_name] = shmem_size
 
         if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)
