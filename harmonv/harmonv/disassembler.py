@@ -52,6 +52,7 @@ class SASSFunction(object):
         self.constants = None
         self.relocations = None
         self.sym_info = []
+        self.sharedmem = None
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
@@ -82,6 +83,9 @@ class SASSFunction(object):
         else:
             self.constants = constants
 
+    def set_sharedmem(self, shmem_size):
+        self.sharedmem = shmem_size
+
     def to_dict(self):
         out = {'function': self.function,
                'producer': self.producer,
@@ -104,6 +108,9 @@ class SASSFunction(object):
 
         if self.sym_info:
             out['sym_info'] = self.sym_info
+
+        if self.sharedmem is not None:
+            out['sharedmem'] = self.sharedmem
 
         return out
 
@@ -231,6 +238,8 @@ class DisassemblerCUObjdump(object):
                 if fn in const: out[fn].set_constants(const[fn])
                 if fn in syminfo: out[fn].set_syminfo(syminfo[fn])
                 if '' in const: out[fn].set_constants(const[''], update=True)
+                if fn in cubin.sharedmem:
+                    out[fn].set_sharedmem(cubin.sharedmem[fn])
                 if f'.text.{fn}' in cubin.relocations:
                     out[fn].set_relocations(cubin.relocations[f'.text.{fn}'])
                 out[fn].cubin_info = cubin_info
