@@ -246,6 +246,40 @@ class NVCubinPartELF(NVCubinPart):
 
         return global_syms
 
+    def get_const_symbol_offsets(self, elf):
+        global_constants = {}
+        for x in self.constants:
+            #print(f"sym: '{x}'")
+            if x == '':
+                for bnk in self.constants[x]:
+                    if bnk['global']:
+                        global_constants[bnk['_index']] = bnk
+                        del bnk['_index']
+
+        symtab = elf.get_section_by_name(".symtab")
+        local_syms = {}
+        if symtab:
+            for i, sym in enumerate(symtab.iter_symbols()):
+                n = sym.name
+
+                if sym.entry['st_info']['bind'] == 'STB_LOCAL':
+                    #gi = GLOBALINFO(name=n,
+                    #                info=sym.entry['st_info'],
+                    #                size=sym.entry['st_size'],
+                    #                value=sym.entry['st_value'], # also add st_other?
+                    #                other_raw=other_raw)
+                    bnk = sym.entry['st_shndx']
+                    if bnk in global_constants:
+                        if 'symbols' not in global_constants[bnk]:
+                            global_constants[bnk]['symbols'] = {}
+
+                        symbols = global_constants[bnk]['symbols']
+                        if sym.entry['st_size'] > 0:
+                            symbols[n] = {'size': sym.entry['st_size'],
+                                          'offset': sym.entry['st_value']}
+                        else:
+                            assert n.startswith('.nv.constant'), n
+
     def parse_nv_info_section(self, s, data):
         ndx = 0
         section_size = len(data)
@@ -421,7 +455,7 @@ class NVCubinPartELF(NVCubinPart):
 
         return args
 
-    def parse_constant(self, section, data):
+    def parse_constant(self, index, section, data):
         m = CONSTANT_RE.match(section.name)
 
         assert m is not None, f"Couldn't parse constant section name: {section.name}"
@@ -432,6 +466,7 @@ class NVCubinPartELF(NVCubinPart):
         if symbol is None:
             symbol = '' # possibly global
             out['global'] = True
+            out['_index'] = index
 
         return symbol, out
 
@@ -481,8 +516,7 @@ class NVCubinPartELF(NVCubinPart):
         self.relocations = {}
         self.sharedmem = {}
 
-        for s in self.cubin_elf.iter_sections():
-            #print(s.name)
+        for index, s in enumerate(self.cubin_elf.iter_sections()):
             if s.name.startswith(".nv.info"):
                 info = self.parse_nv_info_section(s, s.data())
                 #args = self.parse_nv_param_info_section(s, s.data())
@@ -492,7 +526,7 @@ class NVCubinPartELF(NVCubinPart):
                 self.args[s.name[9:]] = args
                 self.fn_info[s.name[9:]] = fninfo
             elif s.name.startswith(".nv.constant"):
-                fn_name, const = self.parse_constant(s, s.data())
+                fn_name, const = self.parse_constant(index, s, s.data())
                 if fn_name not in self.constants: self.constants[fn_name] = []
                 self.constants[fn_name].append(const)
             elif isinstance(s, elftools.elf.relocation.RelocationSection):
@@ -501,6 +535,8 @@ class NVCubinPartELF(NVCubinPart):
             elif s.name.startswith(".nv.shared"):
                 fn_name, shmem_size = self.parse_sharedmem(s)
                 self.sharedmem[fn_name] = shmem_size
+
+        self.get_const_symbol_offsets(self.cubin_elf)
 
         if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)
