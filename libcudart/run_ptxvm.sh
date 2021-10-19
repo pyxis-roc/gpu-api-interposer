@@ -44,7 +44,8 @@ if [ ! -f "$LIBRARY" ]; then
 fi;
 
 if [ ! "$1" == "no" ]; then
-    PTX_MODULE=`realpath "$1"`
+    #PTX_MODULE=`realpath "$1"`
+    PTX_MODULE=$1
     # echo "PTX_MODULE is set to $PTX_MODULE"
 else
     PTX_MODULE=$1
