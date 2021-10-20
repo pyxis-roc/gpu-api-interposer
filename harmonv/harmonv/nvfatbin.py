@@ -354,6 +354,8 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == EIATTR_SW2861232_WAR:
                 ndx += attr_size
+            elif attr_fmt == EIATTR_BINDLESS_TEXTURE_BANK: # EIATTR_BINDLESS_TEXTURE_BANK
+                ndx += attr_size
             else:
                 warnings.warn(f"{self.get_filename()}: Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
