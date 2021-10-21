@@ -104,6 +104,9 @@ def cxxfilt_demangle(names, format="auto", no_params=False, cppfilt = 'c++filt')
     if no_params:
         args.append("-p")
 
+    if len(names) == 0:
+        return []
+
     args.extend(names)
     output = subprocess.check_output(args)
     demangled = [x.decode('utf-8') for x in output.splitlines()]
