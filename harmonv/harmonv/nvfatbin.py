@@ -49,6 +49,7 @@ LIBRARY_MODE = 1
 
 CONSTANT_RE = re.compile(r"\.nv\.constant(?P<bank>[0-9]+)(\.(?P<symbol>.*))?")
 SHAREDMEM_RE = re.compile(r"\.nv\.shared\.(?P<symbol>.+)")
+TEXTINFO_RE = re.compile(r"\.text\.(?P<symbol>.+)")
 
 # relocation types, lots more...
 R_CUDA_ABS32_20 = 42
@@ -246,6 +247,8 @@ class NVCubinPartELF(NVCubinPart):
 
         return global_syms
 
+    #NOTE: mimic parse symbtab's raw reading if parse_sharedmem mimic does not work
+
     def get_const_symbol_offsets(self, elf):
         global_constants = {}
         for x in self.constants:
@@ -351,6 +354,8 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == EIATTR_SW2861232_WAR:
                 ndx += attr_size
+            elif attr_fmt == EIATTR_BINDLESS_TEXTURE_BANK: # EIATTR_BINDLESS_TEXTURE_BANK
+                ndx += attr_size
             else:
                 warnings.warn(f"{self.get_filename()}: Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
@@ -387,6 +392,16 @@ class NVCubinPartELF(NVCubinPart):
             elif nfo.attr_fmt == EIATTR_CUDA_API_VERSION:
                 version = struct.unpack_from('I', nfo.data, 0)[0]
                 out['EIATTR_CUDA_API_VERSION'] = version # this is version * 10, so 111 for 11.1
+            elif nfo.attr_fmt == EIATTR_FRAME_SIZE:
+                # TODO: Get index, look up index in symbtab, write to the function with that index
+                size = struct.unpack_from('I', nfo.data, 0)[0]
+                out['EIATTR_FRAME_SIZE'] = size
+            elif nfo.attr_fmt == EIATTR_MAX_STACK_SIZE:
+                size = struct.unpack_from('I', nfo.data, 0)[0]
+                out['EIATTR_MAX_STACK_SIZE'] = size
+            elif nfo.attr_fmt == EIATTR_MIN_STACK_SIZE:
+                size = struct.unpack_from('I', nfo.data, 0)[0]
+                out['EIATTR_MIN_STACK_SIZE'] = size
 
         return out
 
@@ -477,6 +492,18 @@ class NVCubinPartELF(NVCubinPart):
 
         return symbol, section.data_size
 
+    def parse_textinfo(self, section):
+        m = TEXTINFO_RE.match(section.name)
+        assert m is not None, f"Couldn't parse text info section name: {section.name}"
+        symbol = m.group('symbol')
+        nbars = (int(section.header['sh_flags']) & 0x7f000000) >> 24
+        nregs = (int(section.header['sh_info']) & 0xff000000) >> 24
+
+        return symbol, nbars, nregs
+
+    
+    # parse_text print section.sh_info
+
     def parse_relocations(self, section):
         if section.name.startswith(".rel."):
             target = section.name[4:]
@@ -515,6 +542,8 @@ class NVCubinPartELF(NVCubinPart):
         self.constants = {}
         self.relocations = {}
         self.sharedmem = {}
+        self.numbar = {}
+        self.numregs = {}
 
         for index, s in enumerate(self.cubin_elf.iter_sections()):
             if s.name.startswith(".nv.info"):
@@ -535,6 +564,12 @@ class NVCubinPartELF(NVCubinPart):
             elif s.name.startswith(".nv.shared"):
                 fn_name, shmem_size = self.parse_sharedmem(s)
                 self.sharedmem[fn_name] = shmem_size
+            elif s.name.startswith(".text"):
+                fn_name, nbars, nregs = self.parse_textinfo(s)
+                self.numbar[fn_name] = nbars
+                self.numregs[fn_name] = nregs
+
+            # elif s.name.startswith('text.') (write matcher for text sections)
 
         self.get_const_symbol_offsets(self.cubin_elf)
 
