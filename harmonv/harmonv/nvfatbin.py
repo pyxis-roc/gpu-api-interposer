@@ -356,6 +356,8 @@ class NVCubinPartELF(NVCubinPart):
                 ndx += attr_size
             elif attr_fmt == EIATTR_BINDLESS_TEXTURE_BANK: # EIATTR_BINDLESS_TEXTURE_BANK
                 ndx += attr_size
+            elif attr_fmt == EIATTR_EXPLICIT_CACHING:
+                ndx += attr_size
             else:
                 warnings.warn(f"{self.get_filename()}: Unrecognized param info attribute  {attr_fmt:x} {attr_size}")
                 ndx += attr_size
@@ -402,6 +404,11 @@ class NVCubinPartELF(NVCubinPart):
             elif nfo.attr_fmt == EIATTR_MIN_STACK_SIZE:
                 size = struct.unpack_from('I', nfo.data, 0)[0]
                 out['EIATTR_MIN_STACK_SIZE'] = size
+            elif nfo.attr_fmt == EIATTR_MAX_THREADS:
+                threads = struct.unpack_from('III', nfo.data, 0)
+                out['EIATTR_MAX_THREADS'] = list(threads)
+            elif nfo.attr_fmt == EIATTR_EXPLICIT_CACHING:
+                out['EIATTR_EXPLICIT_CACHING'] = 1
 
         return out
 
