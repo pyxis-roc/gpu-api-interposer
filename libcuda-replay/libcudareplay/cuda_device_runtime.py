@@ -119,6 +119,8 @@ class CUDADeviceAPIHandler(object):
     def cuDeviceGetAttribute(self, pi, attrib, dev):
         # this is not a typo, we're recording the values returned by the trace
         self.gpu_handles[dev].set_attribute(attrib, pi)
+        if 'cuDeviceGetAttribute' in self.api_instr.instr_fns:
+            self.api_instr.cuDeviceGetAttribute(pi, attrib, dev)
 
     @check_retval
     def cuDeviceGetUuid(self, uuid, dev):
@@ -263,6 +265,8 @@ class CUDADeviceAPIHandler(object):
                 self.module_globals[hmod].add(name)
         else:
             _logger.warning(f'One of dptr ({dptr:x}) or bytesize ({bytesize}) was NULL/0, not registering cuModuleGetGlobal for {name}')
+        if 'cuModuleGetGlobal' in self.api_instr.instr_fns:
+            self.api_instr.cuModuleGetGlobal(dptr, bytesize, hmod, name)
 
     @check_retval
     def cuMemFree(self, dptr):

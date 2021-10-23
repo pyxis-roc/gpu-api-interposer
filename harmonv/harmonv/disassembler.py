@@ -53,6 +53,8 @@ class SASSFunction(object):
         self.relocations = None
         self.sym_info = []
         self.sharedmem = None
+        self.numbar = None
+        self.numregs = None
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
@@ -85,6 +87,12 @@ class SASSFunction(object):
 
     def set_sharedmem(self, shmem_size):
         self.sharedmem = shmem_size
+    
+    def set_numbar(self, numbar):
+        self.numbar = numbar
+
+    def set_numregs(self, numregs):
+        self.numregs = numregs
 
     def to_dict(self):
         out = {'function': self.function,
@@ -111,6 +119,12 @@ class SASSFunction(object):
 
         if self.sharedmem is not None:
             out['sharedmem'] = self.sharedmem
+
+        if self.numbar is not None:
+            out['numbar'] = self.numbar
+
+        if self.numregs is not None:
+            out['numregs'] = self.numregs
 
         return out
 
@@ -242,6 +256,10 @@ class DisassemblerCUObjdump(object):
                     out[fn].set_sharedmem(cubin.sharedmem[fn])
                 if f'.text.{fn}' in cubin.relocations:
                     out[fn].set_relocations(cubin.relocations[f'.text.{fn}'])
+                if fn in cubin.numbar:
+                    out[fn].set_numbar(cubin.numbar[fn])
+                if fn in cubin.numregs:
+                    out[fn].set_numregs(cubin.numregs[fn])
                 out[fn].cubin_info = cubin_info
         except subprocess.CalledProcessError as e:
             logger.error(f'ERROR: cuobjdump failed to handle cubin (arch={cubin.arch}): {e}')
