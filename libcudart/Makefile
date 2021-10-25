@@ -4,12 +4,18 @@ GENRECORDER=../generator/genrecorder.py
 FAKE_C_HEADERS ?= /usr/share/python3-pycparser/fake_libc_include
 
 #~/extsrc/pycparser/utils/fake_libc_include/
-CUDA_HOME ?= /usr/local/cuda
+COMPAT_INC = ../../ptxvm/ptxcrt/include
+COMPAT_LIBS = ../../ptxvm/build/ptxvm_compatrt.a
+CUDA_VERSION=11.1
+CUDA_HOME = $(subst /bin/nvcc,,$(shell which nvcc))
 CUDA_INC=$(CUDA_HOME)/include
 CUDA_H=$(CUDA_INC)/cuda_runtime_api.h
 BLOBSTORE=../blobstore
 ARGHELPER=../arghelper
-SO=libcudart.so.11.0
+
+# on Debian-based systems with native packages, the path is
+# $(CUDA_HOME)/lib/x86_64-linux-gnu/
+SO=$(CUDA_HOME)/lib64/libcudart.so.$(CUDA_VERSION)
 
 ifeq ($(shell test -f $(SO) || echo 'doesnotexist'),doesnotexist)
 $(error SO=$(SO) does not exist, specify a valid path to libcudart.so)
