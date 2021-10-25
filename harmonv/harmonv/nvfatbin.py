@@ -384,7 +384,8 @@ class NVCubinPartELF(NVCubinPart):
             if nfo.attr_fmt == 0x1b03:
                 out['EIATTR_MAXREG_COUNT'] = nfo.attr_size # unused, SHI_REGISTERS is used instead
             elif nfo.attr_fmt == EIATTR_CBANK_PARAM_SIZE:
-                out['EIATTR_CBANK_PARAM_SIZE'] = struct.unpack_from('H', nfo.data, 0)[0]
+                out['EIATTR_CBANK_PARAM_SIZE'] = nfo.attr_size
+                #struct.unpack_from('H', nfo.data, 0)[0]
             elif nfo.attr_fmt == EIATTR_PARAM_CBANK:
                 start, size = struct.unpack_from('HH', nfo.data, 4) # skip word
                 out['EIATTR_PARAM_CBANK'] = {'start': start,
