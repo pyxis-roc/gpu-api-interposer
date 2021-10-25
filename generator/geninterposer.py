@@ -6,7 +6,7 @@
 #
 # Author: Sreepathi Pai
 #
-# Copyright (C) 2019, The University of Rochester
+# Copyright (C) 2019, 2021 The University of Rochester
 #
 
 import sys
@@ -22,6 +22,7 @@ import yaml
 import difflib
 import itertools
 import os
+from codegenutils import *
 
 TEMPLATE_INIT_ORIG_HANDLE = """static __attribute__((constructor)) void init_orig_handle() {{
     char *original_library_path = getenv("{env_variable}");
@@ -94,6 +95,12 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
                 return en
         elif ty is c_ast.IdentifierType:
             return ty(decl.names)
+        elif ty is c_ast.Enum:
+            return ty(decl.name, decl.values)
+        elif ty is c_ast.Struct:
+            return ty(decl.name, decl.decls)
+        elif ty is c_ast.Union:
+            return ty(decl.name, decl.decls)
         else:
             assert False, ty
 
@@ -226,6 +233,90 @@ class ReturnValuePlugin(InterposerPlugin):
         else:
             return [decl_node['fncall']]
 
+class InterceptReturnValuePlugin(InterposerPlugin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.hfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_interceptor.h"
+        self.cfile = (self.generator.oprefix or self.generator.hinclude[:-2]) + "_interceptor.c"
+        self.hfile_ast = c_ast.FileAST([])
+        self.cfile_ast = c_ast.FileAST([])
+        self.completed = set()
+
+    def set_intercept(self, f):
+        with open(f, "r") as f:
+            self._intercept = yaml.safe_load(f)
+
+    def set_completed(self, pfx_names):
+        self.completed = set(pfx_names)
+
+    def generate_includes(self, context):
+        if 'includes' in self._intercept:
+            includes = [f"#include <{h}>" for h in self._intercept['includes']]
+
+        return ["#include <stdlib.h>", "#include <stdio.h>"] + includes
+
+    def _get_decl(self, func_decl_node, old_name, new_name):
+        new_decl = copy.deepcopy(func_decl_node)
+        fdv = FuncDeclVisitor()
+        fdv.set_declname(new_decl.type, old_name, new_name)
+        return new_decl
+
+    def _get_body(self, new_decl_node, name):
+        return c_ast.FuncDef(new_decl_node, [], c_ast.Compound([
+            PassthruStmt(f'const char *_fn = "{name}";'),
+            PassthruStmt(self._intercept['not_implemented_code'])
+        ]))
+
+    def generate(self, decl_node, context):
+        context['called'] = True
+
+        oname = decl_node['origname']
+        if 'override' in self._intercept:
+            if oname in self._intercept['override']:
+                interceptor = self._intercept['override'][oname]
+            else:
+                interceptor = self._intercept['default_prefix'] + oname
+        else:
+            interceptor = self._intercept['default_prefix'] + oname
+
+        call = copy.deepcopy(decl_node['fncall'])
+        call.name = c_ast.ID(interceptor)
+
+        if interceptor not in self.completed:
+            decl = self._get_decl(decl_node['decl'], oname, interceptor)
+            self.hfile_ast.ext.append(decl)
+            self.cfile_ast.ext.append(self._get_body(decl, interceptor))
+
+        if decl_node['retval_decl']:
+            context['retval'] = decl_node['retval_decl'].name
+
+            return [c_ast.Assignment("=",
+                                     c_ast.ID(context['retval']),
+                                     call)]
+        else:
+            return [call]
+
+    def generate_post_code(self, context):
+        with open(self.hfile, "w") as f:
+            f.write("/* automatically generated, do not edit */\n")
+            f.write("#pragma once\n")
+            cgen = MyCGenerator()
+            f.write(cgen.visit(self.hfile_ast))
+
+        with open(self.cfile, "w") as f:
+            f.write("/* automatically generated, do not edit */\n")
+            for x in self.generate_includes(context):
+                f.write(x + "\n")
+
+            f.write(f"#include <{self.hfile}>\n")
+            cgen = MyCGenerator()
+            f.write(cgen.visit(self.cfile_ast))
+
+        return []
+
+
+
 class DefaultHeadersPlugin(InterposerPlugin):
     def generate(self, decl_node, context):
         # this doesn't generate anything.
@@ -325,7 +416,7 @@ class CommonInstrumentMixin(object):
             f.write('extern "C" {\n')
             f.write("#endif\n")
 
-            cgen = c_generator.CGenerator()
+            cgen = MyCGenerator()
             f.write(cgen.visit(self.ast))
 
             f.write("#ifdef __cplusplus\n")
@@ -447,7 +538,7 @@ class TpEventArgGeneratorPlugin(InterposerPlugin):
         decls = dict([(d['origname'], d) for d in self.generator.get_decl_nodes()])
 
         out = {}
-        cgen = c_generator.CGenerator()
+        cgen = MyCGenerator()
         for f in fns:
             fd = self.generator.global_ctx['pre'].get(f, None) or self.generator.global_ctx['post'][f]
 
@@ -500,6 +591,8 @@ class InterposerGenerator(object):
         self.filter_data = None
         self.global_ctx = {}
 
+        self.intercept = False
+
     def get_decl_nodes(self):
         return self.fdv.func_decl_nodes
 
@@ -547,7 +640,9 @@ class InterposerGenerator(object):
 
     def add_plugin(self, plugin):
         # TODO: automate ordering later...
-        self.plugins.append(plugin(self))
+        p = plugin(self)
+        self.plugins.append(p)
+        return p
 
     def generate_shells(self):
         def next_func_code(node_data):
@@ -572,10 +667,18 @@ class InterposerGenerator(object):
                              None),
                     node_data['retval_decl']]
 
+        def next_func_code_intercept(node_data):
+            return [node_data['retval_decl']]
+
+        if self.intercept:
+            nfc = next_func_code_intercept
+        else:
+            nfc = next_func_code
+
         for nn in self.fdv.func_decl_nodes:
             n = nn['decl']
             nn['shell'] = pycparser.c_ast.FuncDef(n, None,
-                                                  c_ast.Compound(next_func_code(nn))
+                                                  c_ast.Compound(nfc(nn))
                                               )
 
     def generate_plugins(self, decl_node):
@@ -629,7 +732,7 @@ class InterposerGenerator(object):
 
             f.write("\n")
 
-            generator = c_generator.CGenerator()
+            generator = MyCGenerator()
 
             for n in self.fdv.func_decl_nodes:
                 passthru = copy.deepcopy(n['shell'])
@@ -678,8 +781,17 @@ def get_ast(preprocessed_file):
     ast = pycparser.parse_file(preprocessed_file)
     return ast
 
-def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None):
+def add_undocumented(undocumented, main_header_pp, cppargsfile, fake_c_headers):
+    undocumentedpp = preprocess(undocumented, cppargsfile, fake_c_headers)
+    with open(main_header_pp, "a") as mh:
+        with open(undocumentedpp, "r") as uh:
+            mh.write(uh.read())
+
+def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None, undocumented = None):
     preprocessed = preprocess(hfile, cppargsfile, fake_c_headers)
+    if undocumented:
+        add_undocumented(undocumented, preprocessed, cppargsfile, fake_c_headers)
+
     ast = get_ast(preprocessed)
     os.unlink(preprocessed)
     ig = InterposerGenerator(hfile, ast, oprefix)
@@ -689,6 +801,7 @@ def get_generator_for_header(hfile, cppargsfile, fake_c_headers, oprefix = None)
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Generate a interceptor")
     p.add_argument("hfile", help="Include file")
+    p.add_argument("--undocumented", help="Include file for undocumented functions")
     p.add_argument("--fake-c-headers", help="Path to pycparser's fake C headers")
     p.add_argument("--cppargsfile", help="File that contains C preprocessor arguments, one per line")
     p.add_argument("--dlopen", action="store_true", help="Original library is dlopen-ed")
@@ -696,10 +809,12 @@ if __name__ == "__main__":
     p.add_argument("--ctx", dest="context", action="store_true",
                    help="Generate ordered context variable")
     p.add_argument("--pre-instrument", action="store_true",
-                   help="Instrument functions before they've been called, generate a header file for post-call instrumentation functions")
+                   help="Instrument functions before they've been called, generate a header file for pre-call instrumentation functions")
     p.add_argument("--post-instrument", action="store_true",
                    help="Instrument functions after they've been called, generate a header file for post-call instrumentation functions")
     p.add_argument("--trace", action="store_true", help="Generate tracer")
+    p.add_argument("--intercept", metavar="FILE", help="Generate interceptor using FILE")
+    p.add_argument("--completed", metavar="FILE", help="List of functions that have been intercepted")
     p.add_argument("--tpargs", action="store_true", help="Generate tracepoint arguments for pre/post functions")
     p.add_argument("--oprefix", dest="output_prefix", help="Output prefix for supplementary output files")
     p.add_argument("-o", dest="output", help="Output file")
@@ -712,10 +827,14 @@ if __name__ == "__main__":
             print(f"ERROR: Directory {args.fake_c_headers} specified for --fake-c-headers does not exist")
             sys.exit(1)
 
-    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers, args.output_prefix)
+    ig = get_generator_for_header(args.hfile, args.cppargsfile, args.fake_c_headers, args.output_prefix, undocumented = args.undocumented)
     if args.filter:
         if not ig.add_filter(args.filter):
             sys.exit(1)
+
+    if args.intercept:
+        assert not args.trace or args.pre_instrument or args.post_instrument, f"--intercept can only be specified without --trace/--pre-instrument/--post-instrument" # why?
+        ig.intercept = True
 
     ig.dlopen = args.dlopen
     if args.dlopen:
@@ -732,7 +851,13 @@ if __name__ == "__main__":
     if args.pre_instrument:
         ig.add_plugin(PreInstrumentPlugin)
 
-    ig.add_plugin(ReturnValuePlugin)
+    if not args.intercept:
+        ig.add_plugin(ReturnValuePlugin)
+    else:
+        p = ig.add_plugin(InterceptReturnValuePlugin)
+        p.set_intercept(args.intercept)
+        if args.completed:
+            p.set_completed([x.strip() for x in open(args.completed, 'r').readlines()])
 
     if args.post_instrument:
         ig.add_plugin(PostInstrumentPlugin)

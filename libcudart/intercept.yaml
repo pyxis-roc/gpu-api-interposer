@@ -1,0 +1,6 @@
+includes:
+  - ptxvm_compatrt.h
+not_implemented_code: |
+  fprintf(stderr, "ERROR: %s is not yet implemented\n", _fn);
+  exit(1);
+default_prefix: ptxvm_
