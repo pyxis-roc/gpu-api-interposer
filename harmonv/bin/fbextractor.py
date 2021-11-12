@@ -38,8 +38,14 @@ if __name__ == "__main__":
     p.add_argument("-k", "--keep", dest="keep", action="store_true", help="Keep temporary files")
     p.add_argument("-d", dest="debug", help="Debug", action="store_true")
     p.add_argument("-p", dest="file_prefix", help="Filename prefix")
+    p.add_argument("-s", dest="stem", help="Stem for extracted files, default is cuobjdump-style stemming (upto last .)")
 
     args = p.parse_args()
+
+    if args.stem:
+        stem_fn = lambda x: args.stem.encode('utf-8')
+    else:
+        stem_fn = None
 
     nvfatbin.DEBUG_MODE = args.debug
 
@@ -51,13 +57,13 @@ if __name__ == "__main__":
 
         for c in fatbin.cubins:
             for cc in c.parts:
-                print(cc.get_filename())
+                print(cc.get_filename(stem_fn=stem_fn))
 
         sys.exit(1)
 
     if "ptx" in args.extract:
         for ptx in extract_ptx(fatbin, args.keep):
-            fn = Path(ptx[0].get_filename())
+            fn = Path(ptx[0].get_filename(stem_fn=stem_fn))
             if args.file_prefix:
                 fn = fn.parent / (args.file_prefix + fn.name)
             print(fn)
@@ -70,7 +76,7 @@ if __name__ == "__main__":
 
     if "elf" in args.extract:
         for elf in extract_elf(fatbin):
-            fn = Path(elf[0].get_filename())
+            fn = Path(elf[0].get_filename(stem_fn=stem_fn))
             if args.file_prefix:
                 fn.name = fn.parent / (args.file_prefix + fn.name)
 

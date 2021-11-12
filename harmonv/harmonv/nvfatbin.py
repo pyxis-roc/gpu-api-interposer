@@ -83,7 +83,7 @@ class NVCubinPart(object):
         self.uncompressed_data = self.decompressor.decompress(self)
         assert self.uncompressed_data is not None, "ERROR: Failed to decompress data!"
 
-    def get_filename(self):
+    def get_filename(self, stem_fn = None):
         # as shown by -lelf and -lptx
 
         def prefix(i):
@@ -92,6 +92,9 @@ class NVCubinPart(object):
                 return i[:p]
 
             return i
+
+        if stem_fn == None:
+            stem_fn = prefix
 
         if self.identifier is not None and len(self.identifier):
             identifiers = [prefix(i) for i in self.identifier.split(b' ')]
@@ -105,7 +108,7 @@ class NVCubinPart(object):
 
                 part_index = self.cubin.parts.index(self)
                 index = self.cubin.index + part_index + 1
-                fullname = prefix(os.path.basename(self.cubin.filename).encode('utf-8')) + b".%d" % (index,)
+                fullname = stem_fn(os.path.basename(self.cubin.filename).encode('utf-8')) + b".%d" % (index,)
                 fullname = fullname.decode('utf-8')
             else:
                 raise NotImplementedError
