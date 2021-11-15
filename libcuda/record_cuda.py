@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     new_env = os.environ.copy()
 
-
+    safety_cleanup = []
     for x in [os.environ.get('DLOPEN_LIBRARY', args.DLOPEN_LIBRARY), "/usr/lib64/libcuda.so.1", "/usr/lib/x86_64-linux-gnu/libcuda.so.1"]:
         if x is None:
             continue
@@ -87,6 +87,11 @@ if __name__ == '__main__':
         def exit_safely():
             subprocess.run(["lttng", "destroy"])
             shutil.rmtree(tracedir)
+            for f in safety_cleanup:
+                if os.path.isfile(f):
+                    os.remove(f)
+                if os.path.isfile(f + '.yaml'):
+                    os.remove(f)
         atexit.register(exit_safely)
 
         subprocess.run(["lttng", "enable-event", '--userspace', 'libcuda_interposer:*'],
@@ -115,6 +120,7 @@ if __name__ == '__main__':
                   ('binary', args.cmd[0]),
                   ('args_binary', new_env['ARGHELPER_FILE']),
                   ('args_yaml', new_env['ARGHELPER_FILE'] + ".yaml")]
+    safety_cleanup.append(new_env['ARGHELPER_FILE'])
     pack_api_trace.pack_trace(args.archive, args.compression, root, members_to_add)
 
     # Only remove arghelper file if it was not specified via command line
