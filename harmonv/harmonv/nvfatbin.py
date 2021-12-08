@@ -58,6 +58,9 @@ R_NV_64 = 2
 # STO_CUDA
 STO_CUDA_ENTRY = 0x10
 
+NVFATBIN_SECTION_NAME = ".nv_fatbin"
+NVFATBIN_REL_SECTION_NAME = "__nv_relfatbin" # when compiled with -rdc, the PTX only stays in this section
+
 class NVCubinPart(object):
     def __init__(self, part_type, header, data, cubin):
         self.type = part_type
@@ -512,7 +515,6 @@ class NVCubinPartELF(NVCubinPart):
 
         return symbol, nbars, nregs
 
-    
     # parse_text print section.sh_info
 
     def parse_relocations(self, section):
@@ -634,18 +636,16 @@ class NVFatBinary(object):
         self.felf = open(elf, "rb")
         self.decompressor = decompressor
 
-    def parse_fatbin(self):
+    def parse_fatbin(self, nv_fatbin_section = NVFATBIN_SECTION_NAME):
         self.elffile = ELFFile(self.felf)
 
         if self.elffile.elfclass != 64:
             print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
             return 0
 
-        for nv_fatbin_name in [".nv_fatbin", "__nv_relfatbin"]: # executables, .o: though the latter also exists in executables and contains ptx data (for example).
-            nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_name)
-            if nv_fatbin:
-                if DEBUG_MODE: print(f"Using section: {nv_fatbin_name}")
-                break
+        nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_section)
+        if nv_fatbin:
+            if DEBUG_MODE: print(f"Using section: {nv_fatbin_section}")
 
         if nv_fatbin:
             fatbin_header = struct.Struct('IHHQ') # from fatbinary.h
@@ -695,6 +695,7 @@ if __name__ == "__main__":
 
     p.add_argument("elffile")
     p.add_argument("-d", dest="debug", action="store_true")
+    p.add_argument("-r", dest="rel", help="Dump relocatable fatbin", action="store_true")
 
     args = p.parse_args()
 
@@ -702,4 +703,4 @@ if __name__ == "__main__":
     LIBRARY_MODE = 0
 
     fatbin = NVFatBinary(args.elffile)
-    fatbin.parse_fatbin()
+    fatbin.parse_fatbin(NVFATBIN_REL_SECTION_NAME if args.rel else NVFATBIN_SECTION_NAME)
