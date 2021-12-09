@@ -53,6 +53,9 @@ TEXTINFO_RE = re.compile(r"\.text\.(?P<symbol>.+)")
 
 # relocation types, lots more...
 R_CUDA_ABS32_20 = 42
+R_CUDA_ABS32_HI_20 = 44
+R_CUDA_ABS32_LO_20 = 43
+
 R_NV_64 = 2
 
 # STO_CUDA
@@ -285,6 +288,19 @@ class NVCubinPartELF(NVCubinPart):
                                           'offset': sym.entry['st_value']}
                         else:
                             assert n.startswith('.nv.constant'), n
+
+    def get_global_symbol_offsets(self, elf):
+        symtab = elf.get_section_by_name(".symtab")
+        glbl_shndx = 12
+        if symtab:
+            for _, sym in enumerate(symtab.iter_symbols()):
+                if sym.name == ".nv.global.init":
+                    glbl_shndx = sym.entry['st_shndx']
+                elif sym.entry['st_shndx'] == glbl_shndx:
+                    # this is a global symbol
+                    self.global_symbol_offset[sym.name] = dict(size=sym.entry['st_size'], offset=sym.entry['st_value'])
+
+                    
 
     def parse_nv_info_section(self, s, data):
         ndx = 0
@@ -555,6 +571,8 @@ class NVCubinPartELF(NVCubinPart):
         self.sharedmem = {}
         self.numbar = {}
         self.numregs = {}
+        self.global_init_data = {}
+        self.global_symbol_offset = {}
 
         for index, s in enumerate(self.cubin_elf.iter_sections()):
             if s.name.startswith(".nv.info"):
@@ -579,10 +597,15 @@ class NVCubinPartELF(NVCubinPart):
                 fn_name, nbars, nregs = self.parse_textinfo(s)
                 self.numbar[fn_name] = nbars
                 self.numregs[fn_name] = nregs
+            elif s.name.startswith(".nv.global.init"):
+                self.global_init_data['size'] = s.data_size
+                self.global_init_data['data'] = s.data()
 
             # elif s.name.startswith('text.') (write matcher for text sections)
 
         self.get_const_symbol_offsets(self.cubin_elf)
+
+        self.get_global_symbol_offsets(self.cubin_elf) # fill offsets from symbol table
 
         if (not LIBRARY_MODE) and DEBUG_MODE:
             print(self.nvglobals)
