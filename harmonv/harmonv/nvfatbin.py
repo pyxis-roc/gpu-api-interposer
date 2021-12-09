@@ -54,6 +54,7 @@ TEXTINFO_RE = re.compile(r"\.text\.(?P<symbol>.+)")
 # relocation types, lots more...
 R_CUDA_ABS32_20 = 42
 R_NV_64 = 2
+R_CUDA_FUNC_DESC_64 = 35
 
 # STO_CUDA
 STO_CUDA_ENTRY = 0x10
@@ -493,9 +494,18 @@ class NVCubinPartELF(NVCubinPart):
         symbol = m.group('symbol')
         out = {'bank': bank, 'data': data}
         if symbol is None:
-            symbol = '' # possibly global
+            if section.name in self.relocations:
+                symbol = []
+                for r in self.relocations[section.name]:
+                    assert r[0]['r_info_type'] == R_CUDA_FUNC_DESC_64, r
+                    symbol.append(r[1])
+            else:
+                symbol = [''] # possibly global
+
             out['global'] = True
             out['_index'] = index
+        else:
+            symbol = [symbol]
 
         return symbol, out
 
@@ -568,9 +578,12 @@ class NVCubinPartELF(NVCubinPart):
                 self.args[s.name[9:]] = args
                 self.fn_info[s.name[9:]] = fninfo
             elif s.name.startswith(".nv.constant"):
-                fn_name, const = self.parse_constant(index, s, s.data())
-                if fn_name not in self.constants: self.constants[fn_name] = []
-                self.constants[fn_name].append(const)
+                fn_names, const = self.parse_constant(index, s, s.data())
+                assert isinstance(fn_names, list), fn_names
+                for fn_name in fn_names:
+                    if fn_name not in self.constants:
+                        self.constants[fn_name] = []
+                    self.constants[fn_name].append(const)
             elif isinstance(s, elftools.elf.relocation.RelocationSection):
                 tgt, relocs = self.parse_relocations(s)
                 self.relocations[tgt] = relocs
