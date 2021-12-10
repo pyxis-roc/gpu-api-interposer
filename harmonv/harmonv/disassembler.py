@@ -276,6 +276,7 @@ class DisassemblerCUObjdump(object):
                     out[fn].set_numbar(cubin.numbar[fn])
                 if fn in cubin.numregs:
                     out[fn].set_numregs(cubin.numregs[fn])
+                out[fn].cubin_info = cubin_info
                 out[fn].set_global_init_data(cubin.global_init_data)
                 out[fn].set_global_init_offsets(cubin.global_symbol_offset)
         except subprocess.CalledProcessError as e:
