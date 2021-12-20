@@ -101,7 +101,8 @@ class NVCubinPart(object):
             stem_fn = prefix
 
         if self.identifier is not None and len(self.identifier):
-            identifiers = [prefix(i) for i in self.identifier.split(b' ')]
+            # TODO: integrate stem_fn in this
+            identifiers = [prefix(os.path.basename(i.decode('utf-8').encode('utf-8'))) for i in self.identifier.split(b' ')]
             fullname = b"-".join(identifiers).decode('utf-8')
         else:
             if self.cubin.filename:
