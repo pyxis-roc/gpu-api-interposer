@@ -142,6 +142,7 @@ if __name__ == "__main__":
     p.add_argument("--no-demangle", dest="demangle", action="store_false", help="Do not demangle function names, which uses c++filt")
     p.add_argument("--no-relocs", dest="relocs", action="store_false", help="Do not extract functions referenced in relocations even if they do not match --only")
     p.add_argument("--ptx-missing-okay", action="store_true", help="Extract ELF/SASS data even if PTX is missing.")
+    p.add_argument("-r", dest="ptx_missing_okay", action="store_true", help="Executable was compiled using -rdc, extract ELF/SASS data from executable ELF (which usually contains no PTX).")
 
 
     args = p.parse_args()

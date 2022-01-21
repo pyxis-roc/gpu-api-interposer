@@ -82,14 +82,14 @@ class SASSFunction(object):
         self.relocations = out
 
     def set_constants(self, constants, update = False):
-        if update:
+        if update and self.constants is not None:
             self.constants.extend(constants)
         else:
             self.constants = constants
 
     def set_sharedmem(self, shmem_size):
         self.sharedmem = shmem_size
-    
+
     def set_numbar(self, numbar):
         self.numbar = numbar
 

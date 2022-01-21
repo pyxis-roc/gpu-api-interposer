@@ -55,10 +55,13 @@ R_CUDA_ABS32_HI_20 = 44
 R_CUDA_ABS32_LO_20 = 43
 
 R_NV_64 = 2
+R_CUDA_FUNC_DESC_64 = 35
 
 # STO_CUDA
 STO_CUDA_ENTRY = 0x10
 
+NVFATBIN_SECTION_NAME = ".nv_fatbin"
+NVFATBIN_REL_SECTION_NAME = "__nv_relfatbin" # when compiled with -rdc, the PTX only stays in this section
 
 class NVCubinPart(object):
     def __init__(self, part_type, header, data, cubin):
@@ -526,9 +529,18 @@ class NVCubinPartELF(NVCubinPart):
         symbol = m.group("symbol")
         out = {"bank": bank, "data": data}
         if symbol is None:
-            symbol = ""  # possibly global
-            out["global"] = True
-            out["_index"] = index
+            if section.name in self.relocations:
+                symbol = []
+                for r in self.relocations[section.name]:
+                    assert r[0]['r_info_type'] == R_CUDA_FUNC_DESC_64, r
+                    symbol.append(r[1])
+            else:
+                symbol = [''] # possibly global
+
+            out['global'] = True
+            out['_index'] = index
+        else:
+            symbol = [symbol]
 
         return symbol, out
 
@@ -605,10 +617,12 @@ class NVCubinPartELF(NVCubinPart):
                 self.args[s.name[9:]] = args
                 self.fn_info[s.name[9:]] = fninfo
             elif s.name.startswith(".nv.constant"):
-                fn_name, const = self.parse_constant(index, s, s.data())
-                if fn_name not in self.constants:
-                    self.constants[fn_name] = []
-                self.constants[fn_name].append(const)
+                fn_names, const = self.parse_constant(index, s, s.data())
+                assert isinstance(fn_names, list), fn_names
+                for fn_name in fn_names:
+                    if fn_name not in self.constants:
+                        self.constants[fn_name] = []
+                    self.constants[fn_name].append(const)
             elif isinstance(s, elftools.elf.relocation.RelocationSection):
                 tgt, relocs = self.parse_relocations(s)
                 self.relocations[tgt] = relocs
@@ -682,22 +696,16 @@ class NVFatBinary(object):
         self.felf = open(elf, "rb")
         self.decompressor = decompressor
 
-    def parse_fatbin(self):
+    def parse_fatbin(self, nv_fatbin_section = NVFATBIN_SECTION_NAME):
         self.elffile = ELFFile(self.felf)
 
         if self.elffile.elfclass != 64:
             print("ERROR: Only 64-bit binaries supported", file=sys.stderr)
             return 0
 
-        for nv_fatbin_name in [
-            ".nv_fatbin",
-            "__nv_relfatbin",
-        ]:  # executables, .o: though the latter also exists in executables and contains ptx data (for example).
-            nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_name)
-            if nv_fatbin:
-                if DEBUG_MODE:
-                    print(f"Using section: {nv_fatbin_name}")
-                break
+        nv_fatbin = self.elffile.get_section_by_name(nv_fatbin_section)
+        if nv_fatbin:
+            if DEBUG_MODE: print(f"Using section: {nv_fatbin_section}")
 
         if nv_fatbin:
             fatbin_header = struct.Struct("IHHQ")  # from fatbinary.h
@@ -769,6 +777,7 @@ if __name__ == "__main__":
 
     p.add_argument("elffile")
     p.add_argument("-d", dest="debug", action="store_true")
+    p.add_argument("-r", dest="rel", help="Dump relocatable fatbin", action="store_true")
 
     args = p.parse_args()
 
@@ -776,4 +785,4 @@ if __name__ == "__main__":
     LIBRARY_MODE = 0
 
     fatbin = NVFatBinary(args.elffile)
-    fatbin.parse_fatbin()
+    fatbin.parse_fatbin(NVFATBIN_REL_SECTION_NAME if args.rel else NVFATBIN_SECTION_NAME)

@@ -39,6 +39,7 @@ if __name__ == "__main__":
     p.add_argument("-d", dest="debug", help="Debug", action="store_true")
     p.add_argument("-p", dest="file_prefix", help="Filename prefix")
     p.add_argument("-s", dest="stem", help="Stem for extracted files, default is cuobjdump-style stemming (upto last .)")
+    p.add_argument("-r", dest="rel", action="store_true", help="Use __nv_relfatbin to extract from instead of .nv_fatbin")
 
     args = p.parse_args()
 
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     nvfatbin.DEBUG_MODE = args.debug
 
     fatbin = nvfatbin.NVFatBinary(args.elffile)
-    fatbin.parse_fatbin()
+    fatbin.parse_fatbin(nvfatbin.NVFATBIN_SECTION_NAME if not args.rel else nvfatbin.NVFATBIN_REL_SECTION_NAME)
 
     if len(args.extract) == 0:
         print("Nothing to extract, use -x to specify what to extract (-x ptx or -x elf)")
