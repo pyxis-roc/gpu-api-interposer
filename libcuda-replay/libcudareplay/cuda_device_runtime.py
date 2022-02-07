@@ -270,14 +270,18 @@ class CUDADeviceAPIHandler(object):
 
     @check_retval
     def cuMemFree(self, dptr):
-        mr = self.memory_handles[dptr]
+        if dptr == 0:
+            _logger.info("cuMemFree on NULL pointer, ignoring.")
+        else:
+            mr = self.memory_handles[dptr]
 
-        # TODO: convey to GPU that memory has been freed
-        gpu = self.gpu_handles[mr.dev]
-        assert gpu.dealloc_memory_region(mr) is not None
+            # TODO: convey to GPU that memory has been freed
+            gpu = self.gpu_handles[mr.dev]
+            assert gpu.dealloc_memory_region(mr) is not None
 
-        _logger.info(f'cuMemFree on device {mr.dev}: {mr.bytesize} bytes at 0x{mr.dptr:x}')
-        self.memory_handles.unregister(dptr)
+            _logger.info(f'cuMemFree on device {mr.dev}: {mr.bytesize} bytes at 0x{mr.dptr:x}')
+            self.memory_handles.unregister(dptr)
+
         if 'cuMemFree' in self.api_instr.instr_fns:
             self.api_instr.cuMemFree(dptr)
 
