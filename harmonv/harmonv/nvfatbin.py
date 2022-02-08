@@ -305,12 +305,15 @@ class NVCubinPartELF(NVCubinPart):
 
     def get_global_symbol_offsets(self, elf):
         symtab = elf.get_section_by_name(".symtab")
-        glbl_shndx = 12
         if symtab:
             for _, sym in enumerate(symtab.iter_symbols()):
                 if sym.name == ".nv.global.init":
                     glbl_shndx = sym.entry["st_shndx"]
-                elif sym.entry["st_shndx"] == glbl_shndx:
+                    break
+            else:
+                return
+            for _, sym in enumerate(symtab.iter_symbols()):
+                if sym.name != ".nv.global.init" and sym.entry["st_shndx"] == glbl_shndx:
                     # this is a global symbol
                     self.global_symbol_offset[sym.name] = dict(
                         size=sym.entry["st_size"], offset=sym.entry["st_value"]
