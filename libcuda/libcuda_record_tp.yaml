@@ -282,6 +282,126 @@ tracepoint_events:
             int_type: intptr_t
       - *retval_field
       - *ctx_field
+  cuMemsetD8_v2_post:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - uc:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned char
+      - N:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - *retval_field
+      - *ctx_field
+  cuMemsetD16_v2_post:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - us:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned short
+      - N:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - *retval_field
+      - *ctx_field
+  cuMemsetD32_v2_post:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - ui:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - N:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - *retval_field
+      - *ctx_field
+  cuMemsetD2D8_v2_post:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - dstPitch:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - uc:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned char
+      - Width:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - Height:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - *retval_field
+      - *ctx_field
+  cuMemsetD2D16_v2_post:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - dstPitch:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - us:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned short
+      - Width:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - Height:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - *retval_field
+      - *ctx_field
+  cuMemsetD2D32_v2_post:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - dstPitch:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - ui:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - Width:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - Height:
+          type: ctf_integer
+          type_args:
+              int_type: size_t
+      - *retval_field
+      - *ctx_field
   cuMemHostAlloc_post:
     fields:
       - pp:
@@ -318,6 +438,26 @@ tracepoint_events:
     blobstore:
       - dstHost:
            length: ByteCount
+  cuMemcpyAtoH_v2_post:
+    fields:
+      - dstHost:
+          type: ctf_integer_hex
+          type_args:
+              int_type: intptr_t
+              expr: "*((intptr_t *) dstHost)"
+      - srcArray:
+          type: ctf_integer_hex
+          type_args:
+              int_type: intptr_t
+      - ByteCount:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - dstHost:
+           length: ByteCount
   cuMemcpyHtoD_v2_pre:
     fields:
       - dstDevice:
@@ -336,6 +476,43 @@ tracepoint_events:
     blobstore:
       - srcHost:
           length: ByteCount
+  cuMemcpyHtoA_v2_pre:
+    fields:
+      - dstArray:
+          type: ctf_integer_hex
+          type_args:
+              int_type: intptr_t
+      - dstOffset:
+          type: ctf_integer_hex
+          type_args:
+              int_type: size_t
+      - srcHost:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - ByteCount:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - *ctx_field
+    blobstore:
+      - srcHost:
+          length: ByteCount
+  cuMemcpyDtoD_v2_pre:
+    fields:
+      - dstDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - srcDevice:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - ByteCount:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - *ctx_field
   cuModuleGetFunction_post:
     fields:
       - hfunc_contents:
@@ -415,6 +592,264 @@ tracepoint_events:
       #     type: const CUDA_RESOURCE_VIEW_DESC *
       - *retval_field
       - *ctx_field
+  cuParamSetTexRef_post:
+    fields:
+      - hfunc:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hfunc)"
+      - texunit:
+          type: ctf_integer
+          type_args:
+            int_type: int
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetAddress2D_v3_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - desc:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) desc)"
+      - dptr:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - Pitch:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - desc:
+          length: "16"
+  cuTexRefCreate_post:
+    fields:
+      - pTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) pTexRef)"
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetFilterMode_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - fm:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "((int) fm)"
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetFlags_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - Flags:
+          type: ctf_integer
+          type_args:
+              int_type: unsigned int
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetAddressMode_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - dim:
+          type: ctf_integer
+          type_args:
+            int_type: int
+      - am:
+          type: ctf_integer
+          type_args:
+            int_type: int
+            expr: "((int) am)"
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetAddress_v2_post:
+    fields:
+      - ByteOffset:
+          type: ctf_integer_hex
+          type_args:
+            int_type: size_t
+            expr: "ByteOffset == NULL ? 0 : *ByteOffset"
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - dptr: 
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: dptr
+      - bytes:
+          type: ctf_integer
+          type_args:
+            int_type: size_t
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - hTexRef:
+          length: "64"
+  cuTexRefSetFormat_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - fmt:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+            expr: "((unsigned int) fmt)"
+      - NumPackedComponents:
+          type: ctf_integer
+          type_args:
+            int_type: int
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetBorderColor_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - pBorderColor:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) pBorderColor)"
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - pBorderColor:
+          length: "16"
+  cuTexRefSetMaxAnisotropy_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - maxAniso:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetMipmapFilterMode_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - fm:
+          type: ctf_integer
+          type_args:
+            int_type: int
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetMipmapLevelBias_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - bias:
+          type: ctf_float
+          type_args:
+            float_type: float
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetMipmapLevelClamp_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) hTexRef)"
+      - minMipmapLevelClamp:
+          type: ctf_float
+          type_args:
+            float_type: float
+      - maxMipmapLevelClamp:
+          type: ctf_float
+          type_args:
+            float_type: float
+      - *retval_field
+      - *ctx_field
+  cuTexRefSetArray_post:
+    fields:
+      - hTexRef:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - hArray:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - Flags:
+          type: ctf_integer
+          type_args:
+            int_type: unsigned int
+      - *retval_field
+      - *ctx_field
+  cuArray3DCreate_v2_post:
+    fields:
+      - pHandle:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "*pHandle"
+      - pAllocateArray:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "((intptr_t) pAllocateArray)"
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - pAllocateArray:
+          length: "24"
+  cuArrayCreate_v2_post:
+    fields:
+      - pHandle:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: "*pHandle"
+      - pAllocateArray:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - pAllocateArray:
+          length: "16"
   cuCtxSetCurrent_post:
     fields:
       - ctx:
@@ -460,6 +895,7 @@ tracepoint_events:
             int_type: CUdevice
       - *retval_field
       - *ctx_field
+        
   cuGetExportTable_post:
     fields:
       - ppExportTable_exports:
