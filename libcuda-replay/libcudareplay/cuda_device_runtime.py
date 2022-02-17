@@ -6,10 +6,15 @@
 #
 # Author: Sreepathi Pai
 # Author: Amr Elhelw
+# Author: Benjamin Valpey
 #
 # Copyright (C) 2019, University of Rochester
 
+
+# fmt: off
+
 import logging
+from typing import Set
 
 from harmonv import nvfatbin, compression, loader
 from .cuda_api_objects import *
@@ -18,6 +23,7 @@ from .cuda_remote_devices import *
 import itertools
 
 _logger = logging.getLogger(__name__)
+
 
 class CUDADefaultFactory(object):
     gpu = CUDAGPU
@@ -54,6 +60,7 @@ class CUDADeviceAPIInstr(object):
 
     def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount, _data, _gpudata):
         pass
+
 
 class CUDADeviceAPIHandler(object):
     """Tracks state across CUDA Device API calls. Called by the TraceHandler."""
@@ -334,10 +341,229 @@ class CUDADeviceAPIHandler(object):
                           kernelParams)
 
         if 'cuLaunchKernel' in self.api_instr.instr_fns:
-            self.api_instr.cuLaunchKernel(self.function_handles[f].name, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, self.stream_handles[hStream], kernelParams)
+            self.api_instr.cuLaunchKernel(self.function_handles[f].name,
+                gridDimX,
+                gridDimY,
+                gridDimZ,
+                blockDimX,
+                blockDimY,
+                blockDimZ,
+                sharedMemBytes,
+                self.stream_handles[hStream],
+                kernelParams)
 
     @check_retval
     def cuModuleUnload(self, hmod):
         # TODO: check _retval
         if hmod in self.module_handles:
             self.module_handles.unregister(hmod)
+
+    @check_retval
+    def cuMemcpyToArray(self, dst, wOffset, hOffset, src, count, kind):
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+        assert gpu.has_dptr(dst)
+
+        _logger.info(
+            f"cuMemcpyToArray on device {ctx.dev}: {count} bytes from device 0x{src:x} to host 0x{dst:x}"
+        )
+
+        if "cuMemcpyToArray" in self.api_instr.instr_fns:
+            self.api_instr.cuMemcpyToArray(dst, wOffset, hOffset, src, count, kind)
+
+
+    @check_retval
+    def cuMemcpyDtoD(self, dstDevice, srcDevice, ByteCount, _data=None):
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+        print("=" * 50)
+
+        _logger.info(
+            f"cuMemcpyDtoD on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} from 0x{srcDevice:x}"
+        )
+
+        assert gpu.has_dptr(dstDevice, ByteCount)
+        assert gpu.has_dptr(srcDevice, ByteCount)
+
+        # do we do gpu.set_memory? Can we? Will data even be correct...
+
+        if "cuMemcpyDtoD" in self.api_instr.instr_fns:
+            self.api_instr.cuMemcpyDtoD(dstDevice, srcDevice, ByteCount, _data)
+
+    @check_retval
+    def cuTexRefSetFlags(self, hTexRef: int, Flags: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetFlags on device {ctx.dev}: 0x{hTexRef:x} with flags 0x{Flags:x}"
+        )
+
+        if "cuTexRefSetFlags" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetFlags(hTexRef, Flags)
+
+    @check_retval
+    def cuTexRefSetFormat(self, hTexRef, fmt, NumPackedComponents: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetFlags on device {ctx.dev}: 0x{hTexRef:x} with fmt: {fmt} and NumPackedComponents: {NumPackedComponents}"
+        )
+
+        if "cuTexRefSetFormat" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetFormat(hTexRef, fmt, NumPackedComponents)
+
+    @check_retval
+    def cuTexRefSetFilterMode(self, hTexRef, fm: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetFilterMode on device {ctx.dev}: 0x{hTexRef:x} with fm: {fm}"
+        )
+
+        if "cuTexRefSetFilterMode" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetFilterMode(hTexRef, fm)
+
+    @check_retval
+    def cuTexRefSetMaxAnisotropy(self, hTexRef: int, maxAniso: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetMaxAnisotropy on device {ctx.dev}: 0x{hTexRef:x} with maxAniso: {maxAniso}"
+        )
+
+        if "cuTexRefSetMaxAnisotropy" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetMaxAnisotropy(hTexRef, maxAniso)
+
+    @check_retval
+    def cuTexRefSetMipmapFilterMode(self, hTexRef: int, fm: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetMipmapFilterMode on device {ctx.dev}: 0x{hTexRef:x} with fm: {fm}"
+        )
+
+        if "cuTexRefSetMipmapFilterMode" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetMipmapFilterMode(hTexRef, fm)
+
+    @check_retval
+    def cuTexRefSetMipmapLevelBias(self, hTexRef: int, bias: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetMipmapLevelBias on device {ctx.dev}: 0x{hTexRef:x} with bias: {bias}"
+        )
+
+        if "cuTexRefSetMipmapLevelBias" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetMipmapLevelBias(hTexRef, bias)
+
+    @check_retval
+    def cuTexRefSetMipmapLevelClamp(self, hTexRef: int, mn: int, mx: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetMipmapLevelClamp on device {ctx.dev}: 0x{hTexRef:x} with min: {mn}, max: {mx}"
+        )
+
+        if "cuTexRefSetMipmapLevelClamp" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetMipmapLevelClamp(hTexRef, mn, mx)
+
+    @check_retval
+    def cuTexRefSetAddressMode(self, hTexRef: int, dim: int, am: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetAddressMode on device {ctx.dev}: 0x{hTexRef:x} with dim: {dim}, am: {am}"
+        )
+
+        if "cuTexRefSetAddressMode" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetAddressMode(hTexRef, dim, am)
+
+    @check_retval
+    def cuTexRefSetArray(self, hTexRef: int, hArray: int, Flags: int):
+        ctx = self._get_thread_ctx()
+
+        _logger.info(
+            f"cuTexRefSetArray on device {ctx.dev}: 0x{hTexRef:x} with hArray: 0x{hArray:x} and Flags {Flags}"
+        )
+
+        if "cuTexRefSetArray" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetArray(hTexRef, dim, am)
+
+    @check_retval
+    def cuTexRefSetAddress(
+        self, ByteOffset: int, hTexRef: int, dptr: int, bytes: int, _data
+    ):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuTexRefSetAddress on device {ctx.dev}: 0x{hTexRef:x} - {bytes} bytes to 0x{dptr:x} with offset {ByteOffset}"
+        )
+        if "cuTexRefSetAddress" in self.api_instr.instr_fns:
+            self.api_instr.cuTexRefSetAddress(ByteOffset, hTexRef, dptr, bytes, _data)
+
+    # Arrays
+
+    @check_retval
+    def cuArray3DCreate(self, pHandle: int, pAllocateArray: int, _data):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuArray3DCreate on device {ctx.dev}: pHandle: 0x{pHandle:x} from pAllocateArray 0x{pAllocateArray:x}"
+        )
+        if "cuArray3DCreate" in self.api_instr.instr_fns:
+            self.api_instr.cuArray3DCreate(pHandle, pAllocateArray, _data)
+
+    # Memset
+    @check_retval
+    def cuMemsetD8(self, dstDevice: int, uc: int, N: int):
+        ctx = self._get_thread_ctx()
+        _logger.info(f"cuMemsetD8 on device {ctx.dev}: {N} elements to 0x{dstDevice:x}")
+        if "cuMemsetD8" in self.api_instr.instr_fns:
+            self.api_instr.cuMemsetD8(dstDevice, uc, N)
+
+    @check_retval
+    def cuMemsetD16(self, dstDevice: int, us: int, N: int):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuMemsetD16 on device: {ctx.dev}: {N} elements to 0x{dstDevice:x}"
+        )
+        if "cuMemsetD16" in self.api_instr.instr_fns:
+            self.api_instr.cuMemsetD16(dstDevice, us, N)
+
+    @check_retval
+    def cuMemsetD32(self, dstDevice: int, ui: int, N: int):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuMemsetD32 on device: {ctx.dev}: {N} elements to 0x{dstDevice:x}"
+        )
+        if "cuMemsetD32" in self.api_instr.instr_fns:
+            self.api_instr.cuMemsetD32(dstDevice, ui, N)
+
+    @check_retval
+    def cuMemsetD2D8(
+        self, dstDevice: int, dstPitch: int, uc: int, Width: int, Height: int
+    ):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuMemsetD2D8 on device: {ctx.dev}: {Height} rows of {Width} elements with pitch {dstPitch} to 0x{dstDevice:x}"
+        )
+        if "cuMemsetD2D8" in self.api_instr.instr_fns:
+            self.api_instr.cuMemsetD2D8(dstDevice, dstPitch, uc, Width, Height)
+
+    @check_retval
+    def cuMemsetD2D16(self, dstDevice: int, dstPitch: int, us, Width: int, Height: int):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuMemsetD2D16 on device: {ctx.dev}: {Height} rows of {Width} elements with pitch {dstPitch} to 0x{dstDevice:x}"
+        )
+        if "cuMemsetD2D16" in self.api_instr.instr_fns:
+            self.api_instr.cuMemsetD2D16(dstDevice, dstPitch, us, Width, Height)
+
+    @check_retval
+    def cuMemsetD2D32(
+        self, dstDevice: int, dstPitch: int, ui: int, Width: int, Height: int
+    ):
+        ctx = self._get_thread_ctx()
+        _logger.info(
+            f"cuMemsetD2D32 on device: {ctx.dev}: {Height} rows of {Width} elements with pitch {dstPitch} to 0x{dstDevice:x}"
+        )
+        if "cuMemsetD2D32" in self.api_instr.instr_fns:
+            self.api_instr.cuMemsetD2D32(dstDevice, dstPitch, ui, Width, Height)
