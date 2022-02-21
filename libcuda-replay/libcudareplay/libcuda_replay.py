@@ -239,7 +239,7 @@ class NVTraceHandler(object):
             int(ev["hTexRef"]), int(ev["fmt"]), int(ev["NumPackedComponents"])
         )
 
-    def cuTexRefSetFilterMode(self, ev, bsdata):
+    def cuTexRefSetFilterMode_post(self, ev, bsdata):
         self.apihandler.cuTexRefSetFilterMode(int(ev["hTexRef"]), int(ev["fm"]))
 
     def cuTexRefSetMaxAnisotropy_post(self, ev, bsdata):
@@ -303,16 +303,16 @@ class NVTraceHandler(object):
         )
 
     # Memsets
-    def cuMemsetD8_v2(self, ev, bsdata):
+    def cuMemsetD8_v2_post(self, ev, bsdata):
         self.apihandler.cuMemsetD8(int(ev["dstDevice"]), int(ev["uc"]), int(ev["N"]))
 
-    def cuMemsetD16_v2(self, ev, bsdata):
+    def cuMemsetD16_v2_post(self, ev, bsdata):
         self.apihandler.cuMemsetD16(int(ev["dstDevice"]), int(ev["us"]), int(ev["N"]))
 
-    def cuMemsetD32_v2(self, ev, bsdata):
+    def cuMemsetD32_v2_post(self, ev, bsdata):
         self.apihandler.cuMemsetD32(int(ev["dstDevice"]), int(ev["ui"]), int(ev["N"]))
 
-    def cuMemsetD2D8_v2(self, ev, bsdata):
+    def cuMemsetD2D8_v2_post(self, ev, bsdata):
         self.apihandler.cuMemsetD2D8(
             int(ev["dstDevice"]),
             int(ev["dstPitch"]),
@@ -321,7 +321,7 @@ class NVTraceHandler(object):
             int(ev["Height"]),
         )
 
-    def cuMemsetD2D16_v2(self, ev, bsdata):
+    def cuMemsetD2D16_v2_post(self, ev, bsdata):
         self.apihandler.cuMemsetD2D16(
             int(ev["dstDevice"]),
             int(ev["dstPitch"]),
