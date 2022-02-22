@@ -10,6 +10,8 @@
 #
 # Copyright (C) 2020, University of Rochester
 
+# fmt: off
+
 from harmonv import nvfatbin
 import struct
 import subprocess
@@ -51,6 +53,7 @@ class SASSFunction(object):
         self.cubin_info = {}
         self.constants = None
         self.relocations = None
+        self.cbank0_relocations = None
         self.sym_info = []
         self.sharedmem = None
         self.global_init_offsets = None
@@ -71,15 +74,17 @@ class SASSFunction(object):
         if syminfo.other_raw & nvfatbin.STO_CUDA_ENTRY:
             self.sym_info.append('STO_CUDA_ENTRY')
 
-    def set_relocations(self, relocations):
+    def set_relocations(self, relocations, type='text'):
         out = []
         for r, sym in relocations:
             out.append({'offset': r['r_offset'],
                         'symbol': sym,
                         'info': r['r_info'],
                         'info_type': r['r_info_type']})
-
-        self.relocations = out
+        if type == 'text':
+            self.relocations = out
+        elif type == 'constant0':
+            self.cbank0_relocations = out
 
     def set_constants(self, constants, update = False):
         if update and self.constants is not None:
@@ -121,6 +126,9 @@ class SASSFunction(object):
 
         if self.relocations:
             out['relocations'] = self.relocations
+
+        if self.cbank0_relocations:
+            out['cbank0_relocations'] = self.cbank0_relocations
 
         if self.sym_info:
             out['sym_info'] = self.sym_info
@@ -272,6 +280,8 @@ class DisassemblerCUObjdump(object):
                     out[fn].set_sharedmem(cubin.sharedmem[fn])
                 if f'.text.{fn}' in cubin.relocations:
                     out[fn].set_relocations(cubin.relocations[f'.text.{fn}'])
+                if f'.nv.constant0.{fn}' in cubin.relocations:
+                    out[fn].set_relocations(cubin.relocations[f'.nv.constant0.{fn}'], type="constant0")
                 if fn in cubin.numbar:
                     out[fn].set_numbar(cubin.numbar[fn])
                 if fn in cubin.numregs:
@@ -288,4 +298,3 @@ class DisassemblerCUObjdump(object):
             os.unlink(tmpcubin)
 
         return out
-

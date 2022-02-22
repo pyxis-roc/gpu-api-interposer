@@ -9,6 +9,8 @@
 # Copyright (C) 2019, The University of Rochester
 # Copyright (C) 2013, Sreepathi Pai
 
+# fmt: off
+
 import argparse
 from elftools.elf.elffile import ELFFile
 import elftools
@@ -639,6 +641,7 @@ class NVCubinPartELF(NVCubinPart):
             elif s.name.startswith(".nv.global.init"):
                 self.global_init_data["size"] = s.data_size
                 self.global_init_data["data"] = s.data()
+
 
             # elif s.name.startswith('text.') (write matcher for text sections)
 
