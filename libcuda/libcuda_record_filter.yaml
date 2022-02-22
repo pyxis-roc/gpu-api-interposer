@@ -24,9 +24,9 @@ post:
   - cuTexObjectCreate
   - cuTexObjectDestroy
   # TEXTURE OBJECT GETTERS
-  - cuTexObjectGetResourceDesc
-  - cuTexObjectGetTextureDesc
-  - cuTexObjectGetResourceViewDesc
+  # - cuTexObjectGetResourceDesc
+  # - cuTexObjectGetTextureDesc
+  # - cuTexObjectGetResourceViewDesc
   # TEXTURE REFS MANAGERS
   - cuTexRefCreate
   - cuTexRefDestroy
@@ -44,28 +44,27 @@ post:
   - cuTexRefSetBorderColor
   - cuTexRefSetFlags
   - cuParamSetTexRef
-  # TEXTURE REF GETTERS
-  - cuTexRefGetArray
-  - cuTexRefGetMipmappedArray
-  - cuTexRefGetAddressMode
-  - cuTexRefGetAddress_v2
-  - cuTexRefGetFilterMode
-  - cuTexRefGetFormat
-  - cuTexRefGetMipmapFilterMode
-  - cuTexRefGetMipmapLevelBias
-  - cuTexRefGetMipmapLevelClamp
-  - cuTexRefGetMaxAnisotropy
-  - cuTexRefGetBorderColor
-  - cuTexRefGetFlags
+  # TEXTURE REF GETTERS (not needed)
+  # - cuTexRefGetArray
+  # - cuTexRefGetMipmappedArray
+  # - cuTexRefGetAddressMode
+  # - cuTexRefGetAddress_v2
+  # - cuTexRefGetFilterMode
+  # - cuTexRefGetFormat
+  # - cuTexRefGetMipmapFilterMode
+  # - cuTexRefGetMipmapLevelBias
+  # - cuTexRefGetMipmapLevelClamp
+  # - cuTexRefGetMaxAnisotropy
+  # - cuTexRefGetBorderColor
+  # - cuTexRefGetFlags
   # ARRAYS
   - cuArrayCreate_v2
   - cuArray3DCreate_v2
   # MIPPAMMED ARRAYS
   - cuMipmappedArrayCreate
   - cuMipmappedArrayDestroy
-  - cuMipmappedArrayGetLevel
+  # - cuMipmappedArrayGetLevel
   # MEMCPY
-  - cuMemcpy
   - cuMemcpyDtoH_v2
   - cuMemcpyDtoA_v2
   - cuMemcpyAtoD_v2
@@ -78,6 +77,8 @@ post:
   # MODULES
   - cuModuleGetFunction
   - cuModuleGetGlobal_v2
+  - cuModuleGetTexRef
+  - cuModuleGetSurfRef
   # STREAMS
   - cuStreamCreate
   - cuModuleUnload
