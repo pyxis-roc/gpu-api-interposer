@@ -376,7 +376,6 @@ class CUDADeviceAPIHandler(object):
     def cuMemcpyDtoD(self, dstDevice, srcDevice, ByteCount, _data=None):
         ctx = self._get_thread_ctx()
         gpu = self.gpu_handles[ctx.dev]
-        print("=" * 50)
 
         _logger.info(
             f"cuMemcpyDtoD on device {ctx.dev}: {ByteCount} bytes to 0x{dstDevice:x} from 0x{srcDevice:x}"
@@ -389,6 +388,16 @@ class CUDADeviceAPIHandler(object):
 
         if "cuMemcpyDtoD" in self.api_instr.instr_fns:
             self.api_instr.cuMemcpyDtoD(dstDevice, srcDevice, ByteCount, _data)
+
+    @check_retval
+    def cuMemcpy3D(self, pCopy, _pCopyData, _srcData, _dstData):
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+        
+        _logger.info(f"cuMemcpy3D on device {ctx.dev}.")
+
+        if "cuMemcpy3D" in self.api_instr.instr_fns:
+            self.api_instr.cuMemcpy3D(pCopy, _pCopyData, _srcData, _dstData)
 
     @check_retval
     def cuTexRefSetFlags(self, hTexRef: int, Flags: int):

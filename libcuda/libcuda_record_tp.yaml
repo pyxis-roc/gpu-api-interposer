@@ -419,6 +419,27 @@ tracepoint_events:
             int_type: unsigned int
       - *retval_field
       - *ctx_field
+  cuMemcpy3D_v2_post:
+    fields:
+      - pCopy:
+          type: ctf_integer_hex
+          type_args:
+            int_type: intptr_t
+            expr: ((intptr_t) pCopy)
+      - *retval_field
+      - *ctx_field
+    blobstore:
+      - pCopy:
+          length: "sizeof(*pCopy)"
+          guard_expr: pCopy
+      - srcData:
+          length: "pCopy->WidthInBytes + pCopy->Height + pCopy->Depth"
+          expr: " (void*)((char*)(pCopy->srcHost)+(pCopy->srcZ*pCopy->srcHeight+pCopy->srcY)*pCopy->srcPitch + pCopy->srcXInBytes)"
+          guard_expr: "pCopy->srcMemoryType == CU_MEMORYTYPE_HOST"
+      - dstData:
+          length: "pCopy->WidthInBytes + pCopy->Height + pCopy->Depth"
+          expr: "(void*)((char*)(pCopy->dstHost)+(pCopy->dstZ*pCopy->dstHeight+pCopy->dstY)*pCopy->dstPitch + pCopy->dstXInBytes)"
+          guard_expr: "pCopy->dstMemoryType == CU_MEMORYTYPE_HOST"
   cuMemcpyDtoH_v2_post:
     fields:
       - dstHost:
@@ -975,7 +996,7 @@ tracepoint_events:
       - *ctx_field
     blobstore:
       - pAllocateArray:
-          length: "24"
+          length: "sizeof(*pAllocateArray)"
   cuArrayCreate_v2_post:
     fields:
       - pHandle:

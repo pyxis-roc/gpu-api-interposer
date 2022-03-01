@@ -230,6 +230,23 @@ class NVTraceHandler(object):
             int(ev["dstDevice"]), int(ev["srcDevice"]), int(ev["ByteCount"])
         )
 
+    def cuMemcpy3D_v2_post(self, ev, bsdata):
+        pCopyData = None
+        srcData = None
+        dstData = None
+
+        for bsd in bsdata:
+            if bsd['name'] == 'pCopy':
+                pCopyData = bsd['contents']
+            elif bsd['name'] == 'srcData':
+                srcData = bsd['contents']
+            elif bsd['name'] == 'dstData':
+                dstData = bsd['contents']
+            else:
+                raise NotImplementedError
+        self.apihandler.cuMemcpy3D(int(ev['pCopy']), pCopyData, srcData, dstData)
+
+
     # Textures References!!
     def cuTexRefSetFlags_post(self, ev, bsdata):
         self.apihandler.cuTexRefSetFlags(int(ev["hTexRef"]), int(ev["Flags"]))

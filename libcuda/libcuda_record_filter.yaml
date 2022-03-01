@@ -70,6 +70,7 @@ post:
   - cuMemcpyAtoD_v2
   - cuMemcpyAtoH_v2
   - cuMemcpyAtoA_v2
+  - cuMemcpy3D_v2
   # ALLOCATION
   - cuMemHostAlloc
   # FREEING
