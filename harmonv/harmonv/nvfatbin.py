@@ -9,8 +9,12 @@
 # Copyright (C) 2019, The University of Rochester
 # Copyright (C) 2013, Sreepathi Pai
 
+# fmt: off
+
 import argparse
 from elftools.elf.elffile import ELFFile
+import elftools.elf.sections
+import elftools.common.exceptions
 import elftools
 import sys
 import io
@@ -418,41 +422,51 @@ class NVCubinPartELF(NVCubinPart):
 
         return args
 
+    def _set_info_dict(self, data: bytes, store_dict):
+        """
+        Helper function for parse_fn_info that extracts the function name and data from
+        the nfo field
+        """
+        elf_symtab: elftools.elf.sections.SymbolTableSection = self.cubin_elf.get_section_by_name(".symtab")
+        fn_ndx = struct.unpack_from("I", data, 0)[0]
+        num_regs = struct.unpack_from("I", data, 4)[0]
+        try:
+            fn_name = elf_symtab.get_symbol(fn_ndx).name
+            store_dict[fn_name] = num_regs
+        except elftools.common.exceptions.ELFParseError:
+            warnings.warn(f"Could not find symbol at index {fn_ndx} while parsing .nv.info.")
+
+
+
     def parse_fn_info(self, info):
+        #NOTE: Maybe create a different function just for parsing the 'nv.info' section
         out = {}
+        # function at index X has data X
         for nfo in info:
-            if nfo.attr_fmt == 0x1B03:
-                out[
-                    "EIATTR_MAXREG_COUNT"
-                ] = nfo.attr_size  # unused, SHI_REGISTERS is used instead
-            elif nfo.attr_fmt == EIATTR_CBANK_PARAM_SIZE:
+            if nfo.attr_fmt == EIATTR_CBANK_PARAM_SIZE:
                 out["EIATTR_CBANK_PARAM_SIZE"] = nfo.attr_size
                 # struct.unpack_from('H', nfo.data, 0)[0]
             elif nfo.attr_fmt == EIATTR_PARAM_CBANK:
                 start, size = struct.unpack_from("HH", nfo.data, 4)  # skip word
                 out["EIATTR_PARAM_CBANK"] = {"start": start, "size": size}
             elif nfo.attr_fmt == EIATTR_REGCOUNT:
-                pass
+                self._set_info_dict(nfo.data, self.regcount)
             elif nfo.attr_fmt == EIATTR_CUDA_API_VERSION:
                 version = struct.unpack_from("I", nfo.data, 0)[0]
-                out[
-                    "EIATTR_CUDA_API_VERSION"
-                ] = version  # this is version * 10, so 111 for 11.1
-            elif nfo.attr_fmt == EIATTR_FRAME_SIZE:
-                # TODO: Get index, look up index in symbtab, write to the function with that index
-                size = struct.unpack_from("I", nfo.data, 0)[0]
-                out["EIATTR_FRAME_SIZE"] = size
-            elif nfo.attr_fmt == EIATTR_MAX_STACK_SIZE:
-                size = struct.unpack_from("I", nfo.data, 0)[0]
-                out["EIATTR_MAX_STACK_SIZE"] = size
-            elif nfo.attr_fmt == EIATTR_MIN_STACK_SIZE:
-                size = struct.unpack_from("I", nfo.data, 0)[0]
-                out["EIATTR_MIN_STACK_SIZE"] = size
+                out["EIATTR_CUDA_API_VERSION"] = version  # this is version * 10, so 111 for 11.1
             elif nfo.attr_fmt == EIATTR_MAX_THREADS:
                 threads = struct.unpack_from("III", nfo.data, 0)
                 out["EIATTR_MAX_THREADS"] = list(threads)
             elif nfo.attr_fmt == EIATTR_EXPLICIT_CACHING:
                 out["EIATTR_EXPLICIT_CACHING"] = 1
+            elif nfo.attr_fmt == EIATTR_MAXREG_COUNT:
+                out["EIATTR_MAXREG_COUNT"] = nfo.attr_size  # unused, SHI_REGISTERS is used instead
+            elif nfo.attr_fmt == EIATTR_FRAME_SIZE:
+                self._set_info_dict(nfo.data, self.frame_size)
+            elif nfo.attr_fmt == EIATTR_MAX_STACK_SIZE:
+                self._set_info_dict(nfo.data, self.max_stack_size)
+            elif nfo.attr_fmt == EIATTR_MIN_STACK_SIZE:
+                self._set_info_dict(nfo.data, self.min_stack_size)
 
         return out
 
@@ -609,16 +623,20 @@ class NVCubinPartELF(NVCubinPart):
         self.numregs = {}
         self.global_init_data = {}
         self.global_symbol_offset = {}
+        self.frame_size = {}
+        self.regcount = {}
+        self.max_stack_size = {}
+        self.min_stack_size = {}
 
         for index, s in enumerate(self.cubin_elf.iter_sections()):
             if s.name.startswith(".nv.info"):
                 info = self.parse_nv_info_section(s, s.data())
                 # args = self.parse_nv_param_info_section(s, s.data())
-                args = self.parse_param_info(info)
                 fninfo = self.parse_fn_info(info)
-
-                self.args[s.name[9:]] = args
-                self.fn_info[s.name[9:]] = fninfo
+                if s.name != ".nv.info":
+                    args = self.parse_param_info(info)
+                    self.args[s.name[9:]] = args
+                    self.fn_info[s.name[9:]] = fninfo
             elif s.name.startswith(".nv.constant"):
                 fn_names, const = self.parse_constant(index, s, s.data())
                 assert isinstance(fn_names, list), fn_names
