@@ -10,6 +10,8 @@
 #
 # Copyright (C) 2020, University of Rochester
 
+# fmt: off
+
 from harmonv import nvfatbin
 import struct
 import subprocess
@@ -57,6 +59,10 @@ class SASSFunction(object):
         self.global_init_data = None
         self.numbar = None
         self.numregs = None
+        self.regcount = None
+        self.frame_size = None
+        self.max_stack_size = None
+        self.min_stack_size = None
 
     def __str__(self):
         return f"SASSFunction(function={repr(self.function)})"
@@ -96,6 +102,18 @@ class SASSFunction(object):
     def set_numregs(self, numregs):
         self.numregs = numregs
 
+    def set_regcount(self, regcount):
+        self.numregs = regcount
+
+    def set_frame_size(self, frame_size):
+        self.frame_size = frame_size
+
+    def set_max_stack_size(self, sz):
+        self.max_stack_size = sz
+
+    def set_min_stack_size(self, sz):
+        self.min_stack_size = sz
+
     def set_global_init_data(self, gdata):
         self.global_init_data = gdata
 
@@ -134,6 +152,18 @@ class SASSFunction(object):
         if self.numregs is not None:
             out['numregs'] = self.numregs
 
+        if self.regcount is not None:
+            out['regcount'] = self.regcount
+
+        if self.frame_size is not None:
+            out['frame_size'] = self.frame_size
+
+        if self.min_stack_size is not None:
+            out['min_stack_size'] = self.min_stack_size
+
+        if self.max_stack_size is not None:
+            out['max_stack_size'] = self.max_stack_size
+
         if self.global_init_data is not None:
             # NOTE: This will leave Yaml anchors / aliases in the output
             out['global_init_data'] = self.global_init_data
@@ -143,6 +173,7 @@ class SASSFunction(object):
             out['global_init_offsets'] = self.global_init_offsets
 
         return out
+
 
 class DisassemblerCUObjdump(object):
     @staticmethod
@@ -276,6 +307,14 @@ class DisassemblerCUObjdump(object):
                     out[fn].set_numbar(cubin.numbar[fn])
                 if fn in cubin.numregs:
                     out[fn].set_numregs(cubin.numregs[fn])
+                if fn in cubin.regcount:
+                    out[fn].set_regcount(cubin.regcount[fn])
+                if fn in cubin.frame_size:
+                    out[fn].set_frame_size(cubin.frame_size[fn])
+                if fn in cubin.max_stack_size:
+                    out[fn].set_max_stack_size(cubin.max_stack_size[fn])
+                if fn in cubin.min_stack_size:
+                    out[fn].set_min_stack_size(cubin.min_stack_size[fn])
                 out[fn].cubin_info = cubin_info
                 out[fn].set_global_init_data(cubin.global_init_data)
                 out[fn].set_global_init_offsets(cubin.global_symbol_offset)
