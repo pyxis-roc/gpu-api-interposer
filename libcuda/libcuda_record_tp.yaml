@@ -429,15 +429,75 @@ tracepoint_events:
       - *retval_field
       - *ctx_field
     blobstore:
-      - pCopy:
-          length: "sizeof(*pCopy)"
-          guard_expr: pCopy
+      - srcMemoryType:
+          length: "sizeof(pCopy->srcMemoryType)"
+          expr: "&pCopy->srcMemoryType"
+      - dstMemoryType:
+          length: "sizeof(pCopy->dstMemoryType)"
+          expr: "&pCopy->dstMemoryType"
+      - WidthInBytes:
+          length: "sizeof(pCopy->WidthInBytes)"
+          expr: "&pCopy->WidthInBytes"
+      - Height:
+          length: "sizeof(pCopy->Height)"
+          expr: "&pCopy->Height"
+      - Depth:
+          length: "sizeof(pCopy->Depth)"
+          expr: "&pCopy->Depth"
+      - srcXInBytes:
+          length: "sizeof(pCopy->srcXInBytes)"
+          expr: "&pCopy->srcXInBytes"
+      - srcY:
+          length: "sizeof(pCopy->srcY)"
+          expr: "&pCopy->srcY"
+      - srcZ:
+          length: "sizeof(pCopy->srcZ)"
+          expr: "&pCopy->srcZ"
+      - dstXInBytes:
+          length: "sizeof(pCopy->dstXInBytes)"
+          expr: "&pCopy->dstXInBytes"
+      - dstY:
+          length: "sizeof(pCopy->dstY)"
+          expr: "&pCopy->dstY"
+      - dstZ:
+          length: "sizeof(pCopy->dstZ)"
+          expr: "&pCopy->dstZ"
+      - srcHost:
+          length: "sizeof(pCopy->srcHost)"
+          expr: "&pCopy->srcHost"
+      - srcDevice:
+          length: "sizeof(pCopy->srcDevice)"
+          expr: "&pCopy->srcDevice"
+      - srcArray:
+          length: "sizeof(pCopy->srcArray)"
+          expr: "&pCopy->srcArray"
+      - srcPitch:
+          length: "sizeof(pCopy->srcPitch)"
+          expr: "&pCopy->srcPitch"
+      - srcHeight:
+          length: "sizeof(pCopy->srcHeight)"
+          expr: "&pCopy->srcHeight"
+      - dstHost:
+          length: "sizeof(pCopy->dstHost)"
+          expr: "&pCopy->dstHost"
+      - dstDevice:
+          length: "sizeof(pCopy->dstDevice)"
+          expr: "&pCopy->dstDevice"
+      - dstArray:
+          length: "sizeof(pCopy->dstArray)"
+          expr: "&pCopy->dstArray"
+      - dstPitch:
+          length: "sizeof(pCopy->dstPitch)"
+          expr: "&pCopy->dstPitch"
+      - dstHeight:
+          length: "sizeof(pCopy->dstHeight)"
+          expr: "&pCopy->dstHeight"
       - srcData:
-          length: "pCopy->WidthInBytes + pCopy->Height + pCopy->Depth"
-          expr: " (void*)((char*)(pCopy->srcHost)+(pCopy->srcZ*pCopy->srcHeight+pCopy->srcY)*pCopy->srcPitch + pCopy->srcXInBytes)"
+          length: "(pCopy->Depth - 1) * pCopy->srcPitch * pCopy->srcHeight + (pCopy->Height-1) * pCopy->srcPitch + pCopy->WidthInBytes"
+          expr: "(void*)((char*)(pCopy->srcHost)+(pCopy->srcZ*pCopy->srcHeight+pCopy->srcY)*pCopy->srcPitch + pCopy->srcXInBytes)"
           guard_expr: "pCopy->srcMemoryType == CU_MEMORYTYPE_HOST"
       - dstData:
-          length: "pCopy->WidthInBytes + pCopy->Height + pCopy->Depth"
+          length: "(pCopy->Depth - 1) * pCopy->dstPitch * pCopy->dstHeight + (pCopy->Height-1) * pCopy->dstPitch + pCopy->WidthInBytes"
           expr: "(void*)((char*)(pCopy->dstHost)+(pCopy->dstZ*pCopy->dstHeight+pCopy->dstY)*pCopy->dstPitch + pCopy->dstXInBytes)"
           guard_expr: "pCopy->dstMemoryType == CU_MEMORYTYPE_HOST"
   cuMemcpyDtoH_v2_post:
@@ -995,8 +1055,24 @@ tracepoint_events:
       - *retval_field
       - *ctx_field
     blobstore:
-      - pAllocateArray:
-          length: "sizeof(*pAllocateArray)"
+      - Width: 
+          length: "sizeof(pAllocateArray->Width)"
+          expr: "&pAllocateArray->Width"
+      - Height: 
+          length: "sizeof(pAllocateArray->Height)"
+          expr: "&pAllocateArray->Height"
+      - Depth: 
+          length: "sizeof(pAllocateArray->Depth)"
+          expr: "&pAllocateArray->Depth"
+      - Format: 
+          length: "sizeof(pAllocateArray->Format)"
+          expr: "&pAllocateArray->Format"
+      - NumChannels:
+          length: "sizeof(pAllocateArray->NumChannels)"
+          expr: "&pAllocateArray->NumChannels"
+      - Flags:
+          length: "sizeof(pAllocateArray->Flags)"
+          expr: "&pAllocateArray->Flags"
   cuArrayCreate_v2_post:
     fields:
       - pHandle:

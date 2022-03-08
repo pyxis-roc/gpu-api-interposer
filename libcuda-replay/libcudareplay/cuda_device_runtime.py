@@ -14,10 +14,12 @@
 # fmt: off
 
 import logging
-from typing import Set
+from typing import Set, Dict
+import struct
 
 from harmonv import nvfatbin, compression, loader
 from .cuda_api_objects import *
+from .cuda_api_constants import *
 from .cuda_devices import *
 from .cuda_remote_devices import *
 import itertools
@@ -32,6 +34,7 @@ class CUDADefaultFactory(object):
     memory_region = CUDAMemoryRegion
     stream = CUDAStream
     context = CUDAContext
+    array = CUDAArray
 
 class CUDARemoteFactory(object):
     gpu = RemoteCUDAGPU
@@ -40,6 +43,7 @@ class CUDARemoteFactory(object):
     memory_region = CUDAMemoryRegion
     stream = CUDAStream
     context = CUDAContext
+    array = CUDAArray
 
 def check_retval(f):
     def checker(self, *args, **kwargs):
@@ -73,6 +77,7 @@ class CUDADeviceAPIHandler(object):
         self.module_handles = CUDAHandles("CUmodule")
         self.memory_handles = CUDAHandles("CUdeviceptr")
         self.stream_handles = CUDAHandles("CUstream")
+        self.array_handles = CUDAHandles("CUArray")
         self.config = config
         self.module_globals = {} # handle: set
 
@@ -389,15 +394,69 @@ class CUDADeviceAPIHandler(object):
         if "cuMemcpyDtoD" in self.api_instr.instr_fns:
             self.api_instr.cuMemcpyDtoD(dstDevice, srcDevice, ByteCount, _data)
 
+
+    @staticmethod
+    def _unpackStructField(data: bytes):
+        """
+        Unpack a struct into an integer if width is either 4 or 8
+        :param data: The data that should be unpacked
+        :returns: The unpacked data
+        :Raises: ``ValueError`` if width is not 4 or 8
+        """
+        if len(data) == 4:
+            return struct.unpack('I', data)[0]
+        elif len(data) == 8:
+            return struct.unpack('Q', data)[0]
+        else:
+            raise ValueError(f"Attempting to unpack a struct with unsupported width: {len(data)}.")
+
+    def _check_memcpy3d_dptr(self, gpu, s_or_d: str, data_dict):
+        """
+        Helper method for cuMemcpy3D that ensure that the gpu has a dptr for the data
+        """
+        copy_size = (
+            (self._unpackStructField(data_dict["Depth"]) - 1)
+            * (
+                self._unpackStructField(data_dict[f"{s_or_d}Pitch"])
+                * self._unpackStructField(data_dict[f"{s_or_d}Height"])
+            )
+            + (
+                (self._unpackStructField(data_dict["Height"]) - 1)
+                * self._unpackStructField(data_dict[f"{s_or_d}Pitch"])
+            )
+            + self._unpackStructField(data_dict["WidthInBytes"])
+        )
+        assert gpu.has_dptr(self._unpackStructField(data_dict[f'{s_or_d}Device']), copy_size)
+
     @check_retval
-    def cuMemcpy3D(self, pCopy, _pCopyData, _srcData, _dstData):
+    def cuMemcpy3D(self, pCopy, _data_dict: Dict):
         ctx = self._get_thread_ctx()
         gpu = self.gpu_handles[ctx.dev]
         
-        _logger.info(f"cuMemcpy3D on device {ctx.dev}.")
+        _logger.info(f"cuMemcpy3D on device {ctx.dev} described by 0x{pCopy:x}")
+
+
+        dstMemoryType = CUDA_MEMORYTYPE_ENUM_MAP[self._unpackStructField(_data_dict['dstMemoryType'])]
+        srcMemoryType = CUDA_MEMORYTYPE_ENUM_MAP[self._unpackStructField(_data_dict['srcMemoryType'])]
+
+        dstArrayHandle = None
+        if dstMemoryType == "CU_MEMORYTYPE_ARRAY":
+            assert self._unpackStructField(_data_dict['dstArray']) in self.array_handles
+            dstArrayHandle = self.array_handles[self._unpackStructField(_data_dict['dstArray'])]
+        elif dstMemoryType == "CU_MEMORYTYPE_DEVICE":
+            self._check_memcpy3d_dptr(gpu, 'dst', _data_dict)
+
+        srcArrayHandle = None
+        if srcMemoryType == "CU_MEMORYTYPE_ARRAY":
+            assert self._unpackStructField(_data_dict['srcArray']) in self.array_handles
+            srcArrayHandle = self.array_handles[self._unpackStructField(_data_dict['srcArray'])]
+        elif srcMemoryType == "CU_MEMORYTYPE_DEVICE":
+            self._check_memcpy3d_dptr(gpu, 'src', _data_dict)
+
+        # TODO: Use gpu.set_memory to set the memory for the memcpy
 
         if "cuMemcpy3D" in self.api_instr.instr_fns:
-            self.api_instr.cuMemcpy3D(pCopy, _pCopyData, _srcData, _dstData)
+            self.api_instr.cuMemcpy3D(pCopy, _data_dict, srcArrayHandle, dstArrayHandle)
 
     @check_retval
     def cuTexRefSetFlags(self, hTexRef: int, Flags: int):
@@ -512,13 +571,28 @@ class CUDADeviceAPIHandler(object):
     # Arrays
 
     @check_retval
-    def cuArray3DCreate(self, pHandle: int, pAllocateArray: int, _data):
+    def cuArray3DCreate(self, pHandle: int, pAllocateArray: int, Width, Height, Depth, Format, NumChannels, Flags):
         ctx = self._get_thread_ctx()
         _logger.info(
             f"cuArray3DCreate on device {ctx.dev}: pHandle: 0x{pHandle:x} from pAllocateArray 0x{pAllocateArray:x}"
         )
+
+        array_handler = self._factory.array(
+            ctx.dev,
+            pHandle,
+            self._unpackStructField(Width),
+            self._unpackStructField(Height),
+            self._unpackStructField(Depth),
+            self._unpackStructField(Format),
+            self._unpackStructField(NumChannels),
+            self._unpackStructField(Flags),
+        )
+
+        self.array_handles.register(pHandle, array_handler)
+
+
         if "cuArray3DCreate" in self.api_instr.instr_fns:
-            self.api_instr.cuArray3DCreate(pHandle, pAllocateArray, _data)
+            self.api_instr.cuArray3DCreate(pHandle, pAllocateArray, Width, Height, Depth, Format, NumChannels, Flags)
 
     # Memset
     @check_retval

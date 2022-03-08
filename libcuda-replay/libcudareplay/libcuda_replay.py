@@ -231,20 +231,34 @@ class NVTraceHandler(object):
         )
 
     def cuMemcpy3D_v2_post(self, ev, bsdata):
-        pCopyData = None
-        srcData = None
-        dstData = None
+        data_dict = {
+            "srcXInBytes": None,
+            "srcY": None,
+            "srcZ": None,
+            "srcMemoryType": None,
+            "srcHost": None,
+            "srcDevice": None,
+            "srcArray": None,
+            "srcPitch": None,
+            "srcHeight": None,
+            "dstXInBytes": None,
+            "dstY": None,
+            "dstZ": None,
+            "dstMemoryType": None,
+            "dstHost": None,
+            "dstDevice": None,
+            "dstArray": None,
+            "dstPitch": None,
+            "WidthInBytes": None,
+            "Height": None,
+            "Depth": None,
+            "srcData": None,
+            "dstData": None}
 
         for bsd in bsdata:
-            if bsd['name'] == 'pCopy':
-                pCopyData = bsd['contents']
-            elif bsd['name'] == 'srcData':
-                srcData = bsd['contents']
-            elif bsd['name'] == 'dstData':
-                dstData = bsd['contents']
-            else:
-                raise NotImplementedError
-        self.apihandler.cuMemcpy3D(int(ev['pCopy']), pCopyData, srcData, dstData)
+            if bsd['name'] in data_dict:
+                data_dict[bsd['name']] = bsd['contents']
+        self.apihandler.cuMemcpy3D(int(ev['pCopy']), data_dict)
 
 
     # Textures References!!
@@ -305,18 +319,37 @@ class NVTraceHandler(object):
 
     # Arrays
     def cuArray3DCreate_v2_post(self, ev, bsdata):
-        data = None
+        Width = None
+        Height = None
+        Depth = None
+        Format = None
+        NumChannels = None
+        Flags = None
+
         for r in bsdata:
-            if r["name"] == "pAllocateArray":
-                data = r["contents"]
-                break
-        else:
-            assert False, "No 'pAllocateArray' found in blobstore for cuArray3DCreate_v2"
+            nm = r["name"]
+            if nm == "Width":
+                Width = r["contents"]
+            elif nm == "Height":
+                Height = r["contents"]
+            elif nm == "Depth":
+                Depth = r["contents"]
+            elif nm == "Format":
+                Format = r["contents"]
+            elif nm == "NumChannels":
+                NumChannels = r["contents"]
+            elif nm == "Flags":
+                Flags = r["contents"]
 
         self.apihandler.cuArray3DCreate(
             int(ev["pHandle"]),
             int(ev["pAllocateArray"]),
-            data
+            Width,
+            Height,
+            Depth,
+            Format,
+            NumChannels,
+            Flags
         )
 
     # Memsets

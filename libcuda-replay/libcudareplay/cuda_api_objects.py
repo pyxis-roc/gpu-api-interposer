@@ -5,8 +5,11 @@
 # Python implementations of CUDA API objects
 #
 # Author: Sreepathi Pai
+# Author: Benjamin Valpey
 #
 # Copyright (C) 2019, University of Rochester
+
+# fmt: off
 
 import logging
 
@@ -82,3 +85,23 @@ class CUDAContext(object):
     def __init__(self, addr = None):
         self.addr = addr
 
+class CUDAArray(object):
+    def __init__(
+        self,
+        dev,
+        pHandle: int,
+        Width: int,
+        Height: int,
+        Depth: int,
+        Format: int,
+        NumChannels: int,
+        Flags: int,
+    ):
+        self.pHandle: int = pHandle
+        self.dev = dev
+        self.Width: int = Width
+        self.Height: int = Height
+        self.Depth: int = Depth
+        self.NumChannels: int = NumChannels
+        self.Format: int = Format
+        self.Flags: int = Flags
