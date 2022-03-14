@@ -900,9 +900,6 @@ tracepoint_events:
             int_type: size_t
       - *retval_field
       - *ctx_field
-    blobstore:
-      - hTexRef:
-          length: "64"
   cuTexRefSetFormat_post:
     fields:
       - hTexRef:
