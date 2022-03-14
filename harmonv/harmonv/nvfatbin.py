@@ -658,6 +658,7 @@ class NVCubinPartELF(NVCubinPart):
                 self.global_init_data["size"] = s.data_size
                 self.global_init_data["data"] = s.data()
 
+
             # elif s.name.startswith('text.') (write matcher for text sections)
 
         self.get_const_symbol_offsets(self.cubin_elf)
