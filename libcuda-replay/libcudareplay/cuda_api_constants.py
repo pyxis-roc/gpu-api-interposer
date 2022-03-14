@@ -3,7 +3,7 @@
 # Author:       Benjamin Valpey
 # Date:         08 Mar 2022
 # Filename:     cuda_api_constants.py
-# Last Edited:  Tue 08 Mar 2022 04:57:46 PM EST
+# Last Edited:  Wed 09 Mar 2022 04:04:06 PM EST
 # Description:  CUDA api constants as defined by the documentation
 
 CUDA_ARRAY_FORMAT_ENUM_MAP = {
@@ -15,6 +15,17 @@ CUDA_ARRAY_FORMAT_ENUM_MAP = {
     0x0A: "CU_AD_FORMAT_SIGNED_INT32",
     0x10: "CU_AD_FORMAT_HALF",
     0x20: "CU_AD_FORMAT_FLOAT",
+}
+
+CUDA_ARRAY_FORMAT_SIZE_MAP = {
+    0x01: 8,
+    0x02: 16,
+    0x03: 32,
+    0x08: 8,
+    0x09: 16,
+    0x0A: 32,
+    0x10: 16,
+    0x20: 32,
 }
 
 CUDA_MEMORYTYPE_ENUM_MAP = {

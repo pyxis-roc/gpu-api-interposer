@@ -262,6 +262,8 @@ class NVTraceHandler(object):
 
 
     # Textures References!!
+    def cuModuleGetTexRef_post(self, ev, bsdata):
+        self.apihandler.cuModuleGetTexRef(int(ev['pTexRef']), int(ev['hmod']), ev['name'])
     def cuTexRefSetFlags_post(self, ev, bsdata):
         self.apihandler.cuTexRefSetFlags(int(ev["hTexRef"]), int(ev["Flags"]))
 
@@ -302,19 +304,11 @@ class NVTraceHandler(object):
         )
 
     def cuTexRefSetAddress_v2_post(self, ev, bsdata):
-        data = None
-        for r in bsdata:
-            if r["name"] == "hTexRef":
-                data = r["contents"]
-                break
-        else:
-            assert False, "No 'hTexRef' found in blobstore for cuTexRefSetAddress_v2"
         self.apihandler.cuTexRefSetAddress(
             int(ev["ByteOffset"]),
             int(ev["hTexRef"]),
             int(ev["dptr"]),
             int(ev["bytes"]),
-            data,
         )
 
     # Arrays

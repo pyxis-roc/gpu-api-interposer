@@ -35,6 +35,7 @@ class CUDADefaultFactory(object):
     stream = CUDAStream
     context = CUDAContext
     array = CUDAArray
+    tex_ref = CUDATexRef
 
 class CUDARemoteFactory(object):
     gpu = RemoteCUDAGPU
@@ -44,6 +45,7 @@ class CUDARemoteFactory(object):
     stream = CUDAStream
     context = CUDAContext
     array = CUDAArray
+    tex_ref = CUDATexRef
 
 def check_retval(f):
     def checker(self, *args, **kwargs):
@@ -55,12 +57,13 @@ def check_retval(f):
 
     return checker
 
+
 class CUDADeviceAPIInstr(object):
     # set of API functions that should be instrumented
     instr_fns = None
 
     def __init__(self):
-        self.instr_fns = set()
+        self.instr_fns: Set[str] = set()
 
     def cuMemcpyDtoH(self, dstHost, srcDevice, ByteCount, _data, _gpudata):
         pass
@@ -78,6 +81,7 @@ class CUDADeviceAPIHandler(object):
         self.memory_handles = CUDAHandles("CUdeviceptr")
         self.stream_handles = CUDAHandles("CUstream")
         self.array_handles = CUDAHandles("CUArray")
+        self.tex_ref_handles = CUDAHandles("CUTexRef")
         self.config = config
         self.module_globals = {} # handle: set
 
@@ -237,7 +241,7 @@ class CUDADeviceAPIHandler(object):
         _logger.info(f"Using ELF:{elf} and PTX:{ptx} for {name}")
         assert not (elf is None and ptx is None), "Unable to find ELF/PTX containing function {name}"
 
-        self.function_handles.register(hfunc, self._factory.function(name, elf, ptx))
+        self.function_handles.register(hfunc, self._factory.function(name, elf, ptx, hmod))
 
     @check_retval
     def cuMemAlloc(self, dptr, bytesize):
@@ -355,7 +359,8 @@ class CUDADeviceAPIHandler(object):
                 blockDimZ,
                 sharedMemBytes,
                 self.stream_handles[hStream],
-                kernelParams)
+                kernelParams,
+                {k: v for k,v in self.tex_ref_handles.handles.items() if v.hmod == self.function_handles[f].hmod})
 
     @check_retval
     def cuModuleUnload(self, hmod):
@@ -389,7 +394,7 @@ class CUDADeviceAPIHandler(object):
         assert gpu.has_dptr(dstDevice, ByteCount)
         assert gpu.has_dptr(srcDevice, ByteCount)
 
-        # do we do gpu.set_memory? Can we? Will data even be correct...
+        gpu.set_memory(dstDevice, gpu.get_memory(srcDevice, ByteCount))
 
         if "cuMemcpyDtoD" in self.api_instr.instr_fns:
             self.api_instr.cuMemcpyDtoD(dstDevice, srcDevice, ByteCount, _data)
@@ -453,10 +458,28 @@ class CUDADeviceAPIHandler(object):
         elif srcMemoryType == "CU_MEMORYTYPE_DEVICE":
             self._check_memcpy3d_dptr(gpu, 'src', _data_dict)
 
-        # TODO: Use gpu.set_memory to set the memory for the memcpy
+        # NOTE: Memcpy3D can set gpu memory, but this will not be captured here
 
         if "cuMemcpy3D" in self.api_instr.instr_fns:
             self.api_instr.cuMemcpy3D(pCopy, _data_dict, srcArrayHandle, dstArrayHandle)
+
+    @check_retval
+    def cuModuleGetTexRef(self, pTexRef, hmod, name):
+        # Are texture references per module? This won't work if two separate .o files 
+        # reference textures with the same name.  Might be an edge case, though.
+        ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
+        _logger.info(f"cuModuleGetTexRef on device {ctx.dev}: {name} at 0x{pTexRef:x}")
+
+        if pTexRef not in self.tex_ref_handles:
+            new_texref = self._factory.tex_ref(ctx.dev, hmod, pTexRef, name)
+            self.tex_ref_handles.register(pTexRef, new_texref)
+        else:
+            new_texref = self.tex_ref_handles[pTexRef]
+
+        if 'cuModuleGetTexRef' in self.api_instr.instr_fns:
+            self.api_instr.cuModuleGetTexRef(pTexRef, hmod, name, new_texref)
 
     @check_retval
     def cuTexRefSetFlags(self, hTexRef: int, Flags: int):
@@ -465,6 +488,12 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuTexRefSetFlags on device {ctx.dev}: 0x{hTexRef:x} with flags 0x{Flags:x}"
         )
+
+        # ensure that the textureReference object has been registered
+
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_flags(Flags)
 
         if "cuTexRefSetFlags" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetFlags(hTexRef, Flags)
@@ -477,6 +506,10 @@ class CUDADeviceAPIHandler(object):
             f"cuTexRefSetFlags on device {ctx.dev}: 0x{hTexRef:x} with fmt: {fmt} and NumPackedComponents: {NumPackedComponents}"
         )
 
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_format(fmt, NumPackedComponents)
+
         if "cuTexRefSetFormat" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetFormat(hTexRef, fmt, NumPackedComponents)
 
@@ -487,6 +520,10 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuTexRefSetFilterMode on device {ctx.dev}: 0x{hTexRef:x} with fm: {fm}"
         )
+
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_filterMode(fm)
 
         if "cuTexRefSetFilterMode" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetFilterMode(hTexRef, fm)
@@ -499,6 +536,10 @@ class CUDADeviceAPIHandler(object):
             f"cuTexRefSetMaxAnisotropy on device {ctx.dev}: 0x{hTexRef:x} with maxAniso: {maxAniso}"
         )
 
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_maxAnisotropy(maxAniso)
+
         if "cuTexRefSetMaxAnisotropy" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetMaxAnisotropy(hTexRef, maxAniso)
 
@@ -509,6 +550,10 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuTexRefSetMipmapFilterMode on device {ctx.dev}: 0x{hTexRef:x} with fm: {fm}"
         )
+
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_mipmapFilterMode(fm)
 
         if "cuTexRefSetMipmapFilterMode" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetMipmapFilterMode(hTexRef, fm)
@@ -521,6 +566,10 @@ class CUDADeviceAPIHandler(object):
             f"cuTexRefSetMipmapLevelBias on device {ctx.dev}: 0x{hTexRef:x} with bias: {bias}"
         )
 
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_mipmapLevelBias(bias)
+
         if "cuTexRefSetMipmapLevelBias" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetMipmapLevelBias(hTexRef, bias)
 
@@ -531,6 +580,10 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuTexRefSetMipmapLevelClamp on device {ctx.dev}: 0x{hTexRef:x} with min: {mn}, max: {mx}"
         )
+
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_mipmapLevelClamp(mn, mx)
 
         if "cuTexRefSetMipmapLevelClamp" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetMipmapLevelClamp(hTexRef, mn, mx)
@@ -543,6 +596,11 @@ class CUDADeviceAPIHandler(object):
             f"cuTexRefSetAddressMode on device {ctx.dev}: 0x{hTexRef:x} with dim: {dim}, am: {am}"
         )
 
+        assert dim < 3
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+        
+        self.tex_ref_handles[hTexRef].set_addressMode(dim, am)
+
         if "cuTexRefSetAddressMode" in self.api_instr.instr_fns:
             self.api_instr.cuTexRefSetAddressMode(hTexRef, dim, am)
 
@@ -554,19 +612,35 @@ class CUDADeviceAPIHandler(object):
             f"cuTexRefSetArray on device {ctx.dev}: 0x{hTexRef:x} with hArray: 0x{hArray:x} and Flags {Flags}"
         )
 
+        assert hArray in self.array_handles, "No handle for hArray found during cuTexRefSetArray"
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_array(hArray, Flags, self.array_handles[hArray])
+
         if "cuTexRefSetArray" in self.api_instr.instr_fns:
-            self.api_instr.cuTexRefSetArray(hTexRef, dim, am)
+            self.api_instr.cuTexRefSetArray(hTexRef, hArray, Flags)
 
     @check_retval
     def cuTexRefSetAddress(
-        self, ByteOffset: int, hTexRef: int, dptr: int, bytes: int, _data
-    ):
+        self, ByteOffset: int, hTexRef: int, dptr: int, bytes: int):
         ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
         _logger.info(
             f"cuTexRefSetAddress on device {ctx.dev}: 0x{hTexRef:x} - {bytes} bytes to 0x{dptr:x} with offset {ByteOffset}"
         )
+
+        if dptr != 0:
+            # cuTexRefSetAddress is passed with dptr of 0 if the address is being bound to
+            # an array.
+            assert gpu.has_dptr(dptr+ByteOffset, bytes)
+
+        assert hTexRef in self.tex_ref_handles, f"Texture reference 0x{hTexRef:x} is not registered"
+
+        self.tex_ref_handles[hTexRef].set_address(ByteOffset, dptr, bytes)
+
         if "cuTexRefSetAddress" in self.api_instr.instr_fns:
-            self.api_instr.cuTexRefSetAddress(ByteOffset, hTexRef, dptr, bytes, _data)
+            self.api_instr.cuTexRefSetAddress(ByteOffset, hTexRef, dptr, bytes)
 
     # Arrays
 
@@ -590,7 +664,6 @@ class CUDADeviceAPIHandler(object):
 
         self.array_handles.register(pHandle, array_handler)
 
-
         if "cuArray3DCreate" in self.api_instr.instr_fns:
             self.api_instr.cuArray3DCreate(pHandle, pAllocateArray, Width, Height, Depth, Format, NumChannels, Flags)
 
@@ -598,6 +671,9 @@ class CUDADeviceAPIHandler(object):
     @check_retval
     def cuMemsetD8(self, dstDevice: int, uc: int, N: int):
         ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+        assert gpu.has_dptr(dstDevice, N)
+        gpu.set_memory(dstDevice, struct.pack('B', uc) * N)
         _logger.info(f"cuMemsetD8 on device {ctx.dev}: {N} elements to 0x{dstDevice:x}")
         if "cuMemsetD8" in self.api_instr.instr_fns:
             self.api_instr.cuMemsetD8(dstDevice, uc, N)
@@ -605,18 +681,29 @@ class CUDADeviceAPIHandler(object):
     @check_retval
     def cuMemsetD16(self, dstDevice: int, us: int, N: int):
         ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+
         _logger.info(
             f"cuMemsetD16 on device: {ctx.dev}: {N} elements to 0x{dstDevice:x}"
         )
+
+        assert gpu.has_dptr(dstDevice, N*2)
+
+        gpu.set_memory(dstDevice, struct.pack('H', us) * N)
+
         if "cuMemsetD16" in self.api_instr.instr_fns:
             self.api_instr.cuMemsetD16(dstDevice, us, N)
 
     @check_retval
     def cuMemsetD32(self, dstDevice: int, ui: int, N: int):
         ctx = self._get_thread_ctx()
+        gpu = self.gpu_handles[ctx.dev]
+        
         _logger.info(
             f"cuMemsetD32 on device: {ctx.dev}: {N} elements to 0x{dstDevice:x}"
         )
+        assert gpu.has_dptr(dstDevice, N*4)
+        gpu.set_memory(dstDevice, struct.pack('I', ui)*N)
         if "cuMemsetD32" in self.api_instr.instr_fns:
             self.api_instr.cuMemsetD32(dstDevice, ui, N)
 
@@ -628,6 +715,8 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuMemsetD2D8 on device: {ctx.dev}: {Height} rows of {Width} elements with pitch {dstPitch} to 0x{dstDevice:x}"
         )
+        # TODO: Issue gpu.set_memory() for these api calls.  
+        _logger.warn("cuMemsetD2D8 memory is not tracked in libcuda-replay")
         if "cuMemsetD2D8" in self.api_instr.instr_fns:
             self.api_instr.cuMemsetD2D8(dstDevice, dstPitch, uc, Width, Height)
 
@@ -637,6 +726,10 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuMemsetD2D16 on device: {ctx.dev}: {Height} rows of {Width} elements with pitch {dstPitch} to 0x{dstDevice:x}"
         )
+
+        # TODO: Issue gpu.set_memory() for these api calls.  
+        _logger.warn("cuMemsetD2D16 memory is not tracked in libcuda-replay")
+
         if "cuMemsetD2D16" in self.api_instr.instr_fns:
             self.api_instr.cuMemsetD2D16(dstDevice, dstPitch, us, Width, Height)
 
@@ -648,5 +741,7 @@ class CUDADeviceAPIHandler(object):
         _logger.info(
             f"cuMemsetD2D32 on device: {ctx.dev}: {Height} rows of {Width} elements with pitch {dstPitch} to 0x{dstDevice:x}"
         )
+        # TODO: Issue gpu.set_memory() for these api calls.  
+        _logger.warn("cuMemsetD2D32 memory is not tracked in libcuda-replay")
         if "cuMemsetD2D32" in self.api_instr.instr_fns:
             self.api_instr.cuMemsetD2D32(dstDevice, dstPitch, ui, Width, Height)
