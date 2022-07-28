@@ -6,8 +6,11 @@
 # CUDA Device API implementations.
 #
 # Author: Sreepathi Pai
+# Author: Benjamin Valpey
 #
 # Copyright (c) 2019, University of Rochester
+
+# fmt: off
 
 import sqlite3
 import yaml
@@ -222,6 +225,165 @@ class NVTraceHandler(object):
                                        ev['blockDim'][0], ev['blockDim'][1], ev['blockDim'][2],
                                        ev['sharedMemBytes'], ev['hStream'], args)
 
+    def cuMemcpyDtoD_v2_pre(self, ev, bsdata):
+        self.apihandler.cuMemcpyDtoD(
+            int(ev["dstDevice"]), int(ev["srcDevice"]), int(ev["ByteCount"])
+        )
+
+    def cuMemcpy3D_v2_post(self, ev, bsdata):
+        data_dict = {
+            "srcXInBytes": None,
+            "srcY": None,
+            "srcZ": None,
+            "srcMemoryType": None,
+            "srcHost": None,
+            "srcDevice": None,
+            "srcArray": None,
+            "srcPitch": None,
+            "srcHeight": None,
+            "dstXInBytes": None,
+            "dstY": None,
+            "dstZ": None,
+            "dstMemoryType": None,
+            "dstHost": None,
+            "dstDevice": None,
+            "dstArray": None,
+            "dstPitch": None,
+            "WidthInBytes": None,
+            "Height": None,
+            "Depth": None,
+            "srcData": None,
+            "dstData": None}
+
+        for bsd in bsdata:
+            if bsd['name'] in data_dict:
+                data_dict[bsd['name']] = bsd['contents']
+        self.apihandler.cuMemcpy3D(int(ev['pCopy']), data_dict)
+
+
+    # Textures References!!
+    def cuModuleGetTexRef_post(self, ev, bsdata):
+        self.apihandler.cuModuleGetTexRef(int(ev['pTexRef']), int(ev['hmod']), ev['name'])
+    def cuTexRefSetFlags_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetFlags(int(ev["hTexRef"]), int(ev["Flags"]))
+
+    def cuTexRefSetFormat_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetFormat(
+            int(ev["hTexRef"]), int(ev["fmt"]), int(ev["NumPackedComponents"])
+        )
+
+    def cuTexRefSetFilterMode_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetFilterMode(int(ev["hTexRef"]), int(ev["fm"]))
+
+    def cuTexRefSetMaxAnisotropy_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetMaxAnisotropy(int(ev["hTexRef"]), int(ev["maxAniso"]))
+
+    def cuTexRefSetMipmapFilterMode_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetMipmapFilterMode(int(ev["hTexRef"]), int(ev["fm"]))
+
+    def cuTexRefSetMipmapLevelBias_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetMipmapLevelBias(int(ev["hTexRef"]), float(ev["bias"]))
+
+    def cuTexRefSetMipmapLevelClamp_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetMipmapLevelClamp(
+            int(ev["hTexRef"]),
+            float(ev["minMipmapLevelClamp"]),
+            float(ev["maxMipmapLevelClamp"]),
+        )
+
+    def cuTexRefSetAddressMode_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetAddressMode(
+            int(ev["hTexRef"]),
+            int(ev["dim"]),
+            int(ev["am"])
+        )
+
+    def cuTexRefSetArray_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetArray(
+            int(ev["hTexRef"]), int(ev["hArray"]), int(ev["Flags"])
+        )
+
+    def cuTexRefSetAddress_v2_post(self, ev, bsdata):
+        self.apihandler.cuTexRefSetAddress(
+            int(ev["ByteOffset"]),
+            int(ev["hTexRef"]),
+            int(ev["dptr"]),
+            int(ev["bytes"]),
+        )
+
+    # Arrays
+    def cuArray3DCreate_v2_post(self, ev, bsdata):
+        Width = None
+        Height = None
+        Depth = None
+        Format = None
+        NumChannels = None
+        Flags = None
+
+        for r in bsdata:
+            nm = r["name"]
+            if nm == "Width":
+                Width = r["contents"]
+            elif nm == "Height":
+                Height = r["contents"]
+            elif nm == "Depth":
+                Depth = r["contents"]
+            elif nm == "Format":
+                Format = r["contents"]
+            elif nm == "NumChannels":
+                NumChannels = r["contents"]
+            elif nm == "Flags":
+                Flags = r["contents"]
+
+        self.apihandler.cuArray3DCreate(
+            int(ev["pHandle"]),
+            int(ev["pAllocateArray"]),
+            Width,
+            Height,
+            Depth,
+            Format,
+            NumChannels,
+            Flags
+        )
+
+    # Memsets
+    def cuMemsetD8_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemsetD8(int(ev["dstDevice"]), int(ev["uc"]), int(ev["N"]))
+
+    def cuMemsetD16_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemsetD16(int(ev["dstDevice"]), int(ev["us"]), int(ev["N"]))
+
+    def cuMemsetD32_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemsetD32(int(ev["dstDevice"]), int(ev["ui"]), int(ev["N"]))
+
+    def cuMemsetD2D8_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemsetD2D8(
+            int(ev["dstDevice"]),
+            int(ev["dstPitch"]),
+            int(ev["uc"]),
+            int(ev["Width"]),
+            int(ev["Height"]),
+        )
+
+    def cuMemsetD2D16_v2_post(self, ev, bsdata):
+        self.apihandler.cuMemsetD2D16(
+            int(ev["dstDevice"]),
+            int(ev["dstPitch"]),
+            int(ev["us"]),
+            int(ev["Width"]),
+            int(ev["Height"]),
+        )
+
+    def cuMemsetD2D32_v2(self, ev, bsdata):
+        self.apihandler.cuMemsetD2D32(
+            int(ev["dstDevice"]),
+            int(ev["dstPitch"]),
+            int(ev["ui"]),
+            int(ev["Width"]),
+            int(ev["Height"]),
+        )
+
+
 class TraceContext(object):
     cpu_id = None
     vtid = None
@@ -340,3 +502,5 @@ if __name__ == "__main__":
         factory = CUDARemoteFactory()
 
     r.replay(NVTraceHandler(ah, CUDADeviceAPIHandler(args.binary, factory)))
+
+# fmt: on
