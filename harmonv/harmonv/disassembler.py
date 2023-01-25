@@ -146,7 +146,7 @@ class SASSFunction(object):
             # NOTE: This will leave Yaml anchors / aliases in the output
             out['global_init_offsets'] = self.global_init_offsets
 
-        if self.set_global_offsets is not None:
+        if self.global_offsets is not None:
             out['global_offsets'] = self.global_offsets
 
         return out
