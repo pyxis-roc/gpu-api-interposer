@@ -239,9 +239,11 @@ class CUDADeviceAPIHandler(object):
                 break
 
         _logger.info(f"Using ELF:{elf} and PTX:{ptx} for {name}")
-        assert not (elf is None and ptx is None), "Unable to find ELF/PTX containing function {name}"
-
-        self.function_handles.register(hfunc, self._factory.function(name, elf, ptx, hmod))
+        # assert not (elf is None and ptx is None), f"Unable to find ELF/PTX containing function {name}"
+        if elf is None and ptx is None:
+            _logger.warn(f"Unable to find ELF/PTX containing function {name}")
+        else:
+            self.function_handles.register(hfunc, self._factory.function(name, elf, ptx, hmod))
 
     @check_retval
     def cuMemAlloc(self, dptr, bytesize):
@@ -360,7 +362,8 @@ class CUDADeviceAPIHandler(object):
                 sharedMemBytes,
                 self.stream_handles[hStream],
                 kernelParams,
-                {k: v for k,v in self.tex_ref_handles.handles.items() if v.hmod == self.function_handles[f].hmod})
+                {k: v for k,v in self.tex_ref_handles.handles.items() if v.hmod == self.function_handles[f].hmod},
+                self.function_handles[f].hmod)
 
     @check_retval
     def cuModuleUnload(self, hmod):
