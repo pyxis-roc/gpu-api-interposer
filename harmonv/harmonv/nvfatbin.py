@@ -309,19 +309,23 @@ class NVCubinPartELF(NVCubinPart):
 
     def get_global_symbol_offsets(self, elf):
         symtab = elf.get_section_by_name(".symtab")
+        glbl_init_shndx = None
+        glbl_shndx = None
         if symtab:
             for _, sym in enumerate(symtab.iter_symbols()):
                 if sym.name == ".nv.global.init":
+                    glbl_init_shndx = sym.entry["st_shndx"]
+                elif sym.name == ".nv.global":
                     glbl_shndx = sym.entry["st_shndx"]
-                    break
-            else:
+            if glbl_init_shndx is None and glbl_shndx is None:
                 return
             for _, sym in enumerate(symtab.iter_symbols()):
-                if sym.name != ".nv.global.init" and sym.entry["st_shndx"] == glbl_shndx:
-                    # this is a global symbol
-                    self.global_symbol_offset[sym.name] = dict(
+                if glbl_init_shndx is not None and sym.name != ".nv.global.init" and sym.entry["st_shndx"] == glbl_init_shndx:
+                    self.global_init_symbol_offset[sym.name] = dict(
                         size=sym.entry["st_size"], offset=sym.entry["st_value"]
                     )
+                if glbl_shndx is not None and sym.name != ".nv.global" and sym.entry["st_shndx"] == glbl_shndx:
+                    self.global_symbol_offset[sym.name] = dict(size = sym.entry["st_size"], offset=sym.entry["st_value"])
 
     def parse_nv_info_section(self, s, data):
         ndx = 0
@@ -622,6 +626,7 @@ class NVCubinPartELF(NVCubinPart):
         self.numbar = {}
         self.numregs = {}
         self.global_init_data = {}
+        self.global_init_symbol_offset = {}
         self.global_symbol_offset = {}
         self.frame_size = {}
         self.regcount = {}

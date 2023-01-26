@@ -56,6 +56,7 @@ class SASSFunction(object):
         self.sym_info = []
         self.sharedmem = None
         self.global_init_offsets = None
+        self.global_offsets = None
         self.global_init_data = None
         self.numbar = None
         self.numregs = None
@@ -120,6 +121,9 @@ class SASSFunction(object):
     def set_global_init_offsets(self, goffsets):
         self.global_init_offsets = goffsets
 
+    def set_global_offsets(self, goffsets):
+        self.global_offsets = goffsets
+
     def to_dict(self):
         out = {'function': self.function,
                'producer': self.producer,
@@ -168,9 +172,12 @@ class SASSFunction(object):
             # NOTE: This will leave Yaml anchors / aliases in the output
             out['global_init_data'] = self.global_init_data
 
-        if self.set_global_init_offsets is not None:
+        if self.global_init_offsets is not None:
             # NOTE: This will leave Yaml anchors / aliases in the output
             out['global_init_offsets'] = self.global_init_offsets
+
+        if self.global_offsets is not None:
+            out['global_offsets'] = self.global_offsets
 
         return out
 
@@ -317,7 +324,8 @@ class DisassemblerCUObjdump(object):
                     out[fn].set_min_stack_size(cubin.min_stack_size[fn])
                 out[fn].cubin_info = cubin_info
                 out[fn].set_global_init_data(cubin.global_init_data)
-                out[fn].set_global_init_offsets(cubin.global_symbol_offset)
+                out[fn].set_global_init_offsets(cubin.global_init_symbol_offset)
+                out[fn].set_global_offsets(cubin.global_symbol_offset)
         except subprocess.CalledProcessError as e:
             logger.error(f'ERROR: cuobjdump failed to handle cubin (arch={cubin.arch}): {e}')
             return out
