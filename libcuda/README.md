@@ -4,7 +4,7 @@ This directory contains interposers for the CUDA Device API.
 
 You'll need the following Python3 packages:
 
-  - pycparser
+  - pycparser (== 2.21)
   - pyelftools
   - sqlite3
 
