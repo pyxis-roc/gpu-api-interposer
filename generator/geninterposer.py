@@ -84,13 +84,12 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
     @staticmethod
     def erase_name(decl, level = 0):
         ty = type(decl)
-
         if ty is c_ast.TypeDecl:
-            return ty(None, decl.quals, FuncDeclVisitor.erase_name(decl.type, level + 1))
+            return ty(None, decl.quals, align=decl.align, type=FuncDeclVisitor.erase_name(decl.type, level + 1))
         elif ty is c_ast.PtrDecl:
             en = ty(decl.quals, FuncDeclVisitor.erase_name(decl.type, level + 1))
             if level == 0:
-                return c_ast.Typename(None, [], en)
+                return c_ast.Typename(None, [], align=None, type=en)
             else:
                 return en
         elif ty is c_ast.IdentifierType:
@@ -119,7 +118,7 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         new_decl = c_ast.FuncDecl(c_ast.ParamList(params), new_type)
 
         new_fnptr = c_ast.PtrDecl([], new_decl)
-        d = c_ast.Decl(old_name + "_orig", [], ['static'], [], new_fnptr, c_ast.ID("NULL"), None)
+        d = c_ast.Decl(old_name + "_orig", [], [], ['static'], [], new_fnptr, c_ast.ID("NULL"), None)
 
         return d
 
@@ -160,7 +159,7 @@ class FuncDeclVisitor(pycparser.c_ast.NodeVisitor):
         if is_void_type(retval_type):
             return None
 
-        retval_decl = c_ast.Decl("_retval", [], [], [], retval_type, None, None)
+        retval_decl = c_ast.Decl("_retval", [], [], [], [], retval_type, None, None)
         self.set_declname(retval_decl.type, fnptr.name, "_retval")
 
         return retval_decl
@@ -377,15 +376,15 @@ class TracePlugin(InterposerPlugin):
 
 class CommonInstrumentMixin(object):
     def get_ctx_arg_type(self):
-        return c_ast.Decl('_ctx', [], [], [],
+        return c_ast.Decl('_ctx', [], [], [], [],
                           c_ast.PtrDecl([],
-                                        c_ast.TypeDecl("_ctx", [],
-                                                       c_ast.IdentifierType(['void']))), None, None)
+                                        c_ast.TypeDecl("_ctx", [], align=None,
+                                                       type=c_ast.IdentifierType(['void']))), None, None)
 
     def _generate_instr_decl(self, decl_node, new_ret_type):
         new_decl_node = copy.deepcopy(decl_node['decl'])
-        ret_ty = c_ast.TypeDecl(decl_node['origname'] + self.fn_suffix, [],
-                                c_ast.IdentifierType([new_ret_type]))
+        ret_ty = c_ast.TypeDecl(decl_node['origname'] + self.fn_suffix, [], align=None,
+                                type=c_ast.IdentifierType([new_ret_type]))
 
         new_decl_node.type = ret_ty
 
@@ -393,7 +392,7 @@ class CommonInstrumentMixin(object):
             new_decl_node.args.params = []
 
         if decl_node['retval_decl']:
-            retval_arg_type = c_ast.Decl('_retval', [], [], [],
+            retval_arg_type = c_ast.Decl('_retval', [], [], [], [],
                                          c_ast.PtrDecl([],
                                                        copy.deepcopy(decl_node['retval_decl'].type)),
                                          None, None)
@@ -448,9 +447,9 @@ class CtxPlugin(InterposerPlugin):
                                                   c_ast.Constant("int", "1")]))
 
         ctx_type = c_ast.TypeDecl(self.ctx_local_variable,
-                                  [], c_ast.IdentifierType(['unsigned', 'int']))
+                                  [], align=None, type=c_ast.IdentifierType(['unsigned', 'int']))
 
-        x = c_ast.Decl(self.ctx_local_variable, [], [], [], ctx_type, ctx_init, None)
+        x = c_ast.Decl(self.ctx_local_variable, [], [], [], [], ctx_type, ctx_init, None)
         context['ctx_expr'] = c_ast.UnaryOp("&", c_ast.ID(self.ctx_local_variable))
 
         #print(c_generator.CGenerator().visit(x))

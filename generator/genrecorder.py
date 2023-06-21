@@ -72,7 +72,7 @@ def generate_shells(fdvs, probes, blobstore):
             callargs.append(c_ast.ID("_bs"))
 
             # *(int *)
-            ty = c_ast.Typename(None, [], c_ast.PtrDecl([], c_ast.TypeDecl(None, [], c_ast.IdentifierType(['int']))))
+            ty = c_ast.Typename(None, None, [], c_ast.PtrDecl([], c_ast.TypeDecl(None, [], align=None, type=c_ast.IdentifierType(['int']))))
 
             callargs.append(c_ast.UnaryOp("*", c_ast.Cast(ty, c_ast.ID(bsargs[0]))))
             callargs.append(c_ast.Constant("string", '"' + bsvar + '"'))
