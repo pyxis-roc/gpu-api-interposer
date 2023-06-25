@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2021 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 P=`dirname $0`
 if [ -z "$VIRTUAL_ENV" ]; then
     echo "No VIRTUAL_ENV detected. Set VIRTUAL_ENV to /usr/local if you want a system-wide install."

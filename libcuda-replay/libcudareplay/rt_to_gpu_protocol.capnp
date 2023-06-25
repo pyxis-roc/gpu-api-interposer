@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 @0xde9279214e9f7175;
 
 struct GPUProperties {

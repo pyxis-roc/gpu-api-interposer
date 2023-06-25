@@ -5,7 +5,12 @@
 
    Author: Sreepathi Pai
 
-   Copyright (C) 2019, The University of Rochester
+   Copyright (C) 2019, 2023 The University of Rochester
+
+   SPDX-FileCopyrightText: 2019,2023 University of Rochester
+
+   SPDX-License-Identifier: MIT
+
 */
 
 #include <stdio.h>

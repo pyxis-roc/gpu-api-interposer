@@ -9,6 +9,10 @@
 # Author: Benjamin Valpey
 #
 # Copyright (C) 2019, University of Rochester
+#
+# SPDX-FileCopyrightText: 2019,2021,2022 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 
 
 # fmt: off

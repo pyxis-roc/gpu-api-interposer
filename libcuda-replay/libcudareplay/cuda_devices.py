@@ -7,6 +7,10 @@
 # Author: Sreepathi Pai
 #
 # Copyright (C) 2019, University of Rochester
+#
+# SPDX-FileCopyrightText: 2019,2021 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 
 import mmap
 import ctypes

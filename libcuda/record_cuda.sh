@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2019,2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 P=`dirname $0`
 
 if [ $# -lt 1 ]; then

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019,2021,2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 GENINTERPOSER=../generator/geninterposer.py
 GENTRACEPOINTS=../generator/gentracepoints.py
 GENRECORDER=../generator/genrecorder.py

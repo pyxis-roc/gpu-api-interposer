@@ -67,3 +67,11 @@ local classes.
 
 This file contains a simple implementation of a GPU emulator. This
 must be extended to call into an actual GPU emulator.
+
+# Copyright
+
+SPDX-FileCopyrightText: 2019,2023 University of Rochester
+
+SPDX-License-Identifier: MIT
+
+

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# SPDX-FileCopyrightText: 2021,2022,2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 # Author:       Benjamin Valpey
 
 import os

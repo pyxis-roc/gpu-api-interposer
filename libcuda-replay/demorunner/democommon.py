@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019,2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 import logging
 import libcudareplay.cuda_devices
 import sys

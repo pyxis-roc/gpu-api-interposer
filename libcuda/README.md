@@ -245,3 +245,10 @@ Note the `gdb` before `cudabinary`.
 Currently, running in debug mode also disables blobstore, since GDB
 seems to run the constructors twice.
 
+# Copyright
+
+SPDX-FileCopyrightText: 2019,2021,2023 University of Rochester
+
+SPDX-License-Identifier: MIT
+
+

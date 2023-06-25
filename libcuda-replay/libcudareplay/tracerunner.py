@@ -8,6 +8,10 @@
 # Author: Sreepathi Pai
 #
 # Copyright (c) 2019, University of Rochester
+#
+# SPDX-FileCopyrightText: 2019 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 
 import logging
 from . import libcuda_replay

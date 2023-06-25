@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2021 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 function usage() {
     echo Usage: $0 [-l rtlibrary] ptx_module binary [args...]
 }

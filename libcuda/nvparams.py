@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 #
 # nvparams.py
 #
@@ -8,6 +7,10 @@
 # Author: Sreepathi Pai
 #
 # Copyright (C) 2019, The University of Rochester
+#
+# SPDX-FileCopyrightText: 2019-2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 
 from harmonv import nvfatbin, compression
 import argparse

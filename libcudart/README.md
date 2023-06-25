@@ -51,3 +51,11 @@ The build directory also contains `cuda_runtime_interceptor.c` and
 
 There are undocumented API calls used by the CUDA Runtime whose
 prototypes are listed in `undocumented.h`.
+
+# Copyright
+
+SPDX-FileCopyrightText: 2021 University of Rochester
+
+SPDX-License-Identifier: MIT
+
+

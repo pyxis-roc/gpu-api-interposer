@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# SPDX-FileCopyrightText: 2022 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 # Author:       Benjamin Valpey
 # Date:         08 Mar 2022
 # Filename:     cuda_api_constants.py
