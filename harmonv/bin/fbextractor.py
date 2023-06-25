@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# SPDX-FileCopyrightText: 2021 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 from harmonv import nvfatbin
 from harmonv.compression import extract_ptx_helper, extract_elf_helper
 import struct

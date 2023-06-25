@@ -250,5 +250,3 @@ seems to run the constructors twice.
 SPDX-FileCopyrightText: 2019,2021,2023 University of Rochester
 
 SPDX-License-Identifier: MIT
-
-

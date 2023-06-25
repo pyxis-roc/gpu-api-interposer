@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 from harmonv import nvfatbin
 import logging
 _logger = logging.getLogger(__name__)

@@ -8,6 +8,10 @@
 # Author: Sreepathi Pai
 #
 # Copyright (C) 2020 University of Rochester
+#
+# SPDX-FileCopyrightText: 2021 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 
 from harmonv import nvfatbin
 from harmonv.compression import extract_ptx_helper, extract_elf_helper, DefaultDecompressor

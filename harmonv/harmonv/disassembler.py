@@ -9,6 +9,10 @@
 # Author: Sreepathi Pai
 #
 # Copyright (C) 2020, University of Rochester
+#
+# SPDX-FileCopyrightText: 2020-2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 
 # fmt: off
 

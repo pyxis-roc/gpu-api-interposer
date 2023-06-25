@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019,2021 University of Rochester
+#
+# SPDX-License-Identifier: MIT
+
 from setuptools import setup
 from setuptools.command.install import install
 from setuptools.command.develop import develop

@@ -32,3 +32,10 @@ This contains tools for working with NVIDIA Fat Binaries and CUBIN files.
 
 This extracts PTX files from NVIDIA Fat Binaries. It requires
 `cuobjdump` or the `lz4` library to decompress sections.
+
+# Copyright
+
+SPDX-FileCopyrightText: 2019,2021 University of Rochester
+
+SPDX-License-Identifier: MIT
+

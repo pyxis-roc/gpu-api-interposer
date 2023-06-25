@@ -8,7 +8,10 @@
 #
 # Copyright (C) 2019, The University of Rochester
 # Copyright (C) 2013, Sreepathi Pai
-
+#
+# SPDX-FileCopyrightText: 2019-2023 University of Rochester
+#
+# SPDX-License-Identifier: MIT
 # fmt: off
 
 import argparse
