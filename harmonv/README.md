@@ -26,12 +26,22 @@ Which will setup the package for development.
 
 ## nvfatbin.py
 
-This contains tools for working with NVIDIA Fat Binaries and CUBIN files.
+This library contains tools for working with NVIDIA Fat Binaries and
+CUBIN files.
 
-## ptxextract.py
+## fbextractor.py
 
-This extracts PTX files from NVIDIA Fat Binaries. It requires
+This extracts PTX and ELF files from NVIDIA Fat Binaries. It requires
 `cuobjdump` or the `lz4` library to decompress sections.
+
+## hcuobjdump
+
+A primitive version of `cuobjdump` intended as a demonstration.
+
+## gen_xlat_metadata.py
+
+A utility to extract all information from a CUDA binary that is
+necessary for translation into a JSON file.
 
 # Copyright
 
